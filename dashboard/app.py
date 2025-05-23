@@ -1,5 +1,4 @@
 import streamlit as st
-
 st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
 
 import os
@@ -16,6 +15,37 @@ from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
+from utils.firebase_config import auth
+
+def login():
+    st.subheader("🔐 Log In to BitPanel")
+
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Log In"):
+            try:
+                user = auth.sign_in_with_email_and_password(email, password)
+                st.session_state.user = user
+                st.success("Logged in successfully!")
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(f"Login failed: {e}")
+    with col2:
+        if st.button("Sign Up"):
+            try:
+                auth.create_user_with_email_and_password(email, password)
+                st.success("Account created! You can now log in.")
+            except Exception as e:
+                st.error(f"Signup failed: {e}")
+
+if "user" not in st.session_state:
+    login()
+    st.stop() 
+
+user_id = st.session_state.user['localId']
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
@@ -145,6 +175,11 @@ with st.sidebar:
 
 # === Main Content Area ===
 st.title("🚀 BitPanel")
+
+if st.button("🔓 Log Out"):
+    del st.session_state.user
+    st.success("You have been logged out.")
+    st.experimental_rerun()
 
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
