@@ -9,3 +9,4 @@ pyarrow
 matplotlib
 streamlit-autorefresh
 pyrebase4
+pandas_ta
