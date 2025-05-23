@@ -46,6 +46,8 @@ if "user" not in st.session_state:
     st.stop() 
 
 user_id = st.session_state.user['localId']
+api_key_path = f"config/{user_id}/kraken_keys.json"
+api_key_exists = os.path.exists(api_key_path)
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
@@ -55,6 +57,26 @@ if "pending_mode" not in st.session_state:
     st.session_state.pending_mode = st.session_state.mode
 if "show_mode_confirm" not in st.session_state:
     st.session_state.show_mode_confirm = False
+
+mode = st.session_state.mode
+
+# === LIVE MODE BLOCKER ===
+if mode == "live" and not os.path.exists(api_key_path):
+    st.error("⚠️ API keys are required to activate live trading mode.")
+
+    with st.form("api_key_form_live"):
+        new_key = st.text_input("Kraken API Key")
+        new_secret = st.text_input("Kraken API Secret", type="password")
+        submit = st.form_submit_button("Save API Keys")
+
+    if submit and new_key and new_secret:
+        os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
+        with open(api_key_path, "w") as f:
+            json.dump({"api_key": new_key, "api_secret": new_secret}, f)
+        st.success("✅ API keys saved. You can now use Live mode.")
+        st.experimental_rerun()
+
+    st.stop()
 
 # Initialize current page
 if "current_page" not in st.session_state:
@@ -184,6 +206,23 @@ if st.button("🔓 Log Out"):
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
 
+if mode == "live" and not os.path.exists(api_key_path):
+    st.error("⚠️ API keys are required to activate live trading mode.")
+
+    with st.form("api_key_form_live"):
+        new_key = st.text_input("Kraken API Key")
+        new_secret = st.text_input("Kraken API Secret", type="password")
+        submit = st.form_submit_button("Save API Keys")
+
+    if submit and new_key and new_secret:
+        os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
+        with open(api_key_path, "w") as f:
+            json.dump({"api_key": new_key, "api_secret": new_secret}, f)
+        st.success("✅ API keys saved. You can now use Live mode.")
+        st.experimental_rerun()
+
+    st.stop()
+
 if current_page == "📊 Portfolio":
     render_portfolio_summary(mode=mode)
 
@@ -202,3 +241,18 @@ elif current_page == "📈 Performance":
 
 elif current_page == "⚙️ Settings":
     render_settings_panel()
+
+    if not os.path.exists(api_key_path):
+        st.warning("⚠️ API Keys not found. Please enter your Kraken API credentials to activate BitPanel.")
+
+        with st.form("api_key_form"):
+            new_key = st.text_input("Kraken API Key")
+            new_secret = st.text_input("Kraken API Secret", type="password")
+            submit = st.form_submit_button("Save API Keys")
+
+        if submit and new_key and new_secret:
+            os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
+            with open(api_key_path, "w") as f:
+                json.dump({"api_key": new_key, "api_secret": new_secret}, f)
+            st.success("✅ API keys saved. You're ready to go!")
+            st.experimental_rerun()
