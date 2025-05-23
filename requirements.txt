@@ -7,4 +7,4 @@ colorama
 watchdog
 pyarrow
 matplotlib
-pip install streamlit-autorefresh
+streamlit-autorefresh
