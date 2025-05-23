@@ -76,8 +76,6 @@ if mode == "live" and not os.path.exists(api_key_path):
         st.success("✅ API keys saved. You can now use Live mode.")
         st.experimental_rerun()
 
-    st.stop()
-
 # Initialize current page
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "📊 Portfolio"
