@@ -1,7 +1,7 @@
 streamlit
 plotly
 pandas
-numpy
+numpy==1.24.4
 requests
 colorama
 watchdog
@@ -9,4 +9,4 @@ pyarrow
 matplotlib
 streamlit-autorefresh
 pyrebase4
-pandas_ta
+pandas_ta==0.3.14b0
