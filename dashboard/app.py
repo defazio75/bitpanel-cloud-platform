@@ -207,12 +207,14 @@ mode = st.session_state.mode
 if mode == "live" and not os.path.exists(api_key_path):
     st.error("⚠️ API keys are required to activate live trading mode.")
 
-    with st.form("api_key_form_live"):
-        new_key = st.text_input("Kraken API Key")
-        new_secret = st.text_input("Kraken API Secret", type="password")
-        submit = st.form_submit_button("Save API Keys")
+    form_key = f"api_key_form_{mode}"
 
-    if submit and new_key and new_secret:
+    with st.form(key=form_key):
+        new_key = st.text_input("Enter your API Key", type="password")
+        new_secret = st.text_input("Enter your API Secret", type="password")
+        submitted = st.form_submit_button("Save Keys")
+
+    if submitted and new_key and new_secret:
         os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
         with open(api_key_path, "w") as f:
             json.dump({"api_key": new_key, "api_secret": new_secret}, f)
