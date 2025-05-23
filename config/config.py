@@ -30,7 +30,7 @@ MIN_TRADE_USD = 10
 
 import json
 import os
-import streamlit as st  # ✅ Needed for session state access
+import streamlit as st
 
 CONFIG_FILE = "config/user_settings.json"
 
@@ -45,8 +45,13 @@ def save_mode(mode):
 def get_mode():
     if "mode" in st.session_state:
         return st.session_state["mode"]
+
     try:
         with open(CONFIG_FILE, "r") as f:
-            return json.load(f).get("mode", "paper")
+            mode = json.load(f).get("mode", "paper")
     except (FileNotFoundError, json.JSONDecodeError):
-        return "paper"
+        mode = "paper"
+
+    # Set the session state for consistent access later
+    st.session_state["mode"] = mode
+    return mode
