@@ -1,0 +1,58 @@
+[
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "BTC",
+    "action": "sell",
+    "price": 102588.4,
+    "amount": 0.002308,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "ETH",
+    "action": "sell",
+    "price": 2492.03,
+    "amount": 0.046781,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "XRP",
+    "action": "buy",
+    "price": 2.59,
+    "amount": 38.55273,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "BTC",
+    "action": "sell",
+    "price": 102588.4,
+    "amount": 0.002308,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "ETH",
+    "action": "sell",
+    "price": 2479.92,
+    "amount": 0.046784,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "XRP",
+    "action": "buy",
+    "price": 2.58,
+    "amount": 38.725767,
+    "mode": "live"
+  },
+  {
+    "bot_name": "rebalance_hodl",
+    "coin": "XRP",
+    "action": "buy",
+    "price": 2.59,
+    "amount": 7.723439,
+    "mode": "live"
+  }
+]

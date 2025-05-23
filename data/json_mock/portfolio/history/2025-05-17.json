@@ -1,0 +1,20 @@
+{
+  "total_value": 13997.0,
+  "coins": {
+    "BTC": {
+      "balance": 0.16,
+      "price": 65000,
+      "usd": 10400.0
+    },
+    "ETH": {
+      "balance": 1.1,
+      "price": 3100,
+      "usd": 3410.0
+    },
+    "XRP": {
+      "balance": 340,
+      "price": 0.55,
+      "usd": 187.0
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "total_btc_accumulated": 0.0062,
+  "total_profit_usd": 123.45,
+  "total_trades": 9,
+  "last_trade_time": "2025-04-30T22:41:07",
+  "bots": {
+    "rsi_5min": {
+      "btc_accumulated": 0.0021,
+      "profit_usd": 45.10,
+      "trades": 3
+    },
+    "bollinger_breakout": {
+      "btc_accumulated": 0.0041,
+      "profit_usd": 78.35,
+      "trades": 6
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "HODL": {
+    "status": "Holding",
+    "amount": 7.72343909,
+    "buy_price": 2.58952
+  },
+  "RSI 5-Min": {
+    "status": "Holding",
+    "amount": 0.25,
+    "buy_price": 60000.0
+  },
+  "RSI 1-Hour": {
+    "status": "Waiting",
+    "amount": 0.1,
+    "buy_price": 59000.0
+  },
+  "Bollinger Bot": {
+    "status": "Inactive"
+  }
+}

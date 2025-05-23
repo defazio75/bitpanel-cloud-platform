@@ -1,0 +1,32 @@
+{
+  "HODL": {
+    "amount": 0.18729468,
+    "usd_held": 0.0,
+    "status": "Holding",
+    "buy_price": 106783.6
+  },
+  "RSI_5MIN": {
+    "amount": 0.18729468,
+    "usd_held": 0.0,
+    "status": "Holding",
+    "buy_price": 106783.6
+  },
+  "RSI_1HR": {
+    "amount": 0.18729468,
+    "usd_held": 0.0,
+    "status": "Holding",
+    "buy_price": 106783.6
+  },
+  "BOLLINGER": {
+    "amount": 0.18729468,
+    "usd_held": 0.0,
+    "status": "Holding",
+    "buy_price": 106783.6
+  },
+  "DCA_MATRIX": {
+    "amount": 0.18729468,
+    "usd_held": 0.0,
+    "status": "Holding",
+    "buy_price": 106783.6
+  }
+}

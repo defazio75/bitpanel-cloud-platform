@@ -1,0 +1,16 @@
+{
+  "HODL": {
+    "status": "Inactive",
+    "amount": 0.0,
+    "buy_price": 0.0
+  },
+  "RSI 5-Min": {
+    "status": "Inactive"
+  },
+  "RSI 1-Hour": {
+    "status": "Inactive"
+  },
+  "Bollinger Bot": {
+    "status": "Inactive"
+  }
+}
