@@ -1,0 +1,26 @@
+{
+    "BTC": {
+        "symbol": "XBT",
+        "pair_kraken": "XXBTZUSD"
+    },
+    "ETH": {
+        "symbol": "ETH",
+        "pair_kraken": "XETHZUSD"
+    },
+    "SOL": {
+        "symbol": "SOL",
+        "pair_kraken": "SOLUSD"
+    },
+    "LINK": {
+        "symbol": "LINK",
+        "pair_kraken": "LINKUSD"
+    },
+    "DOT": {
+        "symbol": "DOT",
+        "pair_kraken": "DOTUSD"
+    },
+    "XRP": {
+        "symbol": "XRP",
+        "pair_kraken": "XXRPZUSD"
+    }
+}

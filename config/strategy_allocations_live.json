@@ -1,0 +1,38 @@
+{
+  "BTC": {
+    "HODL": 25,
+    "RSI 5-Min": 25,
+    "RSI 1-Hour": 50,
+    "Bollinger Bot": 0
+  },
+  "ETH": {
+    "HODL": 0,
+    "RSI 5-Min": 100,
+    "RSI 1-Hour": 0,
+    "Bollinger Bot": 0
+  },
+  "SOL": {
+    "HODL": 100,
+    "RSI 5-Min": 0,
+    "RSI 1-Hour": 0,
+    "Bollinger Bot": 0
+  },
+  "LINK": {
+    "HODL": 100,
+    "RSI 5-Min": 0,
+    "RSI 1-Hour": 0,
+    "Bollinger Bot": 0
+  },
+  "DOT": {
+    "HODL": 100,
+    "RSI 5-Min": 0,
+    "RSI 1-Hour": 0,
+    "Bollinger Bot": 0
+  },
+  "XRP": {
+    "HODL": 100,
+    "RSI 5-Min": 0,
+    "RSI 1-Hour": 0,
+    "Bollinger Bot": 0
+  }
+}
