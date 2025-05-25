@@ -44,9 +44,12 @@ def login():
             st.session_state.email = email_input
             
             try:
-                # Fake login to check if email exists
                 auth.sign_in_with_email_and_password(email_input, "__invalid_password__")
             except Exception as e:
+                st.error("⚠️ Firebase error during email check.")
+                st.code(str(e), language="bash")
+                print("DEBUG: Firebase exception:", e)
+                
                 err_str = str(e)
 
                 if "EMAIL_NOT_FOUND" in err_str:
@@ -54,8 +57,7 @@ def login():
                 elif "INVALID_PASSWORD" in err_str:
                     st.session_state.stage = "login_or_signup"  # Existing user
                 else:
-                    st.error("⚠️ Unexpected error checking email.")
-                    print("DEBUG: Email check error:", err_str)
+                    st.session_state.stage = "email"
 
                 st.rerun()
 
