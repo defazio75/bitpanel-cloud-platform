@@ -41,9 +41,19 @@ def login():
         email_input = st.text_input("Enter your email", key="email_input")
 
         if st.button("Continue") and email_input:
-            st.session_state.email = email_input
-            st.session_state.stage = "login_or_signup"
-            st.experimental_rerun()
+            try:
+                methods = auth.fetch_sign_in_methods_for_email(email_input)
+                st.session_state.email = email_input
+                
+                if methods:
+                    st.session_state.stage = "login_or_signup"  # existing account
+                else:
+                    st.session_state.stage = "signup"  # new account
+
+                st.experimental_rerun()
+
+            except Exception as e:
+                st.error(f"Error checking email: {e}")
 
     # === STEP 2: Try Login ===
     elif st.session_state.stage == "login_or_signup":
