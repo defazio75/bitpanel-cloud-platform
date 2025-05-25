@@ -28,6 +28,8 @@ def load_user_profile(user_id, token):
     db = firebase.database()
     return db.child("users").child(user_id).get(token).val()
 
+import traceback
+
 def login():
     st.subheader("🔐 BitPanel Login")
 
@@ -46,22 +48,13 @@ def login():
             
             try:
                 auth.sign_in_with_email_and_password(email_input, "__invalid_password__")
+                st.session_state.stage = "signup"
                 
             except Exception as e:
-                import traceback
-                err_str = traceback.format_exc()
-                st.code(err_str, language="python")  # Optional debug output
-                print("EMAIL CHECK ERROR:", err_str)
-
-                if "EMAIL_NOT_FOUND" in err_str:
-                    st.session_state.stage = "signup"  # new user
-                elif "INVALID_PASSWORD" in err_str:
-                    st.session_state.stage = "login_or_signup"  # Existing user
-                else:
-                    st.error("⚠️ Unrecognized error occurred during email check.")
-                    st.session_state.stage = "email"  # Reset as fallback
-
-                st.rerun()
+                err_str = str(e)
+                if "EMAIL_EXISTS" in err_str:
+                    st.session_state.stage = "login_or_signup"
+                    st.rerun()
 
     # === STEP 2: Try Login ===
     elif st.session_state.stage == "login_or_signup":
