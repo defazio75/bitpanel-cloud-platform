@@ -38,6 +38,7 @@ def login():
 
     # === STEP 1: Email Entry ===
     if st.session_state.stage == "email":
+        st.markdown("### 📧 Enter Your Email")
         email_input = st.text_input("Enter your email", key="email_input")
 
         if st.button("Continue") and email_input:
@@ -45,19 +46,20 @@ def login():
             
             try:
                 auth.sign_in_with_email_and_password(email_input, "__invalid_password__")
-            except Exception as e:
-                st.error("⚠️ Firebase error during email check.")
-                st.code(str(e), language="bash")
-                print("DEBUG: Firebase exception:", e)
                 
-                err_str = str(e)
+            except Exception as e:
+                import traceback
+                err_str = traceback.format_exc()
+                st.code(err_str, language="python")  # Optional debug output
+                print("EMAIL CHECK ERROR:", err_str)
 
                 if "EMAIL_NOT_FOUND" in err_str:
                     st.session_state.stage = "signup"  # new user
                 elif "INVALID_PASSWORD" in err_str:
                     st.session_state.stage = "login_or_signup"  # Existing user
                 else:
-                    st.session_state.stage = "email"
+                    st.error("⚠️ Unrecognized error occurred during email check.")
+                    st.session_state.stage = "email"  # Reset as fallback
 
                 st.rerun()
 
