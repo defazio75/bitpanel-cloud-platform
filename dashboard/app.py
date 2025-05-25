@@ -19,14 +19,16 @@ from utils.firebase_config import auth, firebase
 
 def save_user_profile(user_id, name, email):
     db = firebase.database()
+    token = st.session_state.user["token"]
     db.child("users").child(user_id).set({
         "name": name,
         "email": email
-    })
+    }, token)
 
 def load_user_profile(user_id):
     db = firebase.database()
-    return db.child("users").child(user_id).get().val()
+    token = st.session_state.user["token"]
+    return db.child("users").child(user_id).get(token).val()
 
 def login():
     st.subheader("🔐 BitPanel Login")
