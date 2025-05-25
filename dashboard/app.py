@@ -65,10 +65,6 @@ def login():
                     "name": profile.get("name", "No Name") if profile else "No Name"
                 }
 
-                 profile = load_user_profile(user_id)
-                     if profile:
-                     st.session_state.user["name"] = profile.get("name", "No Name")
-
                 st.success("✅ Logged in successfully!")
                 st.experimental_rerun()
 
