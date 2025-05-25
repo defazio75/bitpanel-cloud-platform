@@ -282,25 +282,6 @@ if st.button("🔓 Log Out"):
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
 
-if mode == "live" and not os.path.exists(api_key_path):
-    st.error("⚠️ API keys are required to activate live trading mode.")
-
-    form_key = f"api_key_form_{mode}"
-
-    with st.form(key=form_key):
-        new_key = st.text_input("Enter your API Key", type="password")
-        new_secret = st.text_input("Enter your API Secret", type="password")
-        submitted = st.form_submit_button("Save Keys")
-
-    if submitted and new_key and new_secret:
-        os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
-        with open(api_key_path, "w") as f:
-            json.dump({"api_key": new_key, "api_secret": new_secret}, f)
-        st.success("✅ API keys saved. You can now use Live mode.")
-        st.experimental_rerun()
-
-    st.stop()
-
 if current_page == "📊 Portfolio":
     render_portfolio_summary(mode=mode)
 
