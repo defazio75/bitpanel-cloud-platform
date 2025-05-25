@@ -55,9 +55,6 @@ def login():
 
                 st.experimental_rerun()
 
-            except Exception as e:
-                st.error(f"Error checking email: {e}")
-
     # === STEP 2: Try Login ===
     elif st.session_state.stage == "login_or_signup":
         st.markdown(f"**Enter your password for {st.session_state.email}**")
