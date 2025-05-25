@@ -17,17 +17,15 @@ from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.firebase_config import auth, firebase
 
-def save_user_profile(user_id, name, email):
+def save_user_profile(user_id, name, email, token):
     db = firebase.database()
-    token = st.session_state.user["token"]
     db.child("users").child(user_id).set({
         "name": name,
         "email": email
     }, token)
 
-def load_user_profile(user_id):
+def load_user_profile(user_id, token):
     db = firebase.database()
-    token = st.session_state.user["token"]
     return db.child("users").child(user_id).get(token).val()
 
 def login():
@@ -56,7 +54,7 @@ def login():
             try:
                 user = auth.sign_in_with_email_and_password(st.session_state.email, password)
                 user_id = user['localId']
-                profile = load_user_profile(user_id)
+                profile = load_user_profile(user_id, user['idToken'])
 
                 st.session_state.user = {
                     "id": user_id,
@@ -94,7 +92,7 @@ def login():
                 try:
                     user = auth.create_user_with_email_and_password(st.session_state.email, password)
                     user_id = user['localId']
-                    save_user_profile(user_id, name, st.session_state.email)
+                    save_user_profile(user_id, name, st.session_state.email, user['idToken'])
                     st.session_state.user = {
                         "id": user_id,
                         "token": user['idToken'],
