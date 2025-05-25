@@ -41,20 +41,19 @@ def login():
 
         if st.button("Continue") and email_input:
             try:
-                # Use dummy password to indirectly check if email exists
                 auth.sign_in_with_email_and_password(email_input, "dummy-password")
             except Exception as e:
                 error_msg = str(e)
 
                 if "EMAIL_NOT_FOUND" in error_msg:
                     st.session_state.stage = "signup"
-                elif "INVALID_PASSWORD" in error_msg:
+                elif "INVALID_PASSWORD" in error_msg or "INVALID_LOGIN_CREDENTIALS" in error_msg:
                     st.session_state.stage = "login"
-                elif "EMAIL_EXISTS" in error_msg:
-                    st.error("❌ Email already in use. Try logging in instead.")
+                elif "INVALID_API_KEY" in error_msg:
+                    st.error("❌ Firebase API Key is invalid.")
                     return
                 else:
-                    st.error("❌ Error checking email.")
+                    st.error(f"❌ Unexpected Firebase error:\n\n{error_msg}")
                     return
 
             st.session_state.email = email_input
