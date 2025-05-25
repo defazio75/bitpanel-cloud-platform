@@ -29,38 +29,25 @@ def load_user_profile(user_id):
     return db.child("users").child(user_id).get().val()
 
 def login():
-    st.subheader("🔐 Bitpanel Login")
+    st.subheader("🔐 BitPanel Login")
 
     if "stage" not in st.session_state:
         st.session_state.stage = "email"
     if "email" not in st.session_state:
         st.session_state.email = ""
 
+    # === STEP 1: Email Entry ===
     if st.session_state.stage == "email":
         email_input = st.text_input("Enter your email", key="email_input")
 
         if st.button("Continue") and email_input:
-            try:
-                auth.sign_in_with_email_and_password(email_input, "dummy-password")
-            except Exception as e:
-                error_msg = str(e)
-
-                if "EMAIL_NOT_FOUND" in error_msg:
-                    st.session_state.stage = "signup"
-                elif "INVALID_PASSWORD" in error_msg or "INVALID_LOGIN_CREDENTIALS" in error_msg:
-                    st.session_state.stage = "login"
-                elif "INVALID_API_KEY" in error_msg:
-                    st.error("❌ Firebase API Key is invalid.")
-                    return
-                else:
-                    st.error(f"❌ Unexpected Firebase error:\n\n{error_msg}")
-                    return
-
             st.session_state.email = email_input
+            st.session_state.stage = "login_or_signup"
             st.experimental_rerun()
 
-    elif st.session_state.stage == "login":
-        st.markdown(f"**Welcome back, {st.session_state.email}**")
+    # === STEP 2: Try Login ===
+    elif st.session_state.stage == "login_or_signup":
+        st.markdown(f"**Enter your password for {st.session_state.email}**")
         password = st.text_input("Password", type="password")
 
         if st.button("Log In"):
@@ -68,19 +55,26 @@ def login():
                 user = auth.sign_in_with_email_and_password(st.session_state.email, password)
                 user_id = user['localId']
                 profile = load_user_profile(user_id)
-
                 st.session_state.user = {
                     "id": user_id,
                     "token": user['idToken'],
                     "email": user['email'],
                     "name": profile.get("name", "No Name") if profile else "No Name"
                 }
-
                 st.success("✅ Logged in successfully!")
                 st.experimental_rerun()
-            except Exception as e:
-                st.error("❌ Incorrect password or login failed.")
 
+            except Exception as e:
+                err_str = str(e)
+                if "EMAIL_NOT_FOUND" in err_str:
+                    st.warning("📭 No account found. Please create one below.")
+                    st.session_state.stage = "signup"
+                elif "INVALID_PASSWORD" in err_str or "INVALID_LOGIN_CREDENTIALS" in err_str:
+                    st.error("❌ Incorrect password.")
+                else:
+                    st.error(f"Unexpected login error: {err_str}")
+
+    # === STEP 3: Create Account ===
     elif st.session_state.stage == "signup":
         st.markdown(f"**Create a new account for {st.session_state.email}**")
         name = st.text_input("Full Name")
@@ -97,28 +91,23 @@ def login():
                     user = auth.create_user_with_email_and_password(st.session_state.email, password)
                     user_id = user['localId']
                     save_user_profile(user_id, name, st.session_state.email)
-
                     st.session_state.user = {
                         "id": user_id,
                         "token": user['idToken'],
                         "email": st.session_state.email,
                         "name": name
                     }
-
                     st.success("✅ Account created and logged in!")
                     st.experimental_rerun()
                 except Exception as e:
                     if "EMAIL_EXISTS" in str(e):
                         st.error("❌ Email already in use. Try logging in instead.")
+                        st.session_state.stage = "login_or_signup"
                     else:
                         st.error(f"Signup failed: {e}")
 
-if "user" not in st.session_state:
-    login()
-    st.stop()
-
 if "user" not in st.session_state or "id" not in st.session_state.user:
-    st.error("🚫 Session error: Please log in again.")
+    login()
     st.stop()
  
 user_id = st.session_state.user['id']
