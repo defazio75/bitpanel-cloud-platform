@@ -15,14 +15,24 @@ from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
-from utils.firebase_config import auth
+from utils.firebase_config import auth, firebase
+
+def save_user_profile(user_id, name, email):
+    db = firebase.database()
+    db.child("users").child(user_id).set({
+        "name": name,
+        "email": email
+    })
+
+def load_user_profile(user_id):
+    db = firebase.database()
+    return db.child("users").child(user_id).get().val()
 
 def login():
     st.subheader("🔐 Bitpanel Login")
 
-    # Step 1: Enter email
     if "stage" not in st.session_state:
-        st.session_state.stage = "email"  # stages: email → login → signup
+        st.session_state.stage = "email"
     if "email" not in st.session_state:
         st.session_state.email = ""
 
@@ -31,12 +41,9 @@ def login():
         if st.button("Continue"):
             if email_input:
                 try:
-                    # Firebase trick: check if email exists via invalid login
                     auth.sign_in_with_email_and_password(email_input, "dummy-password")
                 except Exception as e:
-                    st.write("Firebase Error:", e)
                     error_msg = str(e)
-                    
                     if "EMAIL_NOT_FOUND" in error_msg:
                         st.session_state.stage = "signup"
                     elif "INVALID_PASSWORD" in error_msg:
@@ -47,20 +54,27 @@ def login():
                 st.session_state.email = email_input
                 st.experimental_rerun()
 
-    # Step 2: Existing user → login
     elif st.session_state.stage == "login":
         st.markdown(f"**Welcome back, {st.session_state.email}**")
         password = st.text_input("Password", type="password")
         if st.button("Log In"):
             try:
                 user = auth.sign_in_with_email_and_password(st.session_state.email, password)
-                st.session_state.user = user
+                user_id = user['localId']
+                profile = load_user_profile(user_id)
+
+                st.session_state.user = {
+                    "id": user_id,
+                    "token": user['idToken'],
+                    "email": user['email'],
+                    "name": profile.get("name", "No Name")
+                }
+
                 st.success("✅ Logged in successfully!")
                 st.experimental_rerun()
             except Exception as e:
                 st.error("❌ Incorrect password.")
 
-    # Step 3: New user → signup
     elif st.session_state.stage == "signup":
         st.markdown(f"**Create a new account for {st.session_state.email}**")
         name = st.text_input("Full Name")
@@ -74,17 +88,20 @@ def login():
             else:
                 try:
                     user = auth.create_user_with_email_and_password(st.session_state.email, password)
-                    # Optional: save name to Firestore/Realtime DB here
-                    st.session_state.user = user
+                    user_id = user['localId']
+                    save_user_profile(user_id, name, st.session_state.email)
+
+                    st.session_state.user = {
+                        "id": user_id,
+                        "token": user['idToken'],
+                        "email": st.session_state.email,
+                        "name": name
+                    }
+
                     st.success("✅ Account created and logged in!")
                     st.experimental_rerun()
                 except Exception as e:
                     st.error(f"Signup failed: {e}")
-
-# 🔐 Require login before loading the app
-if "user" not in st.session_state:
-    login()
-    st.stop()
  
 user_id = st.session_state.user['localId']
 api_key_path = f"config/{user_id}/kraken_keys.json"
