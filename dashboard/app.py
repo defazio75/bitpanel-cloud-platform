@@ -57,12 +57,18 @@ def login():
                 user = auth.sign_in_with_email_and_password(st.session_state.email, password)
                 user_id = user['localId']
                 profile = load_user_profile(user_id)
+
                 st.session_state.user = {
                     "id": user_id,
                     "token": user['idToken'],
                     "email": user['email'],
                     "name": profile.get("name", "No Name") if profile else "No Name"
                 }
+
+                 profile = load_user_profile(user_id)
+                     if profile:
+                     st.session_state.user["name"] = profile.get("name", "No Name")
+
                 st.success("✅ Logged in successfully!")
                 st.experimental_rerun()
 
