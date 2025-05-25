@@ -41,12 +41,13 @@ def login():
         email_input = st.text_input("Enter your email", key="email_input")
 
         if st.button("Continue") and email_input:
+            st.session_state.email = email_input
+            
             try:
                 # Fake login to check if email exists
                 auth.sign_in_with_email_and_password(email_input, "thisisnottherightpassword")
             except Exception as e:
                 err_str = str(e)
-                st.session_state.email = email_input
 
                 if "EMAIL_NOT_FOUND" in err_str:
                     st.session_state.stage = "signup"  # new user
