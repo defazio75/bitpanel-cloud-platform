@@ -57,7 +57,7 @@ def login():
                     st.error("⚠️ Unexpected error checking email.")
                     print("DEBUG: Email check error:", err_str)
 
-                st.experimental_rerun()
+                st.rerun()
 
     # === STEP 2: Try Login ===
     elif st.session_state.stage == "login_or_signup":
@@ -78,7 +78,7 @@ def login():
                 }
 
                 st.success("✅ Logged in successfully!")
-                st.experimental_rerun()
+                st.rerun()
 
             except Exception as e:
                 err_str = str(e)
@@ -114,7 +114,7 @@ def login():
                         "name": name
                     }
                     st.success("✅ Account created and logged in!")
-                    st.experimental_rerun()
+                    st.rerun()
                 except Exception as e:
                     if "EMAIL_EXISTS" in str(e):
                         st.error("❌ Email already in use. Try logging in instead.")
@@ -155,7 +155,7 @@ if mode == "live" and not os.path.exists(api_key_path):
         with open(api_key_path, "w") as f:
             json.dump({"api_key": new_key, "api_secret": new_secret}, f)
         st.success("✅ API keys saved. You can now use Live mode.")
-        st.experimental_rerun()
+        st.rerun()
 
 # Initialize current page
 if "current_page" not in st.session_state:
@@ -285,7 +285,7 @@ if st.button("🔓 Log Out"):
     for key in list(st.session_state.keys()):
         del st.session_state[key]
     st.success("You have been logged out.")
-    st.experimental_rerun()
+    st.rerun()
 
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
@@ -322,4 +322,4 @@ elif current_page == "⚙️ Settings":
             with open(api_key_path, "w") as f:
                 json.dump({"api_key": new_key, "api_secret": new_secret}, f)
             st.success("✅ API keys saved. You're ready to go!")
-            st.experimental_rerun()
+            st.rerun()
