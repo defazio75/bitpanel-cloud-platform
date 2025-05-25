@@ -34,7 +34,9 @@ def login():
                     # Firebase trick: check if email exists via invalid login
                     auth.sign_in_with_email_and_password(email_input, "dummy-password")
                 except Exception as e:
+                    st.write("Firebase Error:", e)
                     error_msg = str(e)
+                    
                     if "EMAIL_NOT_FOUND" in error_msg:
                         st.session_state.stage = "signup"
                     elif "INVALID_PASSWORD" in error_msg:
