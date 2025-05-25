@@ -45,14 +45,17 @@ def login():
             
             try:
                 # Fake login to check if email exists
-                auth.sign_in_with_email_and_password(email_input, "thisisnottherightpassword")
+                auth.sign_in_with_email_and_password(email_input, "__invalid_password__")
             except Exception as e:
                 err_str = str(e)
 
                 if "EMAIL_NOT_FOUND" in err_str:
                     st.session_state.stage = "signup"  # new user
+                elif "INVALID_PASSWORD" in err_str:
+                    st.session_state.stage = "login_or_signup"  # Existing user
                 else:
-                    st.session_state.stage = "login_or_signup"  # existing user
+                    st.error("⚠️ Unexpected error checking email.")
+                    print("DEBUG: Email check error:", err_str)
 
                 st.experimental_rerun()
 
