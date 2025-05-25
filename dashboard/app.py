@@ -38,25 +38,32 @@ def login():
 
     if st.session_state.stage == "email":
         email_input = st.text_input("Enter your email", key="email_input")
-        if st.button("Continue"):
-            if email_input:
-                try:
-                    auth.sign_in_with_email_and_password(email_input, "dummy-password")
-                except Exception as e:
-                    error_msg = str(e)
-                    if "EMAIL_NOT_FOUND" in error_msg:
-                        st.session_state.stage = "signup"
-                    elif "INVALID_PASSWORD" in error_msg:
-                        st.session_state.stage = "login"
-                    else:
-                        st.error("❌ Error checking email.")
-                        return
-                st.session_state.email = email_input
-                st.experimental_rerun()
+
+        if st.button("Continue") and email_input:
+            try:
+                # Use dummy password to indirectly check if email exists
+                auth.sign_in_with_email_and_password(email_input, "dummy-password")
+            except Exception as e:
+                error_msg = str(e)
+
+                if "EMAIL_NOT_FOUND" in error_msg:
+                    st.session_state.stage = "signup"
+                elif "INVALID_PASSWORD" in error_msg:
+                    st.session_state.stage = "login"
+                elif "EMAIL_EXISTS" in error_msg:
+                    st.error("❌ Email already in use. Try logging in instead.")
+                    return
+                else:
+                    st.error("❌ Error checking email.")
+                    return
+
+            st.session_state.email = email_input
+            st.experimental_rerun()
 
     elif st.session_state.stage == "login":
         st.markdown(f"**Welcome back, {st.session_state.email}**")
         password = st.text_input("Password", type="password")
+
         if st.button("Log In"):
             try:
                 user = auth.sign_in_with_email_and_password(st.session_state.email, password)
@@ -67,19 +74,20 @@ def login():
                     "id": user_id,
                     "token": user['idToken'],
                     "email": user['email'],
-                    "name": profile.get("name", "No Name")
+                    "name": profile.get("name", "No Name") if profile else "No Name"
                 }
 
                 st.success("✅ Logged in successfully!")
                 st.experimental_rerun()
             except Exception as e:
-                st.error("❌ Incorrect password.")
+                st.error("❌ Incorrect password or login failed.")
 
     elif st.session_state.stage == "signup":
         st.markdown(f"**Create a new account for {st.session_state.email}**")
         name = st.text_input("Full Name")
         password = st.text_input("Password", type="password")
         confirm_password = st.text_input("Confirm Password", type="password")
+
         if st.button("Sign Up"):
             if password != confirm_password:
                 st.error("❌ Passwords do not match.")
@@ -101,10 +109,17 @@ def login():
                     st.success("✅ Account created and logged in!")
                     st.experimental_rerun()
                 except Exception as e:
-                    st.error(f"Signup failed: {e}")
+                    if "EMAIL_EXISTS" in str(e):
+                        st.error("❌ Email already in use. Try logging in instead.")
+                    else:
+                        st.error(f"Signup failed: {e}")
 
 if "user" not in st.session_state:
     login()
+    st.stop()
+
+if "user" not in st.session_state or "id" not in st.session_state.user:
+    st.error("🚫 Session error: Please log in again.")
     st.stop()
  
 user_id = st.session_state.user['id']
@@ -171,8 +186,8 @@ with st.sidebar:
     st.markdown("### ⚙️ Mode")
 
     # Show logged-in user
-if "user" in st.session_state:
-    st.markdown(f"👤 Logged in as: **{st.session_state.user['name']}**")
+    if "user" in st.session_state:
+        st.markdown(f"👤 Logged in as: **{st.session_state.user['name']}**")
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
