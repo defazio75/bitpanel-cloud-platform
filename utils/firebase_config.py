@@ -7,7 +7,7 @@ firebase_config = {
     "storageBucket": "bitpanel-967b1.appspot.com",
     "messagingSenderId": "633698121406",
     "appId": "1:633698121406:web:d1e72d97789635135e50ef",
-    "databaseURL": "https://bitpanel-967b1-default-rtdb.firebaseio.com/
+    "databaseURL": "https://bitpanel-967b1-default-rtdb.firebaseio.com/"
 }
 
 firebase = pyrebase.initialize_app(firebase_config)
