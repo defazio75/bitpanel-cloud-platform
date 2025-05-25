@@ -102,8 +102,12 @@ def login():
                     st.experimental_rerun()
                 except Exception as e:
                     st.error(f"Signup failed: {e}")
+
+if "user" not in st.session_state:
+    login()
+    st.stop()
  
-user_id = st.session_state.user['localId']
+user_id = st.session_state.user['id']
 api_key_path = f"config/{user_id}/kraken_keys.json"
 api_key_exists = os.path.exists(api_key_path)
 
@@ -165,6 +169,10 @@ st.markdown(
 # === SIDEBAR ===
 with st.sidebar:
     st.markdown("### ⚙️ Mode")
+
+    # Show logged-in user
+if "user" in st.session_state:
+    st.markdown(f"👤 Logged in as: **{st.session_state.user['name']}**")
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
@@ -255,7 +263,8 @@ with st.sidebar:
 st.title("🚀 BitPanel")
 
 if st.button("🔓 Log Out"):
-    del st.session_state.user
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
     st.success("You have been logged out.")
     st.experimental_rerun()
 
