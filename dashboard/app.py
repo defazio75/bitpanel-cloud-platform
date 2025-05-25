@@ -42,13 +42,16 @@ def login():
 
         if st.button("Continue") and email_input:
             try:
-                methods = auth.fetch_sign_in_methods_for_email(email_input)
+                # Fake login to check if email exists
+                auth.sign_in_with_email_and_password(email_input, "thisisnottherightpassword")
+            except Exception as e:
+                err_str = str(e)
                 st.session_state.email = email_input
-                
-                if methods:
-                    st.session_state.stage = "login_or_signup"  # existing account
+
+                if "EMAIL_NOT_FOUND" in err_str:
+                    st.session_state.stage = "signup"  # new user
                 else:
-                    st.session_state.stage = "signup"  # new account
+                    st.session_state.stage = "login_or_signup"  # existing user
 
                 st.experimental_rerun()
 
