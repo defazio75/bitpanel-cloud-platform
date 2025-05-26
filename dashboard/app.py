@@ -47,14 +47,16 @@ def login():
             st.session_state.email = email_input
             
             try:
-                auth.sign_in_with_email_and_password(email_input, "__invalid_password__")
-                st.session_state.stage = "signup"
+                providers = auth.fetch_providers_for_email(email_input)
+                if providers:  # User exists
+                    st.session_state.stage = "login_or_signup"
+                else:  # No providers, new user
+                    st.session_state.stage = "signup"
+                st.rerun()
                 
             except Exception as e:
-                err_str = str(e)
-                if "EMAIL_EXISTS" in err_str:
-                    st.session_state.stage = "login_or_signup"
-                    st.rerun()
+                st.error("❌ Failed to check email. Check your Firebase setup.")
+                st.exception(e)
 
     # === STEP 2: Try Login ===
     elif st.session_state.stage == "login_or_signup":
@@ -318,5 +320,5 @@ elif current_page == "⚙️ Settings":
             os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
             with open(api_key_path, "w") as f:
                 json.dump({"api_key": new_key, "api_secret": new_secret}, f)
-            st.success("✅ API keys saved. You're ready to go!")
+            st.success("✅ API keys saved.")
             st.rerun()
