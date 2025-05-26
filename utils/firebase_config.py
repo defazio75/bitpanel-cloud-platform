@@ -12,3 +12,7 @@ firebase_config = {
 
 firebase = pyrebase.initialize_app(firebase_config)
 auth = firebase.auth()
+db = firebase.database()
+
+# 🔑 Add this so REST API auth works
+firebase_api_key = firebase_config["apiKey"]
