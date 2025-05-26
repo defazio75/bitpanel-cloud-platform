@@ -11,117 +11,14 @@ from components.strategy import render as render_strategy_controls
 from components.performance import render as render_performance
 from components.current_positions import render as render_current_positions
 from components.settings_panel import render_settings_panel
+from components.login import login
 from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.firebase_config import auth, firebase
 
-def save_user_profile(user_id, name, email, token):
-    db = firebase.database()
-    db.child("users").child(user_id).set({
-        "name": name,
-        "email": email
-    }, token)
-
-def load_user_profile(user_id, token):
-    db = firebase.database()
-    return db.child("users").child(user_id).get(token).val()
-
-import traceback
-
-def login():
-    st.subheader("🔐 BitPanel Login")
-
-    if "stage" not in st.session_state:
-        st.session_state.stage = "email"
-    if "email" not in st.session_state:
-        st.session_state.email = ""
-
-    # === STEP 1: Email Entry ===
-    if st.session_state.stage == "email":
-        st.markdown("### 📧 Enter Your Email")
-        email_input = st.text_input("Enter your email", key="email_input")
-
-        if st.button("Continue") and email_input:
-            st.session_state.email = email_input
-            
-            try:
-                providers = auth.fetch_providers_for_email(email_input)
-                if providers:  # User exists
-                    st.session_state.stage = "login_or_signup"
-                else:  # No providers, new user
-                    st.session_state.stage = "signup"
-                st.rerun()
-                
-            except Exception as e:
-                st.error("❌ Failed to check email. Check your Firebase setup.")
-                st.exception(e)
-
-    # === STEP 2: Try Login ===
-    elif st.session_state.stage == "login_or_signup":
-        st.markdown(f"**Enter your password for {st.session_state.email}**")
-        password = st.text_input("Password", type="password")
-
-        if st.button("Log In"):
-            try:
-                user = auth.sign_in_with_email_and_password(st.session_state.email, password)
-                user_id = user['localId']
-                profile = load_user_profile(user_id, user['idToken'])
-
-                st.session_state.user = {
-                    "id": user_id,
-                    "token": user['idToken'],
-                    "email": user['email'],
-                    "name": profile.get("name", "No Name") if profile else "No Name"
-                }
-
-                st.success("✅ Logged in successfully!")
-                st.rerun()
-
-            except Exception as e:
-                err_str = str(e)
-                if "EMAIL_NOT_FOUND" in err_str:
-                    st.warning("📭 No account found. Please create one below.")
-                    st.session_state.stage = "signup"
-                elif "INVALID_PASSWORD" in err_str or "INVALID_LOGIN_CREDENTIALS" in err_str:
-                    st.error("❌ Incorrect password.")
-                else:
-                    st.error(f"Unexpected login error: {err_str}")
-
-    # === STEP 3: Create Account ===
-    elif st.session_state.stage == "signup":
-        st.markdown(f"**Create a new account for {st.session_state.email}**")
-        name = st.text_input("Full Name")
-        password = st.text_input("Password", type="password")
-        confirm_password = st.text_input("Confirm Password", type="password")
-
-        if st.button("Sign Up"):
-            if password != confirm_password:
-                st.error("❌ Passwords do not match.")
-            elif not name:
-                st.error("❌ Name is required.")
-            else:
-                try:
-                    user = auth.create_user_with_email_and_password(st.session_state.email, password)
-                    user_id = user['localId']
-                    save_user_profile(user_id, name, st.session_state.email, user['idToken'])
-                    st.session_state.user = {
-                        "id": user_id,
-                        "token": user['idToken'],
-                        "email": st.session_state.email,
-                        "name": name
-                    }
-                    st.success("✅ Account created and logged in!")
-                    st.rerun()
-                except Exception as e:
-                    if "EMAIL_EXISTS" in str(e):
-                        st.error("❌ Email already in use. Try logging in instead.")
-                        st.session_state.stage = "login_or_signup"
-                    else:
-                        st.error(f"Signup failed: {e}")
-
-if "user" not in st.session_state or "id" not in st.session_state.user:
+if "user" not in st.session_state:
     login()
     st.stop()
  
