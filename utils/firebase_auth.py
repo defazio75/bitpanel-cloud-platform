@@ -33,13 +33,3 @@ def check_user_exists(email):
     data = response.json()
     return bool(data.get("registered", False))
 
-def save_user_profile(user_id, name, email, token):
-    db = firebase.database()
-    db.child("users").child(user_id).set({
-        "name": name,
-        "email": email
-    }, token)
-
-def load_user_profile(user_id, token):
-    db = firebase.database()
-    return db.child("users").child(user_id).get(token).val()
