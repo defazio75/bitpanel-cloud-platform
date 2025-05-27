@@ -1,5 +1,5 @@
 import requests
-from utils.firebase_config import firebase_api_key, firebase
+from utils.firebase_config import firebase_api_key
 
 FIREBASE_AUTH_URL = "https://identitytoolkit.googleapis.com/v1/accounts"
 
