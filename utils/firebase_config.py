@@ -1,7 +1,8 @@
-import pyrebase
+# 🔑 Required for all REST API calls (sign up, sign in, etc.)
+firebase_api_key = "AIzaSyCUW_tZ5vk4zKD2_GGo1-DJ6DfdaKGIXUw"
 
-firebase_config = {
-    "apiKey": "AIzaSyCUW_tZ5vk4zKD2_GGo1-DJ6DfdaKGIXUw",
+# 📦 Optional: Project metadata (for reference or future use)
+firebase_project_info = {
     "authDomain": "bitpanel-967b1.firebaseapp.com",
     "projectId": "bitpanel-967b1",
     "storageBucket": "bitpanel-967b1.appspot.com",
@@ -10,9 +11,3 @@ firebase_config = {
     "databaseURL": "https://bitpanel-967b1-default-rtdb.firebaseio.com/"
 }
 
-firebase = pyrebase.initialize_app(firebase_config)
-auth = firebase.auth()
-db = firebase.database()
-
-# 🔑 Add this so REST API auth works
-firebase_api_key = firebase_config["apiKey"]
