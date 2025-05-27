@@ -2,7 +2,10 @@ import streamlit as st
 from utils.firebase_auth import (
     sign_in,
     sign_up,
-    check_user_exists,
+    check_user_exists
+)
+
+from utils.firebase_db import (
     save_user_profile,
     load_user_profile
 )
