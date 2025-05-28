@@ -99,6 +99,16 @@ with st.sidebar:
     if "user" in st.session_state:
         st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
 
+        # === Log Out Button at Top ===
+    if st.button("🔓 Log Out", help="End your session and return to login"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.success("You have been logged out.")
+        st.rerun()
+
+    st.markdown("### ⚙️ Mode")
+    ...
+
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
 
@@ -191,12 +201,6 @@ with st.sidebar:
 
 # === Main Content Area ===
 st.title("🚀 BitPanel")
-
-if st.button("🔓 Log Out"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    st.success("You have been logged out.")
-    st.rerun()
 
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
