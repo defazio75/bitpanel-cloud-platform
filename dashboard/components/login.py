@@ -28,12 +28,10 @@ def login():
         if st.button("Continue") and email_input:
             st.session_state.email = email_input
             try:
-                if check_user_exists(email_input):
-                    st.session_state.stage = "login"
-                else:
-                    st.session_state.stage = "signup"
+                exists = check_user_exists(email_input)
+                st.write("DEBUG: check_user_exists returned", exists)  # Optional
+                st.session_state.stage = "login" if exists else "signup"
                 st.rerun()
-                st.write("DEBUG: check_user_exists returned", check_user_exists(email_input))
             except Exception as e:
                 st.error("❌ Failed to check email.")
                 st.exception(e)
