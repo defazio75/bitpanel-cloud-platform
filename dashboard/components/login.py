@@ -20,7 +20,7 @@ def login():
     if "email" not in st.session_state:
         st.session_state.email = ""
 
-    # === STEP 1: Email Entry ===
+    # === STEP 1: Enter Email ===
     if st.session_state.stage == "email":
         st.markdown("### 📧 Enter Your Email")
         email_input = st.text_input("Email", key="email_input")
@@ -29,7 +29,6 @@ def login():
             st.session_state.email = email_input
             try:
                 exists = check_user_exists(email_input)
-                st.write("DEBUG: check_user_exists returned", exists)  # Optional
                 st.session_state.stage = "login" if exists else "signup"
                 st.rerun()
             except Exception as e:
@@ -94,11 +93,14 @@ def login():
 
                     st.success("✅ Account created and logged in!")
                     st.rerun()
-                except Exception as e:
+                except requests.exceptions.HTTPError as e:
                     if "EMAIL_EXISTS" in str(e):
-                        st.error("❌ Email already in use.")
+                        st.warning("⚠️ Email already registered. Redirecting to login...")
                         st.session_state.stage = "login"
                         st.rerun()
+                    else:
+                        st.error("Signup failed.")
+                        st.exception(e)
                     else:
                         st.error("Signup failed.")
                         st.exception(e)
