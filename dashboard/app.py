@@ -113,8 +113,10 @@ with st.sidebar:
 
     if selected_mode != st.session_state.mode:
         if selected_mode == "live" and not keys:
-            st.warning("⚠️ Live mode requires saved API keys. Please add them in Settings.")
-            st.session_state.mode_selector = "paper"
+            st.warning("⚠️ Live mode requires saved API keys.")
+            if st.button("🔧 Go to API Settings"):
+                st.session_state.current_page = "⚙️ Settings"
+                st.rerun()        
         else:
             request_mode_change(selected_mode)
 
