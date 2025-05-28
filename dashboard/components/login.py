@@ -28,10 +28,12 @@ def login():
 
         if st.button("Continue") and email_input:
             st.session_state.email = email_input
+            
             try:
-                # Attempt to sign in with fake password to detect user existence
+
                 sign_in(email_input, "fake-password-123")
-                st.session_state.stage = "login"  # unlikely to hit
+                
+               
             except requests.exceptions.HTTPError as e:
                 try:
                     error_info = e.response.json()
@@ -48,6 +50,14 @@ def login():
                     st.error("❌ Unexpected error during user check.")
                     st.exception(e)
                     return
+
+            except Exception as general_err:
+                st.error("❌ Unexpected error during user check.")
+                st.exception(general_err)
+                return
+
+            else:
+                st.session_state.stage = "login"  # if sign_in doesn't raise error            
             st.rerun()
 
     # === STEP 2A: Log In ===
