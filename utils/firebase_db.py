@@ -18,12 +18,13 @@ def save_user_profile(user_id, name, email, token):
 
 def load_user_profile(user_id, token):
     """
-    Load user profile from Firebase Realtime Database.
+    Load user profile from Firebase Realtime Database using Pyrebase.
     """
-    url = f"{DATABASE_URL}/users/{user_id}.json?auth={token}"
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+    db = firebase.database()
+    result = db.child("users").child(user_id).get(token)
+    if result.val():
+        return result.val()
+    return None
 
 def save_user_api_keys(user_id, exchange, api_key, api_secret):
     encrypted_key = encrypt_string(api_key)
