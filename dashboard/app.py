@@ -16,7 +16,6 @@ from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
-from utils.firebase_config import auth, firebase
 
 if "user" not in st.session_state:
     login()
