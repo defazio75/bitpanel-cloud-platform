@@ -26,3 +26,22 @@ def load_user_profile(user_id, token):
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
+
+def save_user_api_keys(user_id, token, exchange, api_key, api_secret):
+    db = firebase.database()
+    encrypted = {
+        "api_key": encrypt(api_key),       # You’ll define `encrypt()` next
+        "api_secret": encrypt(api_secret)
+    }
+    db.child("users").child(user_id).child("api_keys").child(exchange).set(encrypted, token)
+
+def load_user_api_keys(user_id, token, exchange):
+    db = firebase.database()
+    result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
+    if result.val():
+        decrypted = {
+            "api_key": decrypt(result.val()["api_key"]),
+            "api_secret": decrypt(result.val()["api_secret"])
+        }
+        return decrypted
+    return None
