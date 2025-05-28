@@ -3,7 +3,6 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    st.set_page_config(page_title="BitPanel Login", layout="centered")
     st.title("🔐 Welcome to BitPanel")
 
     st.markdown("#### Please log in to continue")
