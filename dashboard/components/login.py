@@ -30,35 +30,19 @@ def login():
             st.session_state.email = email_input
             
             try:
-
-                sign_in(email_input, "fake-password-123")
+                if check_user_exists(email_input):
+                    st.session_state.stage = "login"
+                else:
+                    st.session_state.stage = "signup"
+                st.rerun()
                 
-               
             except requests.exceptions.HTTPError as e:
-                try:
-                    error_info = e.response.json()
-                    error_code = error_info.get("error", {}).get("message", "")
+                st.error("❌ Firebase API error when checking account.")
+                st.exception(e)
 
-                    if error_code == "INVALID_PASSWORD":
-                        st.session_state.stage = "login"
-                    elif error_code == "EMAIL_NOT_FOUND":
-                        st.session_state.stage = "signup"
-                    else:
-                        st.error(f"❌ Firebase error: {error_code}")
-                        return
-                except Exception as json_err:
-                    st.error("❌ Unexpected error during user check.")
-                    st.exception(e)
-                    return
-
-            except Exception as general_err:
+            except Exception as e:
                 st.error("❌ Unexpected error during user check.")
-                st.exception(general_err)
-                return
-
-            else:
-                st.session_state.stage = "login"  # if sign_in doesn't raise error            
-            st.rerun()
+                st.exception(e)
 
     # === STEP 2A: Log In ===
     elif st.session_state.stage == "login":
