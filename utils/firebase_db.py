@@ -1,6 +1,6 @@
 
 import requests
-from utils.encryption_utils import encrypt_string, decrypt_string
+from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 
 # Get the Realtime Database URL from your config
