@@ -23,10 +23,10 @@ if "page" not in st.session_state:
 
 if st.session_state.page == "login":
     login()
-    st.stop[()
+    st.stop()
 elif st.session_state.page == "signup":
     signup()
-    st.stop[()
+    st.stop()
 
 # === PROTECTED AREA (Requires Logged-in User) ===
 if "user" not in st.session_state:
@@ -34,7 +34,7 @@ if "user" not in st.session_state:
     st.session_state.page = "login"
     st.rerun()
  
-user_id = st.session_state.user['id']
+user_id = st.session_state.user['localId']
 api_key_path = f"config/{user_id}/kraken_keys.json"
 
 # === Sync session_state with mode.json on load ===
