@@ -12,18 +12,30 @@ from components.performance import render as render_performance
 from components.current_positions import render as render_current_positions
 from components.settings_panel import render_settings_panel
 from components.login import login
+from components.signup import signup
 from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 
-if "user" not in st.session_state:
+if "page" not in st.session_state:
+    st.session_state.page = "login"
+
+if st.session_state.page == "login":
     login()
-    st.stop()
+    st.stop[()
+elif st.session_state.page == "signup":
+    signup()
+    st.stop[()
+
+# === PROTECTED AREA (Requires Logged-in User) ===
+if "user" not in st.session_state:
+    st.warning("Please log in first.")
+    st.session_state.page = "login"
+    st.rerun()
  
 user_id = st.session_state.user['id']
 api_key_path = f"config/{user_id}/kraken_keys.json"
-api_key_exists = os.path.exists(api_key_path)
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
