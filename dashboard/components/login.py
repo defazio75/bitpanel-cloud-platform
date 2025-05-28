@@ -33,6 +33,7 @@ def login():
                 else:
                     st.session_state.stage = "signup"
                 st.rerun()
+                st.write("DEBUG: check_user_exists returned", check_user_exists(email_input))
             except Exception as e:
                 st.error("❌ Failed to check email.")
                 st.exception(e)
