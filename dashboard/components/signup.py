@@ -2,7 +2,6 @@ import streamlit as st
 from utils.firebase_auth import sign_up
 
 def signup():
-    st.set_page_config(page_title="Create Account", layout="centered")
     st.title("🆕 Create Your BitPanel Account")
 
     name = st.text_input("Full Name", key="signup_name")
