@@ -44,3 +44,13 @@ def check_user_exists(email):
     sign_in_methods = data.get("signinMethods", [])
     return "password" in sign_in_methods
 
+def send_password_reset(email):
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={firebase_api_key}"
+    payload = {
+        "requestType": "PASSWORD_RESET",
+        "email": email
+    }
+    response = requests.post(url, json=payload)
+    response.raise_for_status()
+    return response.json()
+
