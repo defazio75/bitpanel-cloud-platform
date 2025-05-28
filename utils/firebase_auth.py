@@ -31,6 +31,8 @@ def check_user_exists(email):
     response = requests.post(url, json=payload)
     response.raise_for_status()
     data = response.json()
+
+    print("DEBUG - Firebase response:", data)
     
     sign_in_methods = data.get("signinMethods", [])
     print("Sign-in methods:", sign_in_methods)  # Debug
