@@ -33,12 +33,18 @@ def login():
                 sign_in(email_input, "fake-password-123")
                 st.session_state.stage = "login"  # unlikely to hit
             except requests.exceptions.HTTPError as e:
-                err = str(e)
-                if "INVALID_PASSWORD" in err:
-                    st.session_state.stage = "login"
-                elif "EMAIL_NOT_FOUND" in err:
-                    st.session_state.stage = "signup"
-                else:
+                try:
+                    error_info = e.response.json()
+                    error_code = error_info.get("error", {}).get("message", "")
+
+                    if error_code == "INVALID_PASSWORD":
+                        st.session_state.stage = "login"
+                    elif error_code == "EMAIL_NOT_FOUND":
+                        st.session_state.stage = "signup"
+                    else:
+                        st.error(f"❌ Firebase error: {error_code}")
+                        return
+                except Exception as json_err:
                     st.error("❌ Unexpected error during user check.")
                     st.exception(e)
                     return
