@@ -3,9 +3,6 @@ import requests
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 
-# Get the Realtime Database URL from your config
-DATABASE_URL = firebase_project_info["databaseURL"]
-
 def save_user_profile(user_id, name, email, token):
     """
     Save user profile to Firebase Realtime Database.
