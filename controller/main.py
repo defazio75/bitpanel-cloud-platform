@@ -6,16 +6,25 @@ from strategies.bollinger_breakout import run_strategy as bollinger_run
 from strategies.dca_matrix import run as dca_matrix_run  # ✅ NEW
 from dashboard.utils.allocation_manager import load_allocations
 from dashboard.utils.state_loader import load_portfolio_summary
-from utils.portfolio_writer import write_portfolio_snapshot  # ✅ ADD THIS
+from utils.portfolio_writer import write_portfolio_snapshot
+from utils.load_keys import load_api_keys
 
 def main():
     print("\n🟢 BitPanel Core Engine Starting...\n")
 
-    # === Load Mode and Setup Exchange ===
+    # === Load Mode and API Keys ===
     from config.config import get_mode
     mode = get_mode()
     print(f"🚀 Running bots in {mode.upper()} MODE\n")
-    exchange = get_exchange("kraken", mode=mode)
+
+    try:
+        api_keys = load_api_keys(mode)
+    except Exception as e:
+        print(f"❌ Failed to load API keys: {e}")
+        return
+
+    # === Setup Exchange with Loaded Keys ===
+    exchange = get_exchange("kraken", mode=mode, api_keys=api_keys)
 
     # === Load Allocations and Portfolio ===
     allocations = load_allocations()
@@ -38,13 +47,13 @@ def main():
                     rsi_1hr_run(exchange, coin, allocated_usd, mode=mode)
                 elif strategy == "Bollinger":
                     bollinger_run(exchange, coin, allocated_usd, mode=mode)
-                elif strategy == "DCA Matrix":  # ✅ NEW
+                elif strategy == "DCA Matrix":
                     dca_matrix_run({"price": btc_price}, coin=coin, mode=mode)
 
     # === Save Portfolio Snapshot ===
     usd_balance = exchange.get_usd_balance()
     coin_data = {}
-    for coin in portfolio.get("coins", {}):  # ✅ SAFER ACCESS
+    for coin in portfolio.get("coins", {}):
         balance = exchange.get_balance(coin)
         price = exchange.get_price(coin)
         coin_data[coin] = {
