@@ -1,6 +1,7 @@
 
 import requests
-from utils.firebase_config import firebase_project_info
+from utils.encryption_utils import encrypt_string, decrypt_string
+from utils.firebase_config import firebase
 
 # Get the Realtime Database URL from your config
 DATABASE_URL = firebase_project_info["databaseURL"]
@@ -27,21 +28,26 @@ def load_user_profile(user_id, token):
     response.raise_for_status()
     return response.json()
 
-def save_user_api_keys(user_id, token, exchange, api_key, api_secret):
-    db = firebase.database()
-    encrypted = {
-        "api_key": encrypt(api_key),       # You’ll define `encrypt()` next
-        "api_secret": encrypt(api_secret)
-    }
-    db.child("users").child(user_id).child("api_keys").child(exchange).set(encrypted, token)
+def save_user_api_keys(user_id, exchange, api_key, api_secret):
+    encrypted_key = encrypt_string(api_key)
+    encrypted_secret = encrypt_string(api_secret)
 
-def load_user_api_keys(user_id, token, exchange):
+    token = st.session_state.user["token"]
     db = firebase.database()
-    result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
+    db.child("api_keys").child(user_id).child(exchange).set({
+        "key": encrypted_key,
+        "secret": encrypted_secret
+    }, token)
+
+def load_user_api_keys(user_id, exchange):
+    token = st.session_state.user["token"]
+    db = firebase.database()
+    result = db.child("api_keys").child(user_id).child(exchange).get(token)
     if result.val():
-        decrypted = {
-            "api_key": decrypt(result.val()["api_key"]),
-            "api_secret": decrypt(result.val()["api_secret"])
+        encrypted_key = result.val().get("key", "")
+        encrypted_secret = result.val().get("secret", "")
+        return {
+            "key": decrypt_string(encrypted_key),
+            "secret": decrypt_string(encrypted_secret)
         }
-        return decrypted
     return None
