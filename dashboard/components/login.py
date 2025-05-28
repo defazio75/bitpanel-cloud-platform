@@ -1,4 +1,5 @@
 import streamlit as st
+import requests
 
 from utils.firebase_auth import (
     sign_in,
@@ -28,12 +29,20 @@ def login():
         if st.button("Continue") and email_input:
             st.session_state.email = email_input
             try:
-                exists = check_user_exists(email_input)
-                st.session_state.stage = "login" if exists else "signup"
-                st.rerun()
-            except Exception as e:
-                st.error("❌ Failed to check email.")
-                st.exception(e)
+                # Attempt to sign in with fake password to detect user existence
+                sign_in(email_input, "fake-password-123")
+                st.session_state.stage = "login"  # unlikely to hit
+            except requests.exceptions.HTTPError as e:
+                err = str(e)
+                if "INVALID_PASSWORD" in err:
+                    st.session_state.stage = "login"
+                elif "EMAIL_NOT_FOUND" in err:
+                    st.session_state.stage = "signup"
+                else:
+                    st.error("❌ Unexpected error during user check.")
+                    st.exception(e)
+                    return
+            st.rerun()
 
     # === STEP 2A: Log In ===
     elif st.session_state.stage == "login":
