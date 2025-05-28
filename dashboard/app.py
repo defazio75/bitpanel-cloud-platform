@@ -18,6 +18,7 @@ from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
+from utils.api_keys import save_api_keys, load_api_keys, get_api_key_path
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -39,7 +40,8 @@ if "user" not in st.session_state:
     st.rerun()
  
 user_id = st.session_state.user["id"]
-api_key_path = f"data/api_keys/{user_id}_kraken.json"
+exchange = "kraken"  # Default for now
+keys = load_api_keys(user_id, exchange)
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
@@ -52,29 +54,22 @@ if "show_mode_confirm" not in st.session_state:
 
 mode = st.session_state.mode
 
-# === LIVE MODE BLOCKER ===
-if mode == "live" and not os.path.exists(api_key_path):
-    st.error("⚠️ API keys are required to activate live trading mode.")
-
-    with st.form("api_key_form_live"):
-        new_key = st.text_input("Kraken API Key")
-        new_secret = st.text_input("Kraken API Secret", type="password")
-        submit = st.form_submit_button("Save API Keys")
-
-    if submit and new_key and new_secret:
-        os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
-        with open(api_key_path, "w") as f:
-            json.dump({"api_key": new_key, "api_secret": new_secret}, f)
-        st.success("✅ API keys saved. You can now use Live mode.")
+# === GATEKEEP LIVE MODE ACCESS ===
+if mode == "live":
+    if not keys:
+        st.warning("🔐 Live mode requires API keys. You've been switched back to Paper mode.")
+        st.session_state.mode = "paper"
+        save_mode("paper")
         st.rerun()
+    # (In the future) Also check for paid user status here
+
+# === Save snapshot if in live mode ===
+if st.session_state.mode == "live":
+    save_portfolio_snapshot("live")
 
 # Initialize current page
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "📊 Portfolio"
-
-# Save snapshot if in live mode
-if st.session_state.mode == "live":
-    save_portfolio_snapshot("live")
 
 # === Handle Mode Change Prompt ===
 def request_mode_change(new_mode):
@@ -117,8 +112,11 @@ with st.sidebar:
     selected_mode = reverse_labels[selected_label]
 
     if selected_mode != st.session_state.mode:
-        st.session_state.pending_mode = selected_mode
-        st.session_state.show_mode_confirm = True
+        if selected_mode == "live" and not keys:
+            st.warning("⚠️ Live mode requires saved API keys. Please add them in Settings.")
+            st.session_state.mode_selector = "paper"
+        else:
+            request_mode_change(selected_mode)
 
     if st.session_state.show_mode_confirm:
         st.warning(f"Change to {st.session_state.pending_mode}?")
@@ -218,19 +216,4 @@ elif current_page == "📈 Performance":
     render_performance()
 
 elif current_page == "⚙️ Settings":
-    render_settings_panel()
-
-    if not os.path.exists(api_key_path):
-        st.warning("⚠️ API Keys not found. Please enter your Kraken API credentials to activate BitPanel.")
-
-        with st.form("api_key_form"):
-            new_key = st.text_input("Kraken API Key")
-            new_secret = st.text_input("Kraken API Secret", type="password")
-            submit = st.form_submit_button("Save API Keys")
-
-        if submit and new_key and new_secret:
-            os.makedirs(os.path.dirname(api_key_path), exist_ok=True)
-            with open(api_key_path, "w") as f:
-                json.dump({"api_key": new_key, "api_secret": new_secret}, f)
-            st.success("✅ API keys saved.")
-            st.rerun()
+    render_settings_panel(user_id=user_id, exchange=exchange)
