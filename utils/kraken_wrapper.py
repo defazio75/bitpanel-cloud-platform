@@ -23,8 +23,17 @@ def rate_limited_query_public(endpoint, params=None):
     return response.json()
 
 def rate_limited_query_private(endpoint, data=None):
+    from utils.load_keys import load_api_keys
+
     if data is None:
         data = {}
+
+    keys = load_api_keys()
+    api_key = keys.get("key")
+    api_secret = keys.get("secret")
+
+    if not api_key or not api_secret:
+        raise ValueError("❌ Missing Kraken API keys.")
 
     path = f"/0/private/{endpoint}"
     url = API_URL + path
@@ -34,11 +43,12 @@ def rate_limited_query_private(endpoint, data=None):
     post_data = urlencode(data)
     encoded = (nonce + post_data).encode()
     message = path.encode() + hashlib.sha256(encoded).digest()
-    signature = hmac.new(base64.b64decode(API_SECRET), message, hashlib.sha512)
+
+    signature = hmac.new(base64.b64decode(api_secret), message, hashlib.sha512)
     sig_digest = base64.b64encode(signature.digest())
 
     headers = {
-        "API-Key": API_KEY,
+        "API-Key": api_key,
         "API-Sign": sig_digest.decode()
     }
 
