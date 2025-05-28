@@ -1,6 +1,5 @@
 import streamlit as st
-from utils.api_keys import load_api_keys, save_api_keys, get_api_key_path
-import os
+from utils.firebase_db import save_user_api_keys, load_user_api_keys
 
 def render_settings_panel(user_id, exchange="kraken"):
     st.header("⚙️ Settings")
@@ -19,11 +18,11 @@ def render_settings_panel(user_id, exchange="kraken"):
     exchange_options = ["kraken", "binance", "coinbase"]
     selected_exchange = st.selectbox("Select Exchange", exchange_options, index=exchange_options.index(exchange))
 
-    current_keys = load_api_keys(user_id, selected_exchange)
+    current_keys = load_user_api_keys(user_id, selected_exchange)
     key_status = "✅ Keys saved" if current_keys else "❌ No keys saved"
     st.markdown(f"**Status:** {key_status}")
 
-    st.markdown("You can safely store or update your API keys below. These are kept securely and never shared.")
+    st.markdown("You can safely store or update your API keys below. These are encrypted and saved securely.")
 
     with st.form(f"api_key_form_{selected_exchange}"):
         new_key = st.text_input(f"{selected_exchange.capitalize()} API Key", type="default")
@@ -32,20 +31,18 @@ def render_settings_panel(user_id, exchange="kraken"):
 
         if submit:
             if new_key and new_secret:
-                save_api_keys(user_id, selected_exchange, new_key, new_secret)
+                save_user_api_keys(user_id, selected_exchange, new_key, new_secret)
                 st.success("✅ API keys saved successfully.")
                 st.experimental_rerun()
             else:
                 st.error("Please enter both API key and secret.")
 
-    # Delete Keys Option
-    if current_keys:
-        if st.button("🗑️ Delete Saved API Keys"):
-            key_path = get_api_key_path(user_id, selected_exchange)
-            if os.path.exists(key_path):
-                os.remove(key_path)
-                st.success("🚫 API keys deleted.")
-                st.experimental_rerun()
+    # Optional Delete Button (not implemented in Firebase yet)
+    # if current_keys:
+    #     if st.button("🗑️ Delete Saved API Keys"):
+    #         delete_user_api_keys(user_id, selected_exchange)
+    #         st.success("🚫 API keys deleted.")
+    #         st.experimental_rerun()
 
     st.markdown("---")
     st.markdown("Future settings like subscriptions and theme preferences will be added here.")
