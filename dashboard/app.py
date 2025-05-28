@@ -78,7 +78,7 @@ def request_mode_change(new_mode):
         st.session_state.show_mode_confirm = True
 
 # === Apply Color Tint to Sidebar ===
-sidebar_color = "#fff8dc" if st.session_state.mode == "paper" else "#e6ffe6"
+sidebar_color = "#f4f4f4" if st.session_state.mode == "paper" else "#e6ffe6"
 
 st.markdown(
     f"""
