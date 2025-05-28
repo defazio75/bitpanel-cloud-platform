@@ -5,16 +5,13 @@ from utils.firebase_config import firebase
 
 def save_user_profile(user_id, name, email, token):
     """
-    Save user profile to Firebase Realtime Database.
+    Save user profile to Firebase Realtime Database using Pyrebase.
     """
-    url = f"{DATABASE_URL}/users/{user_id}.json?auth={token}"
-    data = {
+    db = firebase.database()
+    db.child("users").child(user_id).set({
         "name": name,
         "email": email
-    }
-    response = requests.put(url, json=data)
-    response.raise_for_status()
-    return response.json()
+    }, token)
 
 def load_user_profile(user_id, token):
     """
