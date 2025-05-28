@@ -98,7 +98,7 @@ with st.sidebar:
 
     # Show logged-in user
     if "user" in st.session_state:
-        st.markdown(f"👤 Logged in as: **{st.session_state.user['name']}**")
+        st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
