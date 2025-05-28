@@ -69,9 +69,16 @@ def login():
                 err_str = str(e)
                 if "INVALID_PASSWORD" in err_str:
                     st.error("❌ Incorrect password.")
-                else:
-                    st.error("Login failed.")
-                    st.exception(e)
+                elif "INVALID_LOGIN_CREDENTIALS" in err_str:
+                    st.error("❌ This account does not support password login.")
+                    st.info("Try creating a new account or logging in with another method.")
+                    if st.button("🔙 Back to Email Entry"):
+                        st.session_state.stage = "email"
+                        st.rerun()
+                elif "EMAIL_NOT_FOUND" in err_str:
+                    st.warning("⚠️ Email not found. Redirecting to Sign Up...")
+                    st.session_state.stage = "signup"
+                    st.rerun()
 
     # === STEP 2B: Sign Up ===
     elif st.session_state.stage == "signup":
