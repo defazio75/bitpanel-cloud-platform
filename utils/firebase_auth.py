@@ -32,8 +32,13 @@ def check_user_exists(email):
     response.raise_for_status()
     data = response.json()
 
-    # Show debug in browser and logs
-    st.write("DEBUG - Firebase response:", data)
+    # Optional: Show debug if Streamlit is available
+    try:
+        import streamlit as st
+        st.write("DEBUG - Firebase response:", data)
+    except ImportError:
+        pass  # Ignore if streamlit isn't available in this context
+
     print("DEBUG - Firebase response:", data)
     
     sign_in_methods = data.get("signinMethods", [])
