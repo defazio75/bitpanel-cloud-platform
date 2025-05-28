@@ -39,7 +39,7 @@ if "user" not in st.session_state:
     st.rerun()
  
 user_id = st.session_state.user["id"]
-api_key_path = f"config/{user_id}/kraken_keys.json"
+api_key_path = f"data/api_keys/{user_id}_kraken.json"
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
