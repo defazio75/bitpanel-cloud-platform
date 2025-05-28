@@ -13,6 +13,7 @@ from components.current_positions import render as render_current_positions
 from components.settings_panel import render_settings_panel
 from components.login import login
 from components.signup import signup
+from components.reset_password import reset_password
 from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
@@ -26,6 +27,9 @@ if st.session_state.page == "login":
     st.stop()
 elif st.session_state.page == "signup":
     signup()
+    st.stop()
+elif st.session_state.page == "reset_password":
+    reset_password()
     st.stop()
 
 # === PROTECTED AREA (Requires Logged-in User) ===
