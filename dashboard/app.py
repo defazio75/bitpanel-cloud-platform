@@ -18,7 +18,7 @@ from utils.state_loader import load_bot_states
 from config.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
-from utils.api_keys import save_api_keys, load_api_keys, get_api_key_path
+from utils.load_keys import load_api_keys
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -41,7 +41,7 @@ if "user" not in st.session_state:
  
 user_id = st.session_state.user["id"]
 exchange = "kraken"  # Default for now
-keys = load_api_keys(user_id, exchange)
+keys = load_api_keys()
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode()
