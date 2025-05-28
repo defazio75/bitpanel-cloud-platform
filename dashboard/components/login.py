@@ -101,6 +101,3 @@ def login():
                     else:
                         st.error("Signup failed.")
                         st.exception(e)
-                    else:
-                        st.error("Signup failed.")
-                        st.exception(e)
