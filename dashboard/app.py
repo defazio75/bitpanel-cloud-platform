@@ -46,7 +46,7 @@ exchange = "kraken"  # Default for now
 keys = load_api_keys()
 
 # === Sync session_state with mode.json on load ===
-current_mode = get_mode()
+current_mode = get_mode(user_id)
 if "mode" not in st.session_state:
     st.session_state.mode = current_mode
 if "pending_mode" not in st.session_state:
@@ -61,7 +61,7 @@ if mode == "live":
     if not keys:
         st.warning("🔐 Live mode requires API keys. You've been switched back to Paper mode.")
         st.session_state.mode = "paper"
-        save_mode("paper")
+        save_mode("paper", user_id)
         st.rerun()
     # (In the future) Also check for paid user status here
 
@@ -134,7 +134,7 @@ with st.sidebar:
         with col1:
             if st.button("✅ Confirm"):
                 st.session_state.mode = st.session_state.pending_mode
-                save_mode(st.session_state.mode)
+                save_mode(st.session_state.mode, user_id)
                 st.session_state.show_mode_confirm = False
                 st.rerun()
         with col2:
@@ -204,20 +204,20 @@ current_page = st.session_state["current_page"]
 mode = st.session_state.mode
 
 if current_page == "📊 Portfolio":
-    render_portfolio_summary(mode=mode)
+    render_portfolio_summary(mode=mode, user_id=user_id)
 
 elif current_page == "💰 Allocation":
-    bot_states = load_bot_states()
-    render_coin_allocation(mode=mode) 
+    bot_states = load_bot_states(user_id=user_id)
+    render_coin_allocation(mode=mode, user_id=user_id)
 
 elif current_page == "🧠 Strategies":
-    render_strategy_controls(mode=mode)
+    render_strategy_controls(mode=mode, user_id=user_id)
 
 elif current_page == "📜 Positions":
-    render_current_positions(mode=mode)
+    render_current_positions(mode=mode, user_id=user_id)
 
 elif current_page == "📈 Performance":
-    render_performance()
+    render_performance(mode=mode, user_id=user_id)
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange)
