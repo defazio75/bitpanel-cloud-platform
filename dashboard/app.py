@@ -106,9 +106,6 @@ with st.sidebar:
         st.success("You have been logged out.")
         st.rerun()
 
-    st.markdown("### ⚙️ Mode")
-    ...
-
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
 
