@@ -15,13 +15,13 @@ def load_api_keys(user_id):
     }
 
 
-def api_keys_exist():
+def api_keys_exist(user_id):
     """
-    Returns True if both API key and secret are present in Firebase.
+    Returns True if both API key and secret are present in Firebase for the given user.
     Used to determine whether live mode can be enabled.
     """
     try:
-        keys = load_api_keys()
+        keys = load_api_keys(user_id=user_id)
         return bool(keys.get("key")) and bool(keys.get("secret"))
     except:
         return False
