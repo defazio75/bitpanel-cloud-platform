@@ -78,6 +78,6 @@ def load_strategy_config(user_id):
 
 
 
-            "secret": decrypt_string(encrypted_secret)
-        }
-    return None
+        "secret": decrypt_string(encrypted_secret)
+    }
+return None
