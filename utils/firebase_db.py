@@ -45,6 +45,9 @@ def load_user_api_keys(user_id, exchange):
         encrypted_secret = result.val().get("secret", "")
         return {
             "key": decrypt_string(encrypted_key),
+            "secret": decrypt_string(encrypted_secret)
+        }
+    return None
 
 # === Get all registered user IDs ===
 def get_all_user_ids():
