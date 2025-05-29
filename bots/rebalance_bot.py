@@ -5,11 +5,11 @@ from utils.kraken_wrapper import get_prices
 from config.config import get_mode
 from trade_executor import execute_trade
 
-def rebalance_hodl():
+def rebalance_hodl(user_id):
     mode = get_mode()
     print(f"[Rebalance HODL] Running in {mode.upper()} mode...")
 
-    folder = "json_paper" if mode == "paper" else "json_live"
+    folder = f"json_{mode}/{user_id}"
     snapshot_path = os.path.join("data", folder, "portfolio", "portfolio_snapshot.json")
     state_dir = os.path.join("data", folder, "current")
 
@@ -20,7 +20,7 @@ def rebalance_hodl():
     with open(snapshot_path, "r") as f:
         current_snapshot = json.load(f)
 
-    prices = get_prices()
+    prices = get_prices(user_id=user_id)
     usd_balance = current_snapshot.get("usd_balance", 0)
     updated_coins = {}
 
@@ -59,6 +59,7 @@ def rebalance_hodl():
 
         # === Execute trade ===
         execute_trade(
+            user_id=user_id,
             bot_name="rebalance_hodl",
             action=side,
             amount=coin_amount,
