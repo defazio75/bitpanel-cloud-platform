@@ -27,6 +27,7 @@ def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_i
         amount=amount,
         price=price,
         mode=mode,
+        user_id=user_id,
         message="Executed via execute_trade()"
     )
 
