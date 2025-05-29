@@ -11,13 +11,13 @@ st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 
     # Mock snapshot (replace with real file load later)
-def render_portfolio_summary(mode=None):
+def render_portfolio_summary(mode=None, user_id=None):
     # Sanitize mode if not passed in
     if mode is None:
-        mode = get_mode()
+        mode = get_mode(user_id)
 
     folder = "json_paper" if mode == "paper" else "json_live"
-    portfolio_file = f"data/{folder}/portfolio/portfolio_snapshot.json"
+    portfolio_file = f"data/{folder}/{user_id}/portfolio/portfolio_snapshot.json"
 
     # === Load snapshot data
     if mode == "paper":
@@ -31,7 +31,7 @@ def render_portfolio_summary(mode=None):
                 "coins": {}
             }
 
-        prices = get_prices()
+        prices = get_prices(user_id=user_id)
 
         # Recalculate total value using latest prices
         total_value = snapshot.get("usd_balance", 0)
@@ -46,8 +46,8 @@ def render_portfolio_summary(mode=None):
         snapshot["total_value"] = round(total_value, 2)
 
     else:
-        balances = get_live_balances()
-        prices = get_prices()
+        balances = get_live_balances(user_id=user_id)
+        prices = get_prices(user_id=user_id)
 
         snapshot = {
             "total_value": 0,
