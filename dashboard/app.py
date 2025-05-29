@@ -1,5 +1,6 @@
 import streamlit as st
 st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
+from streamlit_autorefresh import st_autorefresh
 
 import os
 import sys
