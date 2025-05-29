@@ -93,7 +93,6 @@ st.markdown(
 
 # === SIDEBAR ===
 with st.sidebar:
-    st.markdown("### ⚙️ Mode")
 
     # Show logged-in user
     if "user" in st.session_state:
