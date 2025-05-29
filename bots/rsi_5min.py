@@ -1,5 +1,4 @@
 import os
-import json
 from datetime import datetime
 from config.config import get_mode
 from utils.trade_executor import execute_trade
@@ -9,68 +8,16 @@ from utils.state_loader import load_strategy_allocations
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_trade_multi
+from utils.json_utils import load_user_state, save_user_state
 
 COIN = "BTC"
 STRATEGY = "RSI_5MIN"
-
-# === Load coin state ===
-def load_coin_state(user_id, coin, mode="paper"):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return {}
-
-# === Save updated bot state ===
-def save_bot_state(user_id, coin, strategy, new_state, mode="paper"):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    full_state = load_coin_state(user_id, coin, mode)
-    full_state[strategy] = new_state
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(full_state, f, indent=2)
 
 # === Calculate allocation ===
 def calculate_btc_allocation(price, allocation_pct, user_id, mode):
     portfolio_value = get_total_portfolio_value(user_id, mode)
     allocated_usd = (allocation_pct / 100) * portfolio_value
     return allocated_usd / price if price else 0
-
-# === Update profit log ===
-def update_profit_json(user_id, coin, mode, coin_amount, profit_usd):
-    path = os.path.join(f"data/json_{mode}/{user_id}/performance", f"{coin.lower()}_profits.json")
-    try:
-        with open(path, "r") as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        print(f"⚠️ Profit file not found for {coin.upper()}. Initializing.")
-        data = {
-            f"total_{coin.lower()}_accumulated": 0.0,
-            "total_profit_usd": 0.0,
-            "total_trades": 0,
-            "last_trade_time": None,
-            "bots": {
-                "rsi_5min": {
-                    f"{coin.lower()}_accumulated": 0.0,
-                    "profit_usd": 0.0,
-                    "trades": 0
-                }
-            }
-        }
-
-    data[f"total_{coin.lower()}_accumulated"] += coin_amount
-    data["total_profit_usd"] += profit_usd
-    data["total_trades"] += 1
-    data["last_trade_time"] = datetime.utcnow().isoformat()
-
-    bot_stats = data.get("bots", {}).get("rsi_5min", {})
-    bot_stats[f"{coin.lower()}_accumulated"] = bot_stats.get(f"{coin.lower()}_accumulated", 0.0) + coin_amount
-    bot_stats["profit_usd"] = bot_stats.get("profit_usd", 0.0) + profit_usd
-    bot_stats["trades"] = bot_stats.get("trades", 0) + 1
-    data["bots"]["rsi_5min"] = bot_stats
-
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
 
 # === Main Bot Run ===
 def run(price_data, user_id, coin="BTC", mode=None):
@@ -79,7 +26,10 @@ def run(price_data, user_id, coin="BTC", mode=None):
         print(f"🚨 Running in {mode.upper()} MODE")
 
     bot_name = f"rsi_5min_{coin.lower()}"
-    state = load_coin_state(user_id, coin, mode).get(STRATEGY, {})
+
+    # === Load full coin state and extract strategy-specific state ===
+    full_state = load_user_state(user_id, "current", f"{coin}_state.json", mode) or {}
+    state = full_state.get(STRATEGY, {})
     allocation_pct = load_strategy_allocations(user_id, mode).get(coin, {}).get(STRATEGY, 0)
 
     if allocation_pct <= 0:
@@ -90,7 +40,8 @@ def run(price_data, user_id, coin="BTC", mode=None):
             "buy_price": 0.0,
             "usd_held": 0.0
         }
-        save_bot_state(user_id, coin, STRATEGY, state, mode)
+        full_state[STRATEGY] = state
+        save_user_state(user_id, "current", f"{coin}_state.json", full_state, mode)
         return
 
     cur_price = price_data.get("price")
@@ -131,7 +82,6 @@ def run(price_data, user_id, coin="BTC", mode=None):
         if coin_amount > 0:
             execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin)
 
-            # Log the entry
             log_trade_multi(
                 coin=coin,
                 strategy="RSI_5MIN",
@@ -152,19 +102,44 @@ def run(price_data, user_id, coin="BTC", mode=None):
     elif state["status"] == "Holding" and rsi_value > 70:
         coin_amount = state.get("amount", 0.0)
         buy_price = state.get("buy_price", 0.0)
-        cur_price = price_data["price"]
         only_sell_profit = get_setting("only_sell_in_profit", "rsi_5min")
-        min_profit_usd = 1.00  # Optional: only sell if profit > $1.00
+        min_profit_usd = 1.00
 
         profit_usd = (cur_price - buy_price) * coin_amount
         is_profitable = profit_usd > min_profit_usd
 
         if coin_amount > 0 and (not only_sell_profit or is_profitable):
             execute_trade(bot_name, "sell", coin_amount, cur_price, mode, coin)
-            update_profit_json(user_id, coin, mode, coin_amount, profit_usd)
 
-            # NEW: Log to all timeframes
-            from utils.performance_logger import log_trade_multi
+            # Log profit to JSON
+            profit_path = f"{coin.lower()}_profits.json"
+            profit_data = load_user_state(user_id, "performance", profit_path, mode) or {
+                f"total_{coin.lower()}_accumulated": 0.0,
+                "total_profit_usd": 0.0,
+                "total_trades": 0,
+                "last_trade_time": None,
+                "bots": {
+                    "rsi_5min": {
+                        f"{coin.lower()}_accumulated": 0.0,
+                        "profit_usd": 0.0,
+                        "trades": 0
+                    }
+                }
+            }
+
+            profit_data[f"total_{coin.lower()}_accumulated"] += coin_amount
+            profit_data["total_profit_usd"] += profit_usd
+            profit_data["total_trades"] += 1
+            profit_data["last_trade_time"] = datetime.utcnow().isoformat()
+
+            bot_stats = profit_data["bots"].get("rsi_5min", {})
+            bot_stats[f"{coin.lower()}_accumulated"] += coin_amount
+            bot_stats["profit_usd"] += profit_usd
+            bot_stats["trades"] += 1
+            profit_data["bots"]["rsi_5min"] = bot_stats
+
+            save_user_state(user_id, "performance", profit_path, profit_data, mode)
+
             log_trade_multi(
                 coin=coin,
                 strategy="RSI_5MIN",
@@ -186,7 +161,9 @@ def run(price_data, user_id, coin="BTC", mode=None):
         else:
             print(f"⚠️ {bot_name} skipped sell — RSI > 70 but profit condition not met. P/L: ${profit_usd:.2f}")
 
-    save_bot_state(user_id, coin, STRATEGY, state, mode)
+    # === Save updated strategy state ===
+    full_state[STRATEGY] = state
+    save_user_state(user_id, "current", f"{coin}_state.json", full_state, mode)
     print(f"💾 {bot_name} state saved: {state}")
 
 if __name__ == "__main__":
