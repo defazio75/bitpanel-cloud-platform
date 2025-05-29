@@ -14,7 +14,7 @@ COIN = "BTC"
 STRATEGY = "RSI_5MIN"
 
 # === Calculate allocation ===
-def calculate_btc_allocation(price, allocation_pct, user_id, mode):
+def calculate_coin_allocation(price, allocation_pct, user_id, mode):
     portfolio_value = get_total_portfolio_value(user_id, mode)
     allocated_usd = (allocation_pct / 100) * portfolio_value
     return allocated_usd / price if price else 0
