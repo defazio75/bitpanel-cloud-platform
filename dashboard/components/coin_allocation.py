@@ -12,24 +12,23 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 from rebalance_bot import rebalance_hodl
 
 # === Determine Mode ===
-def get_portfolio_file(mode):
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+def get_portfolio_file(mode, user_id):
     folder = "json_paper" if mode == "paper" else "json_live"
-    return os.path.join(base_dir, "data", folder, "portfolio", "portfolio_snapshot.json")
+    return os.path.join("data", folder, user_id, "portfolio", "portfolio_snapshot.json")
 
-def get_state_path(coin, mode):
-    return os.path.join("data", f"json_{mode}", "current", f"{coin}_state.json")
+def get_state_path(coin, mode, user_id):
+    return os.path.join("data", f"json_{mode}", user_id, "current", f"{coin}_state.json")
 
-def load_target_usd(coin, mode):
-    path = get_state_path(coin, mode)
+def load_target_usd(coin, mode, user_id):
+    path = get_state_path(coin, mode, user_id)
     if os.path.exists(path):
         with open(path, "r") as f:
             state = json.load(f)
         return state.get("HODL", {}).get("target_usd", 0.0)
     return 0.0
 
-def save_target_usd(coin, mode, target_usd):
-    path = get_state_path(coin, mode)
+def save_target_usd(coin, mode, user_id, target_usd):
+    path = get_state_path(coin, mode, user_id)
     if os.path.exists(path):
         with open(path, "r") as f:
             state = json.load(f)
@@ -46,15 +45,15 @@ def save_target_usd(coin, mode, target_usd):
 
     return True
 
-def render(mode=None):
+def render(mode=None, user_id=None):
     st.write("Active Mode:", mode)
     st.title("🎯 Coin Allocation")
 
     if mode is None:
-        mode = get_mode()
+        mode = get_mode(user_id)
 
     folder = "json_paper" if mode == "paper" else "json_live"
-    PORTFOLIO_FILE = get_portfolio_file(mode)
+    PORTFOLIO_FILE = get_portfolio_file(mode, user_id)
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
@@ -96,7 +95,7 @@ def render(mode=None):
 
     coin_data = {}
     for coin, info in portfolio_data["coins"].items():
-        target_usd = load_target_usd(coin, mode)
+        target_usd = load_target_usd(coin, mode, user_id)
         coin_data[coin] = {
             "amount": info.get("balance", 0),
             "usd": info.get("usd", 0),
@@ -167,10 +166,10 @@ def render(mode=None):
                     st.success(f"Buying {coin_amount:.6f} {selected_coin} for ${usd_amount:,.2f}")
                     current_usd = data.get("usd", 0)
                     new_target_usd = round(current_usd + usd_amount, 2)
-                    success = save_target_usd(selected_coin, mode, new_target_usd)
+                    success = save_target_usd(selected_coin, mode, user_id, new_target_usd)
                     if success:
                         st.success("✅ Allocation updated. Rebalancing...")
-                        rebalance_hodl()
+                        rebalance_hodl(user_id=user_id)
                         st.rerun()
 
             # SELL SECTION
@@ -200,10 +199,10 @@ def render(mode=None):
                     st.warning(f"Selling {sell_coin_amount:.6f} {selected_coin} for ${sell_usd_amount:,.2f}")
                     current_usd = data.get("usd", 0)
                     new_target_usd = round(max(current_usd - sell_usd_amount, 0), 2)
-                    success = save_target_usd(selected_coin, mode, new_target_usd)
+                    success = save_target_usd(selected_coin, mode, user_id, new_target_usd)
                     if success:
                         st.success("✅ Allocation updated. Rebalancing...")
-                        rebalance_hodl()
+                        rebalance_hodl(user_id=user_id)
                         st.rerun()
 
     with col_right:
