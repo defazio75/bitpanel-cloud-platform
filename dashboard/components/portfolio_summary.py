@@ -31,7 +31,7 @@ def render_portfolio_summary(mode=None, user_id=None):
                 "coins": {}
             }
 
-        prices = get_prices(user_id=user_id)
+        prices = get_prices()
 
         # Recalculate total value using latest prices
         total_value = snapshot.get("usd_balance", 0)
