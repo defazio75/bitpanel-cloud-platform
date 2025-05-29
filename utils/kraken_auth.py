@@ -3,7 +3,8 @@
 import krakenex
 from utils.load_keys import API_KEY, API_SECRET
 
-def get_kraken_clients():
+def get_kraken_clients(user_id):
+    api_key, api_secret = load_keys(user_id)
 
     api = krakenex.API()
     api.key = API_KEY
