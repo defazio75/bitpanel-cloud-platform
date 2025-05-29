@@ -43,7 +43,7 @@ if "user" not in st.session_state:
  
 user_id = st.session_state.user["id"]
 exchange = "kraken"  # Default for now
-keys = load_api_keys()
+keys = load_api_keys(user_id=user_id)
 
 # === Sync session_state with mode.json on load ===
 current_mode = get_mode(user_id)
