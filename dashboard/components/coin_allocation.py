@@ -113,7 +113,7 @@ def render(mode=None, user_id=None):
         st.warning("No coin data available.")
         return
 
-    selected_coin = st.selectbox("Choose Coin", list(coin_data.keys()))
+    col_left, col_right = st.columns([2, 1])
 
     data = coin_data.get(selected_coin, {})
 
@@ -131,8 +131,8 @@ def render(mode=None, user_id=None):
             max_sell_usd = float(max(coin_balance * coin_price, 0.0)) if coin_price > 0 else 0.0
 
             # Keys for session state
-            buy_key = f"buy_usd_input_{selected_coin}"
-            sell_key = f"sell_usd_input_{selected_coin}"
+            buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
+            sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
 
             # Initialize session state
             if buy_key not in st.session_state:
@@ -147,10 +147,7 @@ def render(mode=None, user_id=None):
             with col1:
                 st.subheader("Buy")
 
-                buy_key = f"buy_usd_input_{selected_coin}_{mode}"
-                sell_key = f"sell_usd_input_{selected_coin}_{mode}"
-
-                if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}_{mode}"):
+                if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}_{mode}_{user_id}"):
                     st.session_state[buy_key] = min(round(max_buy_usd, 2), float(f"{max_buy_usd:.2f}"))
 
                 st.number_input(
@@ -166,7 +163,7 @@ def render(mode=None, user_id=None):
                 coin_amount = usd_amount / coin_price if coin_price > 0 else 0
                 st.write(f"Equivalent: **{coin_amount:.6f} {selected_coin}** at ${coin_price:,.2f}")
 
-                if st.button(f"Buy {selected_coin}"):
+                if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}_{mode}_{user_id}"):
                     st.success(f"Buying {coin_amount:.6f} {selected_coin} for ${usd_amount:,.2f}")
                     current_usd = data.get("usd", 0)
                     new_target_usd = round(current_usd + usd_amount, 2)
@@ -183,7 +180,7 @@ def render(mode=None, user_id=None):
                 if sell_key not in st.session_state:
                     st.session_state[sell_key] = 0.0
 
-                if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}_{mode}"):
+                if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}_{mode}_{user_id}"):
                     st.session_state[sell_key] = float(f"{min(max_sell_usd, max_sell_usd - 0.01):.2f}")
 
                 st.number_input(
@@ -199,7 +196,7 @@ def render(mode=None, user_id=None):
                 sell_coin_amount = sell_usd_amount / coin_price if coin_price > 0 else 0
                 st.write(f"Equivalent: **{sell_coin_amount:.6f} {selected_coin}** at ${coin_price:,.2f}")
 
-                if st.button(f"Sell {selected_coin}"):
+                if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}_{mode}_{user_id}"):
                     st.warning(f"Selling {sell_coin_amount:.6f} {selected_coin} for ${sell_usd_amount:,.2f}")
                     current_usd = data.get("usd", 0)
                     new_target_usd = round(max(current_usd - sell_usd_amount, 0), 2)
