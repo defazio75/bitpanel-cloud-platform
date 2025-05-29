@@ -10,7 +10,6 @@ from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_dca_trade
 
 STRATEGY = "DCA_MATRIX"
-COIN = "BTC"
 
 # === DCA Matrix Definition ===
 DCA_ZONES = [
@@ -21,18 +20,26 @@ DCA_ZONES = [
     {"drop_pct": 7, "alloc_pct": 30, "sell_pct": 3},
     {"drop_pct": 10, "alloc_pct": 40, "sell_pct": 3}
 ]
-
-# === Load state ===
-def load_bot_state(coin, mode):
-    path = f"data/json_{mode}/current/{coin}_state.json"
+def load_strategy_allocation(user_id, coin, strategy_name, mode):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
     if os.path.exists(path):
         with open(path, "r") as f:
+            data = json.load(f)
+            return data.get(strategy_name, {}).get("allocation_pct", 0)
+    return 0
+
+# === Load state ===
+def load_bot_state(user_id, coin, mode):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
+    try:
+        with open(path, "r") as f:
             return json.load(f).get(STRATEGY, {})
-    return {}
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
 
 # === Save state ===
-def save_bot_state(coin, mode, state):
-    path = f"data/json_{mode}/current/{coin}_state.json"
+def save_bot_state(user_id, coin, mode, state):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
     os.makedirs(os.path.dirname(path), exist_ok=True)
     full = {}
     if os.path.exists(path):
@@ -43,14 +50,14 @@ def save_bot_state(coin, mode, state):
         json.dump(full, f, indent=2)
 
 # === Main Bot Logic ===
-def run(price_data, coin="BTC", mode=None):
+def run(price_data, user_id, coin="BTC", mode=None):
     if not mode:
         mode = get_mode()
-    print(f"\n🔁 Running {STRATEGY} in {mode.upper()} mode")
+    print(f"\n🔁 Running {STRATEGY} for {user_id} in {mode.upper()} mode")
 
-    state = load_bot_state(coin, mode)
+    state = load_bot_state(user_id, coin, mode)
     cur_price = price_data.get("price")
-    allocation_pct = load_strategy_allocations(mode).get(coin, {}).get(STRATEGY, 0)
+    allocation_pct = load_strategy_allocation(user_id, coin, STRATEGY, mode)
 
     if allocation_pct <= 0:
         print(f"⚠️ No allocation set for {STRATEGY}. Exiting.")
@@ -63,8 +70,8 @@ def run(price_data, coin="BTC", mode=None):
 
     open_tranches = state.get("open_tranches", [])
     sold_tranches = state.get("sold_tranches", [])
-    portfolio_value = get_total_portfolio_value(mode)
-    balances = get_live_balances() if mode == "live" else load_paper_balances()
+    portfolio_value = get_total_portfolio_value(user_id, mode)
+    balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
 
     # === Auto-initialize tranche if BTC is held but bot is empty ===
     if not open_tranches and balances.get(coin.upper(), 0) > 0:
@@ -81,6 +88,7 @@ def run(price_data, coin="BTC", mode=None):
         })
 
         log_dca_trade(
+            user_id=user_id,
             coin=coin,
             action="buy",
             amount=amount,
@@ -103,6 +111,7 @@ def run(price_data, coin="BTC", mode=None):
             execute_trade(STRATEGY.lower(), "buy", amount, cur_price, mode, coin)
 
             log_dca_trade(
+                user_id=user_id,
                 coin=coin,
                 action="buy",
                 amount=amount,
@@ -130,6 +139,7 @@ def run(price_data, coin="BTC", mode=None):
             execute_trade(STRATEGY.lower(), "sell", t["amount"], cur_price, mode, coin)
 
             log_dca_trade(
+                user_id=user_id,
                 coin=coin,
                 action="sell",
                 amount=t["amount"],
@@ -138,7 +148,7 @@ def run(price_data, coin="BTC", mode=None):
                 notes=f"DCA Matrix Zone {t['zone']} Exit"
             )
 
-            profit_btc = (cur_price - t["buy_price"]) * t["amount"] / cur_price
+            profit_usd = (cur_price - t["buy_price"]) * t["amount"]
             sold_tranches.append({
                 "zone": t["zone"],
                 "buy_price": t["buy_price"],
@@ -155,8 +165,8 @@ def run(price_data, coin="BTC", mode=None):
         "open_tranches": new_tranches,
         "sold_tranches": sold_tranches
     }
-    save_bot_state(coin, mode, state)
+    save_bot_state(user_id, coin, mode, state)
     print(f"💾 {STRATEGY} state saved")
 
-if __name__ == "__main__":
-    run({"price": 98000})
+# if __name__ == "__main__":
+#     run({"price": 98000}, user_id="test_user", coin="BTC", mode="paper")
