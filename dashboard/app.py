@@ -155,7 +155,7 @@ with st.sidebar:
             col1, col2 = st.columns([1, 1])
             with col1:
                 if st.button("✅ Confirm Reset", key="confirm_reset_btn"):
-                    reset_paper_account()
+                    reset_paper_account(user_id)
                     st.success("Paper account reset successfully.")
                     st.session_state.show_reset_confirm = False
             with col2:
