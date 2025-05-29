@@ -6,7 +6,7 @@ from config.config import get_mode
 from trade_executor import execute_trade
 
 def rebalance_hodl(user_id):
-    mode = get_mode()
+    mode = get_mode(user_id=user_id)
     print(f"[Rebalance HODL] Running in {mode.upper()} mode...")
 
     folder = f"json_{mode}/{user_id}"
