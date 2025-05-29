@@ -1,4 +1,10 @@
-# === Strategy Configuration ===
+# config/config.py
+
+import json
+import os
+import streamlit as st
+
+# === Default Strategy Configuration ===
 
 # Allocation settings
 BTC_HOLDING_PERCENT = 0.25
@@ -26,32 +32,31 @@ QUOTE_ASSET = 'ZUSD'
 # General
 MIN_TRADE_USD = 10
 
-# === Mode Handling ===
+# === Multi-User Mode Handling ===
 
-import json
-import os
-import streamlit as st
+def get_user_mode_path(user_id):
+    return os.path.join("config", "user_modes", f"{user_id}.json")
 
-CONFIG_FILE = "config/user_settings.json"
-
-def save_mode(mode):
+def save_mode(mode, user_id):
     try:
-        with open(CONFIG_FILE, "w") as f:
+        os.makedirs("config/user_modes", exist_ok=True)
+        with open(get_user_mode_path(user_id), "w") as f:
             json.dump({"mode": mode}, f)
         st.session_state["mode"] = mode
     except Exception as e:
-        print(f"Failed to save mode: {e}")
+        print(f"❌ Failed to save mode for user {user_id}: {e}")
 
-def get_mode():
+def get_mode(user_id):
     if "mode" in st.session_state:
         return st.session_state["mode"]
 
+    path = get_user_mode_path(user_id)
+
     try:
-        with open(CONFIG_FILE, "r") as f:
+        with open(path, "r") as f:
             mode = json.load(f).get("mode", "paper")
     except (FileNotFoundError, json.JSONDecodeError):
         mode = "paper"
 
-    # Set the session state for consistent access later
     st.session_state["mode"] = mode
     return mode
