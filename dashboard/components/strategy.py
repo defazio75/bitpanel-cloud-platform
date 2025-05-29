@@ -6,102 +6,65 @@ import os
 import pandas as pd
 from utils.kraken_wrapper import get_prices
 
-def load_portfolio_snapshot(mode):
-    file_path = f"data/json_{mode}/portfolio/portfolio_snapshot.json"
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            raw = json.load(f)
-        coins = raw.get("coins", {})
-        return {
-            coin: {
-                "amt": data["balance"],
-                "usd": round(data["balance"] * data["price"], 2)
-            }
-            for coin, data in coins.items()
-        }
-    else:
-        st.error("❌ Portfolio file not found.")
-    return {}
+# === Strategy File Utilities ===
+def get_strategy_path(mode, user_id):
+    return os.path.join("config", user_id, f"strategy_allocations_{mode}.json")
 
-def load_strategy_state(coin, strategy_options, mode):
-    path = f"config/strategy_allocations_{mode}.json"
+def get_snapshot_path(mode, user_id):
+    folder = "json_paper" if mode == "paper" else "json_live"
+    return os.path.join("data", folder, user_id, "portfolio", "portfolio_snapshot.json")
 
-    # Mapping from internal bot keys to UI display names
-    internal_to_display_map = {
-        "RSI_5MIN": "RSI 5-Min",
-        "RSI_1HR": "RSI 1-Hour",
-        "BOLLINGER": "Bollinger Bot",
-        "DCA_MATRIX": "DCA Matrix",
-        "HODL": "HODL"
-    }
+def get_state_path(coin, mode, user_id):
+    folder = f"json_{mode}"
+    return os.path.join("data", folder, user_id, "current", f"{coin}_state.json")
 
+def load_strategy_state(coin, strategy_options, mode, user_id):
+    path = get_state_path(coin, mode, user_id)
     if os.path.exists(path):
         with open(path, "r") as f:
-            data = json.load(f)
+            state = json.load(f)
+    else:
+        state = {}
 
-        raw = data.get(coin, {})
-        return {
-            internal_to_display_map.get(k, k): v for k, v in raw.items()
-            if internal_to_display_map.get(k, k) in strategy_options
-        }
+    return {strategy: state.get(strategy, {}).get("allocation", 0) for strategy in strategy_options}
 
-    return {strategy: (100 if strategy == "HODL" else 0) for strategy in strategy_options}
+def save_strategy_state(coin, allocations, mode, user_id):
+    path = get_state_path(coin, mode, user_id)
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            state = json.load(f)
+    else:
+        state = {}
 
-def save_strategy_state(coin, allocations, mode):
-    path = f"config/strategy_allocations_{mode}.json"
+    for strategy, allocation in allocations.items():
+        if strategy not in state:
+            state[strategy] = {}
+        state[strategy]["allocation"] = allocation
 
-    # Load existing or create new
+    with open(path, "w") as f:
+        json.dump(state, f, indent=2)
+
+def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, mode, user_id):
+    path = get_strategy_path(mode, user_id)
     if os.path.exists(path):
         with open(path, "r") as f:
             data = json.load(f)
     else:
         data = {}
 
-    # ✅ Remap UI keys to internal bot keys
-    strategy_key_map = {
-        "RSI 5-Min": "RSI_5MIN",
-        "RSI 1-Hour": "RSI_1HR",
-        "Bollinger Bot": "BOLLINGER",
-        "DCA Matrix": "DCA_MATRIX",
-        "HODL": "HODL"
-    }
-
-    data[coin] = {
-        strategy_key_map.get(k, k): v for k, v in allocations.items()
-    }
+    data[coin] = allocations
 
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
-def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, mode):
-    state_path = f"data/json_{mode}/current/{coin}_state.json"
-    prices = get_prices()
-    price = prices.get(coin, 0)
+def load_portfolio_snapshot(mode, user_id):
+    path = get_snapshot_path(mode, user_id)
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            return json.load(f)
+    return {}
 
-    strategy_key_map = {
-        "RSI 5-Min": "RSI_5MIN",
-        "RSI 1-Hour": "RSI_1HR",
-        "Bollinger Bot": "BOLLINGER",
-        "DCA Matrix": "DCA_MATRIX",
-        "HODL": "HODL"
-    }
-
-    state = {}
-    for strategy_display, percent in allocations.items():
-        strategy_key = strategy_key_map.get(strategy_display, strategy_display)
-        allocation_usd = (percent / 100) * coin_usd
-        allocation_amt = allocation_usd / price if price > 0 else 0
-        state[strategy_key] = {
-            "amount": round(allocation_amt, 8),
-            "usd_held": 0.0,
-            "status": "Holding" if percent > 0 else "Inactive",
-            "buy_price": price
-        }
-
-    with open(state_path, "w") as f:
-        json.dump(state, f, indent=2)
-
-def render(mode):
+def render(mode, user_id):
     st.title("🧠 Strategy Controls")
 
     strategy_options = ["HODL", "RSI 5-Min", "RSI 1-Hour", "Bollinger Bot", "DCA Matrix"]
@@ -109,13 +72,13 @@ def render(mode):
     prices = get_prices()
 
     try:
-        alloc_test = load_strategy_state("BTC", strategy_options, mode)
+        alloc_test = load_strategy_state("BTC", strategy_options, mode, user_id)
     except Exception as e:
         st.warning("⚠️ Unable to load strategy allocations for BTC.")
 
     coin_list = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
 
-    holdings_data = load_portfolio_snapshot(mode)
+    holdings_data = load_portfolio_snapshot(mode, user_id)
 
     if "strategy_allocations" not in st.session_state:
         st.session_state.strategy_allocations = {
@@ -156,7 +119,7 @@ def render(mode):
 
             strategy_live_values = {}
             coin_price = prices.get(coin, 0)
-            state_path = f"data/json_{mode}/current/{coin}_state.json"
+            state_path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
             if os.path.exists(state_path):
                 with open(state_path, "r") as f:
                     strategy_states = json.load(f)
@@ -253,14 +216,14 @@ def render(mode):
                         if total_check != 100:
                             st.error("Allocations must equal 100%")
                         else:
-                            save_strategy_state(coin, allocations, mode)
-                            save_full_strategy_breakdown(coin, allocations, coin_amt, current_usd, mode)
+                            save_strategy_state(coin, allocations, mode, user_id)
+                            save_full_strategy_breakdown(coin, allocations, coin_amt, current_usd, mode, user_id)
                             st.success(f"{coin} strategy updated.")
                             st.session_state.pending_strategy_changes[coin] = False
                             st.rerun()
                 with col2:
                     if st.button(f"❌ Cancel {coin} Changes"):
-                        st.session_state.strategy_allocations[coin] = load_strategy_state(coin, strategy_options, mode)
+                        st.session_state.strategy_allocations[coin] = load_strategy_state(coin, strategy_options, mode, user_id)
                         st.session_state.pending_strategy_changes[coin] = False
                         st.rerun()
 
