@@ -10,7 +10,7 @@ from utils.json_utils import load_user_state, get_user_data_path
 # === Portfolio Summary (Aggregates all bot states per coin) ===
 def load_portfolio_summary(user_id, mode=None):
     if not mode:
-        mode = get_mode()
+        mode = get_mode(user_id)
 
     state_folder = os.path.join("data", f"json_{mode}", user_id, "current")
     portfolio_summary = {}
@@ -46,7 +46,7 @@ def load_portfolio_summary(user_id, mode=None):
 # === Load Trade Log (CSV) ===
 def load_trade_log(user_id, mode=None):
     if not mode:
-        mode = get_mode()
+        mode = get_mode(user_id)
 
     log_path = os.path.join("data", f"json_{mode}", user_id, "logs", "trade_log.csv")
 
@@ -65,7 +65,7 @@ def load_trade_log(user_id, mode=None):
 # === Load All Bot States ===
 def load_bot_states(user_id, mode=None):
     if not mode:
-        mode = get_mode()
+        mode = get_mode(user_id)
 
     bot_states = {}
     state_folder = os.path.join("data", f"json_{mode}", user_id, "current")
