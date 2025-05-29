@@ -43,6 +43,39 @@ def load_user_api_keys(user_id, exchange):
         encrypted_secret = result.val().get("secret", "")
         return {
             "key": decrypt_string(encrypted_key),
+
+import pyrebase
+from utils.firebase_config import firebase
+
+# === Get all registered user IDs ===
+def get_all_user_ids():
+    try:
+        users = firebase.database().child("users").get()
+        return [user.key() for user in users.each()] if users.each() else []
+    except Exception as e:
+        print(f"❌ Failed to fetch user IDs: {e}")
+        return []
+
+# === Get saved Kraken API keys for a user ===
+def get_api_keys(user_id):
+    try:
+        keys = firebase.database().child("api_keys").child(user_id).child("kraken").get()
+        return keys.val() if keys.val() else None
+    except Exception as e:
+        print(f"❌ Failed to fetch API keys for {user_id}: {e}")
+        return None
+
+# === Get user's saved strategy config ===
+def load_strategy_config(user_id):
+    try:
+        config = firebase.database().child("users").child(user_id).child("strategies").get()
+        return config.val() if config.val() else {}
+    except Exception as e:
+        print(f"❌ Failed to load strategy config for {user_id}: {e}")
+        return {}
+
+
+
             "secret": decrypt_string(encrypted_secret)
         }
     return None
