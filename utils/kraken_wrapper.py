@@ -60,7 +60,7 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
     return response.json()
 
 # === Live Price Fetching ===
-def get_prices():
+def get_prices(user_id=None):
     pairs = {
         "BTC": "XXBTZUSD",
         "ETH": "XETHZUSD",
@@ -230,7 +230,7 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
     if not user_id:
         raise ValueError("❌ user_id is required to save portfolio snapshot.")
     balances = get_live_balances(user_id=user_id)
-    prices = get_prices()
+    prices = get_prices(user_id=user_id) 
 
     snapshot = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
