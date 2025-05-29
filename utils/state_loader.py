@@ -1,14 +1,18 @@
 # /dashboard/utils/state_loader.py
-from config.config import get_mode
+
 import os
 import json
 import csv
+from config.config import get_mode
+from utils.json_utils import load_user_state, get_user_data_path
 
-def load_portfolio_summary(mode=None):
+
+# === Portfolio Summary (Aggregates all bot states per coin) ===
+def load_portfolio_summary(user_id, mode=None):
     if not mode:
         mode = get_mode()
 
-    state_folder = os.path.join("data", f"json_{mode}", "current")
+    state_folder = os.path.join("data", f"json_{mode}", user_id, "current")
     portfolio_summary = {}
 
     if not os.path.exists(state_folder):
@@ -17,50 +21,34 @@ def load_portfolio_summary(mode=None):
     for coin_folder in os.listdir(state_folder):
         coin_path = os.path.join(state_folder, coin_folder)
         if not os.path.isdir(coin_path):
-            continue  # skip non-folders
+            continue
 
         for filename in os.listdir(coin_path):
             if filename.endswith(".json"):
                 bot_name = filename.replace(".json", "")
                 full_path = os.path.join(coin_path, filename)
+
                 with open(full_path, 'r') as f:
-                    data = json.load(f)
-                    portfolio_summary[bot_name] = {
-                        'btc_held': data.get('btc_held', 0.0),
-                        'usd_value': data.get('usd_value', 0.0),
-                        'status': data.get('status', 'Unknown')
-                    }
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        data = {}
+
+                portfolio_summary[bot_name] = {
+                    'btc_held': data.get('btc_held', 0.0),
+                    'usd_value': data.get('usd_value', 0.0),
+                    'status': data.get('status', 'Unknown')
+                }
 
     return portfolio_summary
 
-def load_balances(mode=None):
+
+# === Load Trade Log (CSV) ===
+def load_trade_log(user_id, mode=None):
     if not mode:
         mode = get_mode()
 
-    balances = {}
-    folder_path = os.path.join("data", f"json_{mode}", "balances")
-
-    if not os.path.exists(folder_path):
-        return balances
-
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".json"):
-            coin = filename.replace(".json", "").upper()
-            try:
-                with open(os.path.join(folder_path, filename), "r") as f:
-                    data = json.load(f)
-                    balance = data.get("balance", 0.0)
-                    balances[coin] = balance
-            except Exception as e:
-                print(f"Error loading {filename}: {e}")
-
-    return balances
-
-def load_trade_log(mode=None, coin_filter=None):
-    if not mode:
-        mode = get_mode()
-
-    log_path = os.path.join("data", f"json_{mode}", "logs", "trade_log.csv")
+    log_path = os.path.join("data", f"json_{mode}", user_id, "logs", "trade_log.csv")
 
     if not os.path.exists(log_path):
         return []
@@ -68,22 +56,19 @@ def load_trade_log(mode=None, coin_filter=None):
     try:
         with open(log_path, 'r') as f:
             reader = csv.DictReader(f)
-            return [row for row in reader if any(row.values())]  # skip empty rows
+            return [row for row in reader if any(row.values())]
     except Exception as e:
         print(f"⚠️ Error loading trade log: {e}")
         return []
 
-def load_allocations():
-    path = os.path.join('config', 'allocations.json')
-    with open(path, 'r') as f:
-        return json.load(f)
 
-def load_bot_states(mode=None):
+# === Load All Bot States ===
+def load_bot_states(user_id, mode=None):
     if not mode:
         mode = get_mode()
 
-    state_folder = os.path.join("data", f"json_{mode}", "current")
     bot_states = {}
+    state_folder = os.path.join("data", f"json_{mode}", user_id, "current")
 
     if not os.path.exists(state_folder):
         return bot_states
@@ -91,7 +76,7 @@ def load_bot_states(mode=None):
     for coin_folder in os.listdir(state_folder):
         coin_path = os.path.join(state_folder, coin_folder)
         if not os.path.isdir(coin_path):
-            continue  # skip anything not a folder
+            continue
 
         for filename in os.listdir(coin_path):
             if filename.endswith(".json"):
@@ -108,14 +93,9 @@ def load_bot_states(mode=None):
 
     return bot_states
 
-def save_state(bot_name, state_data, mode=None, coin="BTC"):
-    if not mode:
-        mode = get_mode()
 
-    coin = coin.upper()
-    state_folder = os.path.join("data", f"json_{mode}", "current", coin)
-    os.makedirs(state_folder, exist_ok=True)
-
-    state_path = os.path.join(state_folder, f"{bot_name}.json")
-    with open(state_path, "w") as f:
-        json.dump(state_data, f, indent=4)
+# === Global Allocations Loader (no user scope) ===
+def load_allocations():
+    path = os.path.join('config', 'allocations.json')
+    with open(path, 'r') as f:
+        return json.load(f)
