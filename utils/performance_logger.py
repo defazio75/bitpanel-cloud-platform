@@ -61,6 +61,19 @@ def log_dca_trade(user_id, coin, action, amount, price, mode=None, notes=""):
 
     base_path = os.path.join("data", "logs", mode, user_id, "dca")
 
+def log_execution_event(user_id, message, mode=None):
+    if not mode:
+        mode = get_mode(user_id)
+
+    now = datetime.now()
+    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    log_path = os.path.join("data", "logs", mode, user_id, "execution_log.csv")
+    headers = ["Timestamp", "Message"]
+    row = [timestamp, message]
+
+    write_log_row(log_path, headers, row)
+    print(f"⚙️ Execution Event Logged: {message}")
+
     headers = ["Timestamp", "Coin", "Action", "Amount", "Price", "USD Value", "Notes"]
     row = [timestamp, coin, action, round(amount, 6), round(price, 2), usd_value, notes]
     write_log_row(os.path.join(base_path, "daily", f"{date_str}_dca_log.csv"), headers, row)
