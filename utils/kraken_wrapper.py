@@ -22,13 +22,16 @@ def rate_limited_query_public(endpoint, params=None):
     response.raise_for_status()
     return response.json()
 
-def rate_limited_query_private(endpoint, data=None):
+def rate_limited_query_private(endpoint, data=None, user_id=None):
     from utils.load_keys import load_api_keys
 
     if data is None:
         data = {}
 
-    keys = load_api_keys()
+    if not user_id:
+        raise ValueError("❌ user_id is required for private Kraken calls.")
+
+    keys = load_api_keys(user_id=user_id)
     api_key = keys.get("key")
     api_secret = keys.get("secret")
 
@@ -77,9 +80,9 @@ def get_prices():
     return prices
 
 # === Live Balances (Private API) ===
-def get_live_balances():
+def get_live_balances(user_id=None):
     try:
-        raw = rate_limited_query_private("Balance")
+        raw = rate_limited_query_private("Balance", user_id=user_id)
         balances = raw.get("result", {})
         mapped = {}
 
@@ -223,8 +226,10 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
     last_bb = (upper.iloc[-1] - lower.iloc[-1]) / sma.iloc[-1]
     return round(last_bb, 4)
 
-def save_portfolio_snapshot(mode="live", auto_rebalance=False):
-    balances = get_live_balances()
+def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
+    if not user_id:
+        raise ValueError("❌ user_id is required to save portfolio snapshot.")
+    balances = get_live_balances(user_id=user_id)
     prices = get_prices()
 
     snapshot = {
@@ -262,11 +267,11 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False):
 
     # === Correct folders based on your structure ===
     if mode == "paper":
-        snapshot_path = "data/json_paper/portfolio/portfolio_snapshot.json"
-        log_path = "data/logs/paper/live_portfolio.json"
+        snapshot_path = f"data/json_paper/{user_id}/portfolio/portfolio_snapshot.json"
+        log_path = f"data/logs/paper/{user_id}/live_portfolio.json"
     else:
-        snapshot_path = "data/json_live/portfolio/portfolio_snapshot.json"
-        log_path = "data/logs/live/live_portfolio.json"
+        snapshot_path = f"data/json_live/{user_id}/portfolio/portfolio_snapshot.json"
+        log_path = f"data/logs/live/{user_id}/live_portfolio.json"
 
     # Ensure folders exist and save
     os.makedirs(os.path.dirname(snapshot_path), exist_ok=True)
@@ -283,6 +288,6 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False):
     if auto_rebalance and mode == "live":
         try:
             from bots.rebalance_bot import rebalance_hodl
-            rebalance_hodl()
+            rebalance_hodl(user_id=user_id)
         except Exception as e:
             print(f"❌ Failed to auto-rebalance: {e}")
