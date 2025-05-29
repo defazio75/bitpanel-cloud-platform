@@ -82,7 +82,7 @@ def render(mode, user_id):
 
     if "strategy_allocations" not in st.session_state:
         st.session_state.strategy_allocations = {
-            coin: load_strategy_state(coin, strategy_options, mode)
+            coin: load_strategy_state(coin, strategy_options, mode, user_id)
             for coin in coin_list
         }
 
