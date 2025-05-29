@@ -15,7 +15,7 @@ def write_log_row(file_path, headers, row):
         writer.writerow(row)
 
 # === Trade Logger (Daily/Weekly/Monthly/Yearly) ===
-def log_trade_multi(user_id, coin, strategy, action, amount, price, mode=None, profit_usd=0.0, notes=""):
+def log_trade_trade(user_id, coin, strategy, action, amount, price, mode=None, profit_usd=0.0, notes=""):
     if not user_id:
         raise ValueError("❌ user_id is required for logging trades.")
 
@@ -62,4 +62,5 @@ def log_dca_trade(user_id, coin, action, amount, price, mode=None, notes=""):
     base_path = os.path.join("data", "logs", mode, user_id, "dca")
 
     headers = ["Timestamp", "Coin", "Action", "Amount", "Price", "USD Value", "Notes"]
-    row = [timestamp, coin, action, round(amount,]()
+    row = [timestamp, coin, action, round(amount, 6), round(price, 2), usd_value, notes]
+    write_log_row(os.path.join(base_path, "daily", f"{date_str}_dca_log.csv"), headers, row)
