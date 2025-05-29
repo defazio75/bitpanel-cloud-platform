@@ -1,11 +1,11 @@
 import os
 import json
 
-def load_total_profit(mode="paper"):
+def load_total_profit(user_id, mode="paper"):
     """
     Load and sum total_profit_usd across all performance files by coin
     """
-    path = os.path.join("data", f"json_{mode}", "performance")
+    path = os.path.join("data", f"json_{mode}", user_id, "performance")
     if not os.path.exists(path):
         return 0.0
 
