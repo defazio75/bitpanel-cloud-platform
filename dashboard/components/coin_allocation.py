@@ -109,16 +109,11 @@ def render(mode=None, user_id=None):
     selected_coin = st.selectbox("Choose Coin", list(coin_data.keys()))
     updated_allocations = {}
 
-    col_left, col_right = st.columns([2, 1])
-
-    if "selected_coin" not in st.session_state or st.session_state.selected_coin is None:
-        st.session_state.selected_coin = next(iter(coin_data), None)  # Pick first available coin if any
-
-    selected_coin = st.session_state.selected_coin
-
-    if selected_coin is None:
+    if not coin_data:
         st.warning("No coin data available.")
         return
+
+    selected_coin = st.selectbox("Choose Coin", list(coin_data.keys()))
 
     data = coin_data.get(selected_coin, {})
 
