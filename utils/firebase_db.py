@@ -75,9 +75,3 @@ def load_strategy_config(user_id):
     except Exception as e:
         print(f"❌ Failed to load strategy config for {user_id}: {e}")
         return {}
-
-
-
-        "secret": decrypt_string(encrypted_secret)
-    }
-return None
