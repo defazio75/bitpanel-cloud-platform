@@ -79,7 +79,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
     if state["status"] == "none" and rsi_value < 30:
         coin_amount = calculate_btc_allocation(cur_price, allocation_pct, user_id, mode)
         if coin_amount > 0:
-            execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin)
+            execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin, user_id)
 
             log_trade_multi(
                 coin=coin,
@@ -108,7 +108,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
         is_profitable = profit_usd > min_profit_usd
 
         if coin_amount > 0 and (not only_sell_profit or is_profitable):
-            execute_trade(bot_name, "sell", coin_amount, cur_price, mode, coin)
+            execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin, user_id)
 
             # Log profit to JSON
             profit_path = f"{coin.lower()}_profits.json"
