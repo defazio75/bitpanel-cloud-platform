@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
+import pyrebase
+from utils.firebase_config import firebase
 
 def save_user_profile(user_id, name, email, token):
     """
@@ -43,9 +45,6 @@ def load_user_api_keys(user_id, exchange):
         encrypted_secret = result.val().get("secret", "")
         return {
             "key": decrypt_string(encrypted_key),
-
-import pyrebase
-from utils.firebase_config import firebase
 
 # === Get all registered user IDs ===
 def get_all_user_ids():
