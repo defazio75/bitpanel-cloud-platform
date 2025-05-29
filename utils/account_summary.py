@@ -1,41 +1,31 @@
 import os
 import json
-from utils.kraken_wrapper import get_live_balances, get_btc_price
 
-def get_total_portfolio_value(mode="live", user_id=None):
-    if not user_id:
-        raise ValueError("❌ user_id is required to fetch portfolio summary.")
+def get_account_summary(user_id, mode="paper"):
+    snapshot_path = os.path.join("data", f"json_{mode}", user_id, "portfolio", "portfolio_snapshot.json")
 
-    if mode == "paper":
-        try:
-            path = os.path.join("data", f"json_paper/{user_id}/portfolio/portfolio_snapshot.json")
-            with open(path, "r") as f:
-                data = json.load(f)
-            return {
-                'usd': data.get("usd_balance", 0.0),
-                'btc': data["coins"].get("BTC", {}).get("balance", 0.0),
-                'btc_price': data["coins"].get("BTC", {}).get("price", 0.0),
-                'btc_usd_value': data["coins"].get("BTC", {}).get("value", 0.0),
-                'total': data.get("total_value", 0.0)
-            }
-        except Exception as e:
-            raise RuntimeError(f"Error reading paper portfolio snapshot: {e}")
-
-    # LIVE MODE (Kraken)
     try:
-        balances = get_live_balances(user_id=user_id)
-        btc_price = get_btc_price()
-
-        usd_value = balances.get('USD', 0.0)
-        btc_value = balances.get('BTC', 0.0)
-
+        with open(snapshot_path, "r") as f:
+            snapshot = json.load(f)
+    except FileNotFoundError:
+        print(f"⚠️ No snapshot found for {user_id} in {mode} mode.")
         return {
-            'usd': usd_value,
-            'btc': btc_value,
-            'btc_price': btc_price,
-            'btc_usd_value': btc_value * btc_price,
-            'total': usd_value + (btc_value * btc_price)
+            "usd_balance": 0.0,
+            "coins": {},
+            "total_value": 0.0
         }
 
-    except Exception as e:
-        raise RuntimeError(f"Unable to fetch live portfolio value: {e}")
+    summary = {
+        "usd_balance": round(snapshot.get("usd_balance", 0.0), 2),
+        "total_value": round(snapshot.get("total_value", 0.0), 2),
+        "coins": {}
+    }
+
+    for coin, data in snapshot.get("coins", {}).items():
+        summary["coins"][coin] = {
+            "balance": round(data.get("balance", 0.0), 8),
+            "price": round(data.get("price", 0.0), 2),
+            "value": round(data.get("value", 0.0), 2)
+        }
+
+    return summary
