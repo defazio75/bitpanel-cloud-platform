@@ -3,7 +3,10 @@ import os
 from datetime import datetime
 import requests
 
-def log_trade(bot_name, action, price, btc_amount, profit=None, portfolio_value=None, log_file='logs/trade_log.csv'):
+def log_trade(user_id, bot_name, action, price, btc_amount, profit=None, portfolio_value=None):
+    log_file = os.path.join("data", "logs", user_id, "trade_log.csv")
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
     file_exists = os.path.isfile(log_file)
 
     with open(log_file, 'a', newline='') as csvfile:
@@ -33,9 +36,9 @@ def log_trade(bot_name, action, price, btc_amount, profit=None, portfolio_value=
             round(portfolio_value, 2) if portfolio_value is not None else ''
         ])
 
-    # Send push notification via ntfy
+    # Optional: Push notification via ntfy
     try:
-        topic = "btc-bot-alerts"  # replace with your actual topic if needed
+        topic = "btc-bot-alerts"
         url = f"https://ntfy.sh/{topic}"
         message = (
             f"{bot_name} just {action.upper()} {round(btc_amount, 8)} BTC\n"
@@ -46,11 +49,9 @@ def log_trade(bot_name, action, price, btc_amount, profit=None, portfolio_value=
     except Exception as e:
         print(f"[Notification Error] {e}")
 
-def init_log(log_file='logs/trade_log.csv'):
-    # Ensure directory exists first
+def init_log(user_id):
+    log_file = os.path.join("data", "logs", user_id, "trade_log.csv")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-
-    # Then check if the file exists
     if not os.path.exists(log_file):
         with open(log_file, 'w', newline='') as file:
             writer = csv.writer(file)
