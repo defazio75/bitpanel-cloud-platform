@@ -67,7 +67,7 @@ if mode == "live":
 
 # === Save snapshot if in live mode ===
 if st.session_state.mode == "live":
-    save_portfolio_snapshot("live")
+    save_portfolio_snapshot("live", user_id=user_id)
 
 # Initialize current page
 if "current_page" not in st.session_state:
