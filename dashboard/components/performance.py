@@ -7,14 +7,8 @@ from datetime import datetime
 from config.config import get_mode
 from utils.kraken_wrapper import get_prices
 
-# === Get mode (paper or live) from sidebar ===
-mode = "mock"
-
-# === File path for history snapshots ===
-history_path = f"data/json_{mode}/portfolio/history"
-
 # === Load snapshots into DataFrame ===
-def load_performance_data():
+def load_performance_data(history_path):
     snapshots = []
     for filename in sorted(os.listdir(history_path)):
         if filename.endswith(".json"):
@@ -29,10 +23,7 @@ def load_performance_data():
                     **{coin: coins[coin].get("usd", 0.0) for coin in coins}
                 }
                 snapshots.append(snapshot)
-    #st.write("🔍 Snapshot preview:", snapshots)
     df = pd.DataFrame(snapshots)
-    #st.write("🧪 DataFrame Columns:", df.columns.tolist())
-    #st.write("🧪 DataFrame Head:", df.head())
     if df.empty:
         return df
     if "total_value" not in df.columns:
@@ -43,7 +34,7 @@ def load_performance_data():
 def simulate_hodl(df):
     if "BTC" not in df.columns:
         return df.assign(hodl_value=df["total_value"])
-    start_btc = df.iloc[0]["BTC"] / get_prices()["BTC"]  # amount held initially
+    start_btc = df.iloc[0]["BTC"] / get_prices()["BTC"]
     hodl_values = df["date"].apply(lambda d: start_btc * get_prices()["BTC"])
     df["hodl_value"] = hodl_values
     return df
@@ -85,9 +76,19 @@ def show_coin_performance(df):
         col2.write(f"🟢 Bot: {roi:.2f}%\n⚪ Market: {market_roi:.2f}%")
 
 # === Main Render Function ===
-def render():
+def render(mode=None, user_id=None):
     st.title("📈 Portfolio Performance")
-    df = load_performance_data()
+
+    if mode is None:
+        mode = get_mode(user_id)
+
+    history_path = f"data/json_{mode}/{user_id}/portfolio/history"
+
+    if not os.path.exists(history_path):
+        st.warning("No portfolio history folder found.")
+        return
+
+    df = load_performance_data(history_path)
 
     if df.empty:
         st.warning("No portfolio history found. Start running your strategies to build performance data.")
