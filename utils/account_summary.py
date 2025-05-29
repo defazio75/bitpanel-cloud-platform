@@ -1,10 +1,14 @@
 import os
 import json
+from utils.kraken_wrapper import get_live_balances, get_btc_price
 
-def get_total_portfolio_value(mode="live"):
+def get_total_portfolio_value(mode="live", user_id=None):
+    if not user_id:
+        raise ValueError("❌ user_id is required to fetch portfolio summary.")
+
     if mode == "paper":
         try:
-            path = os.path.join("data", "paper", "portfolio_snapshot.json")
+            path = os.path.join("data", f"json_paper/{user_id}/portfolio/portfolio_snapshot.json")
             with open(path, "r") as f:
                 data = json.load(f)
             return {
@@ -16,23 +20,14 @@ def get_total_portfolio_value(mode="live"):
             }
         except Exception as e:
             raise RuntimeError(f"Error reading paper portfolio snapshot: {e}")
-    
+
     # LIVE MODE (Kraken)
     try:
-        from utils.kraken_auth import get_kraken_clients
-        from utils.kraken_wrapper import get_btc_price as get_current_price, get_kraken_balance
+        balances = get_live_balances(user_id=user_id)
+        btc_price = get_btc_price()
 
-        balance_response = get_kraken_balance()
-
-        if 'result' not in balance_response:
-            print("⚠️ Kraken API returned unexpected response:")
-            print(json.dumps(balance_response, indent=2))
-            raise RuntimeError("Missing 'result' in Kraken balance response.")
-
-        balances = balance_response['result']
-        usd_value = float(balances.get('ZUSD', 0))
-        btc_value = float(balances.get('XXBT', 0))
-        btc_price = get_current_price()
+        usd_value = balances.get('USD', 0.0)
+        btc_value = balances.get('BTC', 0.0)
 
         return {
             'usd': usd_value,
@@ -43,4 +38,4 @@ def get_total_portfolio_value(mode="live"):
         }
 
     except Exception as e:
-        raise RuntimeError(f"Unable to fetch Kraken portfolio value: {e}")
+        raise RuntimeError(f"Unable to fetch live portfolio value: {e}")
