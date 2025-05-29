@@ -10,7 +10,6 @@ from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_trade_multi
 from utils.json_utils import load_user_state, save_user_state
 
-COIN = "BTC"
 STRATEGY = "RSI_5MIN"
 
 # === Calculate allocation ===
