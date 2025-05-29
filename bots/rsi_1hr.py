@@ -11,15 +11,17 @@ from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_trade_multi
 
-def load_strategy_allocation(coin, strategy_name, mode):
-    path = f"data/json_{mode}/current/{coin}/strategy_state.json"
+STRATEGY = "RSI_1HR"
+
+def load_strategy_allocation(user_id, coin, strategy_name, mode):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
     if os.path.exists(path):
         with open(path, "r") as f:
             data = json.load(f)
             return data.get(strategy_name, 0)
     return 0
 
-def run(price_data, coin="BTC", mode=None):
+def run(price_data, user_id, coin="BTC", mode=None):
     """
     1-Hour RSI Strategy Bot
     Args:
@@ -34,8 +36,8 @@ def run(price_data, coin="BTC", mode=None):
         print(f"🚨 Running in {mode.upper()} MODE")
 
     bot_name = f"rsi_1hr_{coin.lower()}"
-    state = load_coin_state(coin, mode).get('RSI_1HR', {})
-    allocation_pct = load_strategy_allocation(coin, "RSI 1-Hour", mode)
+    state = load_coin_state(user_id, coin, mode).get('RSI_1HR', {})
+    allocation_pct = load_strategy_allocation(user_id, coin, "RSI 1-Hour", mode)
 
     if allocation_pct <= 0:
         print(f"⚠️ No allocation set for {bot_name}. Clearing state and skipping.")
@@ -45,7 +47,7 @@ def run(price_data, coin="BTC", mode=None):
             "buy_price": 0.0,
             "usd_held": 0.0
         }
-        save_bot_state(coin, STRATEGY, state, mode)
+        save_bot_state(user_id, coin, STRATEGY, state, mode)
         return
 
     cur_price = price_data.get("price")
@@ -53,7 +55,7 @@ def run(price_data, coin="BTC", mode=None):
 
     # === Auto-initialize from existing BTC if no state ===
     if not state:
-        balances = get_live_balances() if mode == "live" else load_paper_balances()
+        balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
         prices = get_live_prices() if mode == "live" else price_data
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
@@ -65,6 +67,7 @@ def run(price_data, coin="BTC", mode=None):
             }
 
             log_trade_multi(
+                user_id=user_id,
                 coin=coin,
                 strategy="RSI_1HR",
                 action="buy",
@@ -83,7 +86,7 @@ def run(price_data, coin="BTC", mode=None):
 
     # === Trading Logic ===
     if state["status"] == "none" and rsi_value < 30:
-        coin_amount = calculate_btc_allocation(cur_price, allocation_pct, mode)
+        coin_amount = calculate_btc_allocation(cur_price, allocation_pct, user_id, mode)
         if coin_amount > 0:
             execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin)
             state.update({
@@ -104,7 +107,7 @@ def run(price_data, coin="BTC", mode=None):
 
         if coin_amount > 0 and (not only_sell_profit or is_profitable):
             execute_trade(bot_name, "sell", coin_amount, cur_price, mode, coin)
-            update_profit_json(coin, mode, coin_amount, profit_usd)
+            update_profit_json(user_id, coin, mode, coin_amount, profit_usd)
 
             state.update({
                 "status": "none",
@@ -116,21 +119,21 @@ def run(price_data, coin="BTC", mode=None):
         else:
             print(f"⚠️ {bot_name} skipped sell — RSI > 70 but profit condition not met. P/L: ${profit_usd:.2f}")
 
-        save_bot_state(coin, 'RSI_1HR', state, mode)
+        save_bot_state(user_id, coin, STRATEGY, state, mode)
         print(f"💾 {bot_name} state saved: {state}")
 
-    save_bot_state(coin, 'RSI_1HR', state, mode)
+    save_bot_state(user_id, coin, STRATEGY, state, mode)
     print(f"💾 {bot_name} state saved: {state}")
 
-def calculate_btc_allocation(price, allocation_pct, mode):
-    portfolio_value = get_total_portfolio_value(mode)
+def calculate_btc_allocation(price, allocation_pct, user_id, mode):
+    portfolio_value = get_total_portfolio_value(user_id, mode)
     allocated_usd = (allocation_pct / 100) * portfolio_value
     if price == 0:
         return 0
     return allocated_usd / price
 
-def update_profit_json(coin, mode, coin_amount, profit_usd):
-    path = os.path.join(f"json_{mode}", "performance", f"{coin.lower()}_profits.json")
+def update_profit_json(user_id, coin, mode, coin_amount, profit_usd):
+    path = os.path.join(f"data/json_{mode}/{user_id}/performance", f"{coin.lower()}_profits.json")
     try:
         with open(path, "r") as f:
             data = json.load(f)
@@ -164,16 +167,16 @@ def update_profit_json(coin, mode, coin_amount, profit_usd):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
-def load_coin_state(coin, mode="paper"):
-    path = f"data/json_{mode}/current/{coin}_state.json"
+def load_coin_state(user_id, coin, mode="paper"):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
     if os.path.exists(path):
         with open(path, "r") as f:
             return json.load(f)
     return {}
 
-def save_bot_state(coin, strategy, new_state, mode="paper"):
-    path = f"data/json_{mode}/current/{coin}_state.json"
-    full_state = load_coin_state(coin, mode)
+def save_bot_state(user_id, coin, strategy, new_state, mode="paper"):
+    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
+    full_state = load_coin_state(user_id, coin, mode)
     full_state[strategy] = new_state
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
