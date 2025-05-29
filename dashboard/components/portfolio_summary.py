@@ -47,7 +47,7 @@ def render_portfolio_summary(mode=None, user_id=None):
 
     else:
         balances = get_live_balances(user_id=user_id)
-        prices = get_prices()
+        prices = get_prices(user_id=user_id)
 
         snapshot = {
             "total_value": 0,
