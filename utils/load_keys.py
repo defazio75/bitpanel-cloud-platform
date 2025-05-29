@@ -1,16 +1,18 @@
 import streamlit as st
 from utils.firebase_db import load_user_api_keys
 
-def load_api_keys():
-    """
-    Loads API keys for the logged-in user from Firebase (Live or Paper mode).
-    Always pulls from Firebase. Paper mode runs without keys.
-    """
-    if "user" not in st.session_state:
-        raise RuntimeError("User must be logged in to access API keys.")
+def load_api_keys(user_id):
+    token = st.session_state.user["token"]
+    db = firebase.database()
+    data = db.child("api_keys").child(user_id).child("kraken").get(token).val()
 
-    user_id = st.session_state.user.get("localId") or st.session_state.user.get("id")
-    return load_user_api_keys(user_id, "kraken")
+    if not data or "key" not in data or "secret" not in data:
+        raise ValueError("❌ Kraken API keys not found in Firebase.")
+
+    return {
+        "key": data["key"],
+        "secret": data["secret"]
+    }
 
 
 def api_keys_exist():
