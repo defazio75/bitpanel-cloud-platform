@@ -1,18 +1,14 @@
 import sys
 import os
-import json
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
-
 from utils.kraken_wrapper import get_prices, get_live_balances
 from utils.paper_reset import load_paper_balances
 from utils.config import get_mode
 from utils.firebase_db import load_firebase_json, save_firebase_json
 from bots.rebalance_hodl import rebalance_hodl
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
-from rebalance_bot import rebalance_hodl
 
 def load_target_usd(coin, mode, user_id):
     data = load_firebase_json(f"{coin}_state", mode, user_id)
@@ -42,9 +38,9 @@ def render(mode=None, user_id=None):
         "coins": {},
         "total_value": 0
     }
-        prices = get_prices()
-        usd_balance = snapshot.get("usd_balance", 0)
-        portfolio_data["usd_balance"] = usd_balance
+    prices = get_prices()
+    usd_balance = snapshot.get("usd_balance", 0)
+    portfolio_data["usd_balance"] = usd_balance
 
         total_value = usd_balance
 
@@ -59,12 +55,6 @@ def render(mode=None, user_id=None):
                 "usd": usd_value
             }
             total_value += usd_value
-
-        total_value = usd_balance
-        for coin, info in snapshot.get("coins", {}).items():
-            price = prices.get(coin, 0)
-            balance = info.get("balance", 0)
-            total_value += balance * price
 
         portfolio_data["total_value"] = round(total_value, 2)
 
