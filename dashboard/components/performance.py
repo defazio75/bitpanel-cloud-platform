@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-from config.config import get_mode
+from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
 
 # === Load snapshots into DataFrame ===
