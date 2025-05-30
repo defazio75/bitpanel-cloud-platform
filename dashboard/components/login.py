@@ -24,10 +24,10 @@ def login():
 
                 # Store only clean user info into session_state
                 st.session_state.user = {
-                    "id": user_id,
                     "email": email,
                     "token": token,
-                    "name": profile.get("name", "User")
+                    "name": profile.get("name", "User"),
+                    "localId": user_id 
                 }
                 
                 st.success("✅ Login successful!")
