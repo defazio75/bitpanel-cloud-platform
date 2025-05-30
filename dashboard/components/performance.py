@@ -1,28 +1,29 @@
 import streamlit as st
-import os
-import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
+
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
+from utils.firebase_db import list_firebase_files, load_firebase_json
 
 # === Load snapshots into DataFrame ===
-def load_performance_data(history_path):
+def load_performance_data(user_id, mode):
+    file_keys = list_firebase_files("performance/history", mode, user_id)
     snapshots = []
-    for filename in sorted(os.listdir(history_path)):
-        if filename.endswith(".json"):
-            with open(os.path.join(history_path, filename), "r") as f:
-                data = json.load(f)
-                date = filename.replace(".json", "")
-                total_value = data.get("total_value", 0.0)
-                coins = data.get("coins", {})
-                snapshot = {
-                    "date": date,
-                    "total_value": total_value,
-                    **{coin: coins[coin].get("usd", 0.0) for coin in coins}
-                }
-                snapshots.append(snapshot)
+
+    for key in sorted(file_keys):
+        data = load_firebase_json(key.replace(".json", ""), mode, user_id, subfolder="performance/history")
+        date = key.replace(".json", "")
+        total_value = data.get("total_value", 0.0)
+        coins = data.get("coins", {})
+        snapshot = {
+            "date": date,
+            "total_value": total_value,
+            **{coin: coins[coin].get("usd", 0.0) for coin in coins}
+        }
+        snapshots.append(snapshot)
+
     df = pd.DataFrame(snapshots)
     if df.empty:
         return df
@@ -32,8 +33,9 @@ def load_performance_data(history_path):
 
 # === Simulate HODL performance (BTC only for now) ===
 def simulate_hodl(df):
-    if "BTC" not in df.columns:
-        return df.assign(hodl_value=df["total_value"])
+    if "BTC" not in df.columns or df.empty:
+        df["hodl_value"] = df.get("total_value", 0)
+        return df
     start_btc = df.iloc[0]["BTC"] / get_prices()["BTC"]
     hodl_values = df["date"].apply(lambda d: start_btc * get_prices()["BTC"])
     df["hodl_value"] = hodl_values
@@ -54,6 +56,9 @@ def plot_line_chart(df):
 
 # === Display per-coin ROI comparison ===
 def show_coin_performance(df):
+    if df.empty or df.shape[0] < 2:
+        return
+
     latest = df.iloc[-1]
     first = df.iloc[0]
     coins = [c for c in df.columns if c not in ["date", "total_value", "hodl_value"]]
@@ -82,13 +87,7 @@ def render(mode=None, user_id=None):
     if mode is None:
         mode = get_mode(user_id)
 
-    history_path = f"data/json_{mode}/{user_id}/portfolio/history"
-
-    if not os.path.exists(history_path):
-        st.warning("No portfolio history folder found.")
-        return
-
-    df = load_performance_data(history_path)
+    df = load_performance_data(user_id, mode)
 
     if df.empty:
         st.warning("No portfolio history found. Start running your strategies to build performance data.")
