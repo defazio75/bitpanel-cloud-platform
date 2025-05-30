@@ -17,7 +17,7 @@ from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
 from utils.state_loader import load_bot_states
-from config.config import get_mode, save_mode
+from utils.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.load_keys import load_api_keys
