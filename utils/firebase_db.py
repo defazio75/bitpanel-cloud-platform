@@ -9,7 +9,7 @@ def save_user_profile(user_id, name, email, token):
     Save user profile with metadata to Firebase under /users/{user_id}
     """
     db = firebase.database()
-    db.child("users").child(user_id).set({
+    db.child("users").child(user_id).child("profile").set({
         "name": name,
         "email": email,
         "signup_date": datetime.utcnow().isoformat() + "Z",
