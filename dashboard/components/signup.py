@@ -26,7 +26,7 @@ def signup():
                 # Initialize Firebase structure
                 user_id = user["localId"]
                 token = user["idToken"]
-                initialize_user_structure(user_id, token)
+                initialize_user_structure(user_id, token, name, email)
 
                 save_user_profile(
                     user_id=user_id,
