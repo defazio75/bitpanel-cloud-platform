@@ -20,7 +20,8 @@ def run_controller():
                     continue
 
                 exchange = get_exchange("kraken", mode="live", api_keys=api_keys)
-                strategy_config = load_strategy_config(user_id)
+                token = st.session_state.user["token"]
+                strategy_config = load_strategy_config(user_id, token)
 
                 if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
                     rsi_5min.run(user_id, exchange, strategy_config)
