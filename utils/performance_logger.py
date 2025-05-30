@@ -1,7 +1,7 @@
 import os
 import csv
 from datetime import datetime
-from config.config import get_mode
+from utils.config import get_mode
 
 # === Shared CSV Writer ===
 def write_log_row(file_path, headers, row):
