@@ -2,11 +2,11 @@ import os
 from cryptography.fernet import Fernet
 
 def load_encryption_key():
-    # Read from Render secret environment variable
-    key = os.environ.get("ENCRYPTION_KEY")
-    if not key:
-        raise ValueError("❌ ENCRYPTION_KEY environment variable not set.")
-    return key.encode()  # Convert to bytes
+    try:
+        with open("/etc/secrets/encryption.key", "rb") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError("❌ encryption.key file not found in /etc/secrets")
 
 def encrypt_string(plain_text):
     key = load_encryption_key()
