@@ -3,7 +3,7 @@
 import os
 import json
 from datetime import datetime
-from config.config import get_mode
+from utils.config import get_mode
 from utils.trade_executor import execute_trade
 from utils.account_summary import get_total_portfolio_value
 from utils.config_loader import get_setting
