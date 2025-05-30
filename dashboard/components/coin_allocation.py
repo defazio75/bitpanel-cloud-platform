@@ -28,7 +28,6 @@ def render(mode=None, user_id=None):
     if mode is None:
         mode = get_mode(user_id)
 
-    folder = "json_paper" if mode == "paper" else "json_live"
     snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
@@ -42,21 +41,21 @@ def render(mode=None, user_id=None):
     usd_balance = snapshot.get("usd_balance", 0)
     portfolio_data["usd_balance"] = usd_balance
 
-        total_value = usd_balance
+    total_value = usd_balance
 
-        for coin, info in snapshot.get("coins", {}).items():
-            balance = info.get("balance", 0)
-            price = prices.get(coin, 0)
-            usd_value = round(balance * price, 2)
+    for coin, info in snapshot.get("coins", {}).items():
+        balance = info.get("balance", 0)
+        price = prices.get(coin, 0)
+        usd_value = round(balance * price, 2)
 
-            portfolio_data["coins"][coin] = {
-                "balance": balance,
-                "price": price,
-                "usd": usd_value
-            }
-            total_value += usd_value
+        portfolio_data["coins"][coin] = {
+            "balance": balance,
+            "price": price,
+             "usd": usd_value
+        }
+        total_value += usd_value
 
-        portfolio_data["total_value"] = round(total_value, 2)
+    portfolio_data["total_value"] = round(total_value, 2)
 
     coin_data = {}
     for coin, info in portfolio_data["coins"].items():
