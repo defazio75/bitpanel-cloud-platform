@@ -16,3 +16,4 @@ firebase_project_info = {
 
 # ✅ Initialize and export the firebase object
 firebase = pyrebase.initialize_app(firebase_project_info)
+auth = firebase.auth()
