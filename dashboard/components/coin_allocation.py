@@ -5,7 +5,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 
-from config.config import get_mode
+from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
