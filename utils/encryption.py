@@ -1,20 +1,20 @@
-from cryptography.fernet import Fernet
 import os
+from cryptography.fernet import Fernet
 
-# Load encryption key from file
-def load_encryption_key():
-    key_path = os.path.join("config", "encryption.key")
-    with open(key_path, "rb") as f:
-        return f.read()
+# Path to the secret file (Render mounts it in /etc/secrets if named `encryption.key`)
+ENCRYPTION_KEY_PATH = "/etc/secrets/encryption.key"
 
-# Encrypt a string (like an API key or secret)
+# Read and load the key
+try:
+    with open(ENCRYPTION_KEY_PATH, "rb") as f:
+        ENCRYPTION_KEY = f.read().strip()
+except FileNotFoundError:
+    raise FileNotFoundError("❌ encryption.key file not found in /etc/secrets")
+
+fernet = Fernet(ENCRYPTION_KEY)
+
 def encrypt_string(plain_text):
-    key = load_encryption_key()
-    fernet = Fernet(key)
     return fernet.encrypt(plain_text.encode()).decode()
 
-# Decrypt a string
 def decrypt_string(encrypted_text):
-    key = load_encryption_key()
-    fernet = Fernet(key)
     return fernet.decrypt(encrypted_text.encode()).decode()
