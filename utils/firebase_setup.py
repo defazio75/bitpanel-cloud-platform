@@ -3,6 +3,13 @@ from utils.firebase_config import firebase
 def initialize_user_structure(user_id, token):
     db = firebase.database()
 
+    # === Save user profile info ===
+    db.child("users").child(user_id).child("profile").set({
+        "name": name,
+        "email": email,
+        "signup_date": datetime.utcnow().isoformat()
+    }, token)
+
     # Base user data
     db.child("users").child(user_id).child("api_keys").set({}, token)
     db.child("users").child(user_id).child("settings").set({}, token)
