@@ -6,12 +6,20 @@ import pyrebase
 
 def save_user_profile(user_id, name, email, token):
     """
-    Save user profile to Firebase Realtime Database using Pyrebase.
+    Save user profile with metadata to Firebase under /users/{user_id}
     """
     db = firebase.database()
     db.child("users").child(user_id).set({
         "name": name,
-        "email": email
+        "email": email,
+        "signup_date": datetime.utcnow().isoformat() + "Z",
+        "last_login": datetime.utcnow().isoformat() + "Z"
+    }, token)
+
+def update_last_login(user_id, token):
+    db = firebase.database()
+    db.child("users").child(user_id).update({
+        "last_login": datetime.utcnow().isoformat() + "Z"
     }, token)
 
 def load_user_profile(user_id, token):
