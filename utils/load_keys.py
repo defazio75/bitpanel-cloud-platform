@@ -1,5 +1,6 @@
+import requests
 import streamlit as st
-from utils.firebase_config import firebase
+from utils.firebase_config import firebase, auth
 
 def load_api_keys(user_id):
     """
@@ -8,15 +9,15 @@ def load_api_keys(user_id):
     """
     try:
         token = st.session_state.user["token"]
-        db = firebase.database()
-        data = db.child("api_keys").child(user_id).child("kraken").get(token).val()
+        ref = firebase.database().child("users").child(user_id).child("api_keys").child("kraken")
+        result = ref.get(token).val()
 
-        if not data or "key" not in data or "secret" not in data:
+        if not result or "key" not in result or "secret" not in result:
             raise ValueError("❌ Kraken API keys not found in Firebase.")
 
         return {
-            "key": data["key"],
-            "secret": data["secret"]
+            "key": result["key"],
+            "secret": result["secret"]
         }
     except KeyError:
         raise ValueError("❌ User not authenticated. Missing session token.")
