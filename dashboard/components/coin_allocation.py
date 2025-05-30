@@ -5,45 +5,25 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 
+from utils.kraken_wrapper import get_prices, get_live_balances
+from utils.paper_reset import load_paper_balances
 from utils.config import get_mode
-from utils.kraken_wrapper import get_prices
+from utils.firebase_db import load_firebase_json, save_firebase_json
+from bots.rebalance_hodl import rebalance_hodl
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 from rebalance_bot import rebalance_hodl
 
-# === Determine Mode ===
-def get_portfolio_file(mode, user_id):
-    folder = "json_paper" if mode == "paper" else "json_live"
-    return os.path.join("data", folder, user_id, "portfolio", "portfolio_snapshot.json")
-
-def get_state_path(coin, mode, user_id):
-    return os.path.join("data", f"json_{mode}", user_id, "current", f"{coin}_state.json")
-
 def load_target_usd(coin, mode, user_id):
-    path = get_state_path(coin, mode, user_id)
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            state = json.load(f)
-        return state.get("HODL", {}).get("target_usd", 0.0)
-    return 0.0
+    data = load_firebase_json(f"{coin}_state", mode, user_id)
+    return data.get("HODL", {}).get("target_usd", 0.0)
 
 def save_target_usd(coin, mode, user_id, target_usd):
-    path = get_state_path(coin, mode, user_id)
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            state = json.load(f)
-    else:
-        state = {}
-
-    if "HODL" not in state:
-        state["HODL"] = {}
-
-    state["HODL"]["target_usd"] = round(target_usd, 2)
-
-    with open(path, "w") as f:
-        json.dump(state, f, indent=2)
-
-    return True
+    data = load_firebase_json(f"{coin}_state", mode, user_id)
+    if "HODL" not in data:
+        data["HODL"] = {}
+    data["HODL"]["target_usd"] = round(target_usd, 2)
+    return save_firebase_json(f"{coin}_state", data, mode, user_id)
 
 def render(mode=None, user_id=None):
     st.write("Active Mode:", mode)
@@ -53,7 +33,7 @@ def render(mode=None, user_id=None):
         mode = get_mode(user_id)
 
     folder = "json_paper" if mode == "paper" else "json_live"
-    PORTFOLIO_FILE = get_portfolio_file(mode, user_id)
+    snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
@@ -62,11 +42,6 @@ def render(mode=None, user_id=None):
         "coins": {},
         "total_value": 0
     }
-
-    if os.path.exists(PORTFOLIO_FILE):
-        with open(PORTFOLIO_FILE, "r") as f:
-            snapshot = json.load(f)
-
         prices = get_prices()
         usd_balance = snapshot.get("usd_balance", 0)
         portfolio_data["usd_balance"] = usd_balance
