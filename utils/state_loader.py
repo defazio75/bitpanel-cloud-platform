@@ -3,7 +3,7 @@
 import os
 import json
 import csv
-from config.config import get_mode
+from utils.config import get_mode
 from utils.json_utils import load_user_state, get_user_data_path
 
 
