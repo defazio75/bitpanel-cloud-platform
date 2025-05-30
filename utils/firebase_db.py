@@ -3,7 +3,6 @@ import requests
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 import pyrebase
-from utils.firebase_config import firebase
 
 def save_user_profile(user_id, name, email, token):
     """
@@ -31,7 +30,7 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
 
     token = st.session_state.user["token"]
     db = firebase.database()
-    db.child("api_keys").child(user_id).child(exchange).set({
+    db.child("users").child(user_id).child("api_keys").child(exchange).set({
         "key": encrypted_key,
         "secret": encrypted_secret
     }, token)
@@ -61,7 +60,7 @@ def get_all_user_ids():
 # === Get saved Kraken API keys for a user ===
 def get_api_keys(user_id):
     try:
-        keys = firebase.database().child("api_keys").child(user_id).child("kraken").get()
+        keys = firebase.database().child("users").child(user_id).child("api_keys").child("kraken").get()
         return keys.val() if keys.val() else None
     except Exception as e:
         print(f"❌ Failed to fetch API keys for {user_id}: {e}")
@@ -71,7 +70,7 @@ def save_strategy_config(user_id, config, token):
     from utils.firebase_config import firebase
     db = firebase.database()
     try:
-        db.child("strategy_config").child(user_id).set(config, token)
+        db.child("users").child(user_id).child("strategy_config").set(config, token)
         print(f"✅ Saved strategy config for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save strategy config: {e}")
@@ -81,7 +80,7 @@ def load_strategy_config(user_id, token):
     from utils.firebase_config import firebase
     db = firebase.database()
     try:
-        data = db.child("strategy_config").child(user_id).get(token).val()
+        data = db.child("users").child(user_id).child("strategy_config").get(token).val()
         if data:
             return data
         else:
@@ -95,7 +94,7 @@ def save_portfolio_snapshot_to_firebase(user_id, snapshot, token):
     from utils.firebase_config import firebase
     db = firebase.database()
     try:
-        db.child("portfolio_snapshots").child(user_id).set(snapshot, token)
+        db.child("users").child(user_id).child("portfolio_snapshots").set(snapshot, token)
         print(f"✅ Saved snapshot to Firebase for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save snapshot to Firebase: {e}")
@@ -104,7 +103,7 @@ def load_portfolio_snapshot_from_firebase(user_id, token):
     from utils.firebase_config import firebase
     db = firebase.database()
     try:
-        data = db.child("portfolio_snapshots").child(user_id).get(token).val()
+        data = db.child("users").child(user_id).child("portfolio_snapshots").get(token).val()
         if data:
             print(f"📥 Loaded portfolio snapshot for {user_id}")
             return data
