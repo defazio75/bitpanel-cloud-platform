@@ -1,13 +1,11 @@
-import os
-import json
 from datetime import datetime
 from utils.config import get_mode
-from utils.trade_executor import execute_trade
-from utils.account_summary import get_total_portfolio_value
-from utils.state_loader import load_strategy_allocations
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.paper_reset import load_paper_balances
+from utils.trade_executor import execute_trade
 from utils.performance_logger import log_dca_trade
+from utils.firebase_db import load_firebase_json, save_firebase_json
+import streamlit as st
 
 STRATEGY = "DCA_MATRIX"
 
@@ -20,34 +18,11 @@ DCA_ZONES = [
     {"drop_pct": 7, "alloc_pct": 30, "sell_pct": 3},
     {"drop_pct": 10, "alloc_pct": 40, "sell_pct": 3}
 ]
-def load_strategy_allocation(user_id, coin, strategy_name, mode):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            data = json.load(f)
-            return data.get(strategy_name, {}).get("allocation_pct", 0)
-    return 0
 
-# === Load state ===
-def load_bot_state(user_id, coin, mode):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    try:
-        with open(path, "r") as f:
-            return json.load(f).get(STRATEGY, {})
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
-
-# === Save state ===
-def save_bot_state(user_id, coin, mode, state):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    full = {}
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            full = json.load(f)
-    full[STRATEGY] = state
-    with open(path, "w") as f:
-        json.dump(full, f, indent=2)
+def load_strategy_usd(user_id, coin, strategy_key, mode, token):
+    path = f"{mode}/allocations/strategy_allocations.json"
+    data = load_firebase_json(path, user_id, token) or {}
+    return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
 
 # === Main Bot Logic ===
 def run(price_data, user_id, coin="BTC", mode=None):
@@ -55,12 +30,15 @@ def run(price_data, user_id, coin="BTC", mode=None):
         mode = get_mode()
     print(f"\n🔁 Running {STRATEGY} for {user_id} in {mode.upper()} mode")
 
-    state = load_bot_state(user_id, coin, mode)
+    token = st.session_state.user["token"]
     cur_price = price_data.get("price")
-    allocation_pct = load_strategy_allocation(user_id, coin, STRATEGY, mode)
+    bot_name = STRATEGY.lower()
+    state_path = f"{mode}/current/{coin}/{STRATEGY}.json"
+    state = load_firebase_json(state_path, user_id, token) or {}
 
-    if allocation_pct <= 0:
-        print(f"⚠️ No allocation set for {STRATEGY}. Exiting.")
+    allocated_usd = load_strategy_usd(user_id, coin, STRATEGY, mode, token)
+    if allocated_usd <= 0:
+        print(f"⚠️ No USD allocation set for {STRATEGY}. Exiting.")
         return
 
     # Init state
@@ -70,10 +48,9 @@ def run(price_data, user_id, coin="BTC", mode=None):
 
     open_tranches = state.get("open_tranches", [])
     sold_tranches = state.get("sold_tranches", [])
-    portfolio_value = get_total_portfolio_value(user_id, mode)
     balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
 
-    # === Auto-initialize tranche if BTC is held but bot is empty ===
+    # === Auto-initialize if BTC is held but state is empty
     if not open_tranches and balances.get(coin.upper(), 0) > 0:
         amount = balances[coin.upper()]
         usd_spent = amount * cur_price
@@ -81,7 +58,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
             "zone": 0,
             "drop_pct": 0,
             "buy_price": cur_price,
-            "sell_pct": DCA_ZONES[0]["sell_pct"],  # default to first zone's sell_pct
+            "sell_pct": DCA_ZONES[0]["sell_pct"],
             "amount": amount,
             "usd_spent": usd_spent,
             "timestamp": datetime.utcnow().isoformat()
@@ -96,7 +73,6 @@ def run(price_data, user_id, coin="BTC", mode=None):
             mode=mode,
             notes="Adopted initial BTC holdings into DCA Matrix"
         )
-
         print(f"📥 DCA Matrix auto-initialized with existing BTC: {amount:.6f} {coin} @ ${cur_price:,.2f}")
 
     # === BUY Logic ===
@@ -106,9 +82,9 @@ def run(price_data, user_id, coin="BTC", mode=None):
             continue
         drop_trigger_price = last_high * (1 - zone["drop_pct"] / 100)
         if cur_price <= drop_trigger_price:
-            usd_to_use = (allocation_pct / 100) * (zone["alloc_pct"] / 100) * portfolio_value
+            usd_to_use = allocated_usd * (zone["alloc_pct"] / 100)
             amount = usd_to_use / cur_price
-            execute_trade(STRATEGY.lower(), "buy", amount, cur_price, mode, coin)
+            execute_trade(bot_name, "buy", amount, cur_price, mode, coin)
 
             log_dca_trade(
                 user_id=user_id,
@@ -136,7 +112,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
     for t in open_tranches:
         target = t["buy_price"] * (1 + t["sell_pct"] / 100)
         if cur_price >= target:
-            execute_trade(STRATEGY.lower(), "sell", t["amount"], cur_price, mode, coin)
+            execute_trade(bot_name, "sell", t["amount"], cur_price, mode, coin)
 
             log_dca_trade(
                 user_id=user_id,
@@ -153,20 +129,19 @@ def run(price_data, user_id, coin="BTC", mode=None):
                 "zone": t["zone"],
                 "buy_price": t["buy_price"],
                 "sell_price": cur_price,
-                "profit_btc": profit_btc,
+                "profit_usd": round(profit_usd, 2),
                 "timestamp": datetime.utcnow().isoformat()
             })
-            print(f"💰 Sold zone {t['zone']} @ ${cur_price:,.2f}, profit = {profit_btc:.8f} BTC")
+
+            print(f"💰 Sold zone {t['zone']} @ ${cur_price:,.2f}, profit = ${profit_usd:.2f}")
         else:
             new_tranches.append(t)
 
+    # === Save Updated State ===
     state = {
         "last_high": last_high,
         "open_tranches": new_tranches,
         "sold_tranches": sold_tranches
     }
-    save_bot_state(user_id, coin, mode, state)
+    save_firebase_json(state_path, state, user_id, token)
     print(f"💾 {STRATEGY} state saved")
-
-# if __name__ == "__main__":
-#     run({"price": 98000}, user_id="test_user", coin="BTC", mode="paper")
