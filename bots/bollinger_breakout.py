@@ -8,6 +8,7 @@ from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_trade_multi
+from utils.storage import load_state, save_state
 
 STRATEGY = "BOLLINGER"
 
@@ -25,7 +26,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
         print(f"🚨 Running in {mode.upper()} MODE")
 
     bot_name = f"bollinger_breakout_{coin.lower()}"
-    state = load_coin_state(user_id, coin, mode).get(STRATEGY, {})
+    state = load_state(user_id, coin, STRATEGY, mode)
     allocation_pct = load_strategy_allocation(user_id, coin, "Bollinger Breakout", mode)
 
     if allocation_pct <= 0:
@@ -36,7 +37,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
             "buy_price": 0.0,
             "usd_held": 0.0
         }
-        save_bot_state(user_id, coin, STRATEGY, state, mode)
+        save_state(user_id, coin, STRATEGY, state, mode)
         return
 
     cur_price = price_data.get("price")
@@ -132,7 +133,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
         else:
             print(f"⚠️ {bot_name} breakout triggered, but profit condition not met. P/L: ${profit_usd:.2f}")
 
-    save_bot_state(user_id, coin, STRATEGY, state, mode)
+    save_state(user_id, coin, STRATEGY, state, mode)
     print(f"💾 {bot_name} state saved: {state}")
 
 def calculate_btc_allocation(price, allocation_pct, user_id, mode):
@@ -177,18 +178,3 @@ def update_profit_json(user_id, coin, mode, coin_amount, profit_usd):
 
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
-
-def load_coin_state(user_id, coin, mode="paper"):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return {}
-
-def save_bot_state(user_id, coin, strategy, new_state, mode="paper"):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    full_state = load_coin_state(user_id, coin, mode)
-    full_state[strategy] = new_state
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(full_state, f, indent=2)
