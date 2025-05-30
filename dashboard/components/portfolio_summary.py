@@ -5,7 +5,6 @@ import json
 import os
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices, get_live_balances
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from streamlit_autorefresh import st_autorefresh
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
