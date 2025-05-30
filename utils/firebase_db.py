@@ -75,3 +75,12 @@ def load_strategy_config(user_id):
     except Exception as e:
         print(f"❌ Failed to load strategy config for {user_id}: {e}")
         return {}
+
+def save_portfolio_snapshot_to_firebase(user_id, snapshot, token):
+    from utils.firebase_config import firebase
+    db = firebase.database()
+    try:
+        db.child("portfolio_snapshots").child(user_id).set(snapshot, token)
+        print(f"✅ Saved snapshot to Firebase for {user_id}")
+    except Exception as e:
+        print(f"❌ Failed to save snapshot to Firebase: {e}")
