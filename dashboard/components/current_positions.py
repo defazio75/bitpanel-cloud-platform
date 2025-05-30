@@ -1,41 +1,28 @@
 from streamlit_autorefresh import st_autorefresh
 import streamlit as st
-import json
-import os
 import pandas as pd
 
 from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
 from utils.config import get_mode
+from utils.firebase_db import load_firebase_json
 
 @st.cache_data(ttl=10)
 def get_live_price_data():
     return get_prices_with_change()
 
 def load_strategy_state(coin, mode, user_id):
-    path = f"data/json_{mode}/{user_id}/current/{coin}_state.json"
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return {}
+    data = load_firebase_json(f"{coin}_state", mode, user_id)
+    return data if data else {}
 
 def load_strategy_allocations(mode, user_id):
-    filename = f"strategy_allocations_{mode}.json"
-    path = os.path.join("config", user_id, filename)
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            return json.load(f)
-    return {}
+    return load_firebase_json("strategy_allocations", mode, user_id)
 
-def load_live_balances(mode, user_id):
+def load_balances(mode, user_id):
     if mode == "live":
         return get_live_balances(user_id=user_id)
     else:
-        path = f"data/json_paper/{user_id}/portfolio/portfolio_snapshot.json"
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                snapshot = json.load(f)
-                return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()}
-        return {}
+        snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
+        return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
 
 def render(mode=None, user_id=None):
     st_autorefresh(interval=10 * 1000, key="price_autorefresh")
