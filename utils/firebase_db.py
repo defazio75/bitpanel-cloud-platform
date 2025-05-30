@@ -84,3 +84,18 @@ def save_portfolio_snapshot_to_firebase(user_id, snapshot, token):
         print(f"✅ Saved snapshot to Firebase for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save snapshot to Firebase: {e}")
+
+def load_portfolio_snapshot_from_firebase(user_id, token):
+    from utils.firebase_config import firebase
+    db = firebase.database()
+    try:
+        data = db.child("portfolio_snapshots").child(user_id).get(token).val()
+        if data:
+            print(f"📥 Loaded portfolio snapshot for {user_id}")
+            return data
+        else:
+            print(f"⚠️ No portfolio snapshot found for {user_id}")
+            return {}
+    except Exception as e:
+        print(f"❌ Failed to load snapshot from Firebase: {e}")
+        return {}
