@@ -5,6 +5,7 @@ import json
 import os
 import pandas as pd
 from utils.kraken_wrapper import get_prices
+from utils.config import get_mode
 
 # === Strategy File Utilities ===
 def get_strategy_path(mode, user_id):
