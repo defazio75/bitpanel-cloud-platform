@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.firebase_auth import sign_up
+from utils.firebase_setup import initialize_user_structure
 
 def signup():
     st.title("🆕 Create Your BitPanel Account")
@@ -19,6 +20,12 @@ def signup():
                 user = sign_up(email, password)
                 user["name"] = name
                 st.session_state.user = user
+
+                # Initialize Firebase structure
+                user_id = user["localId"]
+                token = user["idToken"]
+                initialize_user_structure(user_id, token)
+
                 st.success("✅ Account created successfully!")
                 st.session_state.page = "login"
                 st.experimental_rerun()
