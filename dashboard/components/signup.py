@@ -26,9 +26,8 @@ def signup():
                 # Initialize Firebase structure
                 user_id = user["localId"]
                 token = user["idToken"]
-                initialize_user_structure(user_id, token, name, email)
-
-                save_user_profile(
+                
+                initialize_user_structure(
                     user_id=user_id,
                     name=name,
                     email=email,
@@ -39,6 +38,7 @@ def signup():
                 st.success("✅ Account created successfully!")
                 st.session_state.page = "login"
                 st.experimental_rerun()
+                
             except Exception as e:
                 st.error("❌ Account creation failed. Email may already be in use.")
 
