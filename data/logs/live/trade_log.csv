@@ -1,9 +1,0 @@
-timestamp,bot_name,coin,action,price,amount,mode
-2025-05-12 15:55:45,rebalance_hodl,BTC,sell,102588.4,0.002308,live
-2025-05-12 15:55:45,rebalance_hodl,ETH,sell,2492.03,0.046781,live
-2025-05-12 15:55:45,rebalance_hodl,XRP,buy,2.59,38.55273,live
-2025-05-12 16:03:57,rebalance_hodl,BTC,sell,102588.4,0.002308,live
-2025-05-12 16:03:57,rebalance_hodl,ETH,sell,2479.92,0.046784,live
-2025-05-12 16:03:57,rebalance_hodl,XRP,buy,2.58,38.725767,live
-2025-05-12 16:17:02,rebalance_hodl,XRP,buy,2.57,7.785827,live
-2025-05-12 16:22:33,rebalance_hodl,XRP,buy,2.59,7.723439,live
