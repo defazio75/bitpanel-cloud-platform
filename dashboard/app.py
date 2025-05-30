@@ -41,7 +41,7 @@ if "user" not in st.session_state:
     st.session_state.page = "login"
     st.rerun()
  
-user_id = st.session_state.user["id"]
+user_id = st.session_state.user["localId"]
 exchange = "kraken"  # Default for now
 keys = load_api_keys(user_id=user_id)
 
