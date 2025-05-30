@@ -3,7 +3,7 @@ import json
 import os
 import csv
 from datetime import datetime
-from config.config import get_mode
+from utils.config import get_mode
 from utils.kraken_wrapper import rate_limited_query_private
 from utils.performance_logger import log_execution_event
 
