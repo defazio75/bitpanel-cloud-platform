@@ -229,8 +229,9 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
 def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
     if not user_id:
         raise ValueError("❌ user_id is required to save portfolio snapshot.")
+
     balances = get_live_balances(user_id=user_id)
-    prices = get_prices(user_id=user_id) 
+    prices = get_prices(user_id=user_id)
 
     snapshot = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -243,14 +244,9 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
     live_portfolio = {"USD": snapshot["usd_balance"]}
 
     for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
-        amt = max(0, balances.get(coin, 0))  # Prevent negative values
+        amt = max(0, balances.get(coin, 0))
         price = prices.get(coin, 0)
-        value = amt * price
-
-        if value < 0.01:
-            value = 0.0
-
-        value = round(value, 2)
+        value = round(amt * price, 2) if amt and price else 0.0
 
         snapshot["coins"][coin] = {
             "balance": amt,
@@ -265,26 +261,13 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
 
     snapshot["total_value"] = round(total, 2)
 
-    # === Correct folders based on your structure ===
-    if mode == "paper":
-        snapshot_path = f"data/json_paper/{user_id}/portfolio/portfolio_snapshot.json"
-        log_path = f"data/logs/paper/{user_id}/live_portfolio.json"
-    else:
-        snapshot_path = f"data/json_live/{user_id}/portfolio/portfolio_snapshot.json"
-        log_path = f"data/logs/live/{user_id}/live_portfolio.json"
+    # 🔥 Save to Firebase only
+    from utils.firebase_db import save_portfolio_snapshot_to_firebase
+    token = st.session_state.user.get("token")
+    if user_id and token:
+        save_portfolio_snapshot_to_firebase(user_id, snapshot, token)
 
-    # Ensure folders exist and save
-    os.makedirs(os.path.dirname(snapshot_path), exist_ok=True)
-    with open(snapshot_path, "w") as f:
-        json.dump(snapshot, f, indent=2)
-
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    with open(log_path, "w") as f:
-        json.dump(live_portfolio, f, indent=2)
-
-    print(f"✅ {mode.upper()} portfolio snapshot saved to {snapshot_path}")
-
-    # Rebalance only in live mode
+    # Optional: live auto-rebalance
     if auto_rebalance and mode == "live":
         try:
             from bots.rebalance_bot import rebalance_hodl
