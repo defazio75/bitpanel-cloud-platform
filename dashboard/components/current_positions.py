@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
-from config.config import get_mode
+from utils.config import get_mode
 
 @st.cache_data(ttl=10)
 def get_live_price_data():
