@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime
 from utils.kraken_wrapper import get_prices
-from config.config import get_mode
+from utils.config import get_mode
 from trade_executor import execute_trade
 
 def rebalance_hodl(user_id):
