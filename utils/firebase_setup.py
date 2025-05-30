@@ -1,30 +1,34 @@
-from utils.firebase_config import firebase
+def initialize_user_structure(user_id, token, name, email, signup_date):
+    from utils.firebase_config import firebase
 
-def initialize_user_structure(user_id, token):
     db = firebase.database()
 
-    # === Save user profile info ===
-    db.child("users").child(user_id).child("profile").set({
+    # Set up the user's root profile info
+    db.child("users").child(user_id).set({
         "name": name,
         "email": email,
-        "signup_date": datetime.utcnow().isoformat()
+        "signup_date": signup_date,
+        "api_keys": {},  # optional initial placeholders
+        "settings": {},
+        "strategy_allocations": {
+            "paper": {},
+            "live": {}
+        },
+        "coin_allocations": {
+            "paper": {}
+        },
+        "paper": {
+            "current": {},
+            "performance": {},
+            "history": {},
+            "balances": {},
+            "trade_logs": {}
+        },
+        "live": {
+            "current": {},
+            "performance": {},
+            "history": {},
+            "balances": {},
+            "trade_logs": {}
+        }
     }, token)
-
-    # Base user data
-    db.child("users").child(user_id).child("api_keys").set({}, token)
-    db.child("users").child(user_id).child("settings").set({}, token)
-
-    # Allocation data
-    db.child("users").child(user_id).child("strategy_allocations").child("paper").set({}, token)
-    db.child("users").child(user_id).child("strategy_allocations").child("live").set({}, token)
-    db.child("users").child(user_id).child("coin_allocations").child("paper").set({}, token)
-
-    # Bot runtime and performance data
-    for mode in ["paper", "live"]:
-        db.child("users").child(user_id).child(mode).child("current").set({}, token)
-        db.child("users").child(user_id).child(mode).child("performance").set({}, token)
-        db.child("users").child(user_id).child(mode).child("history").set({}, token)
-        db.child("users").child(user_id).child(mode).child("balances").set({}, token)
-        db.child("users").child(user_id).child(mode).child("trade_logs").set({}, token)
-
-    print(f"✅ Firebase structure initialized for user: {user_id}")
