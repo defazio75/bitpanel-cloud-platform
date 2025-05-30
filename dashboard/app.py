@@ -5,7 +5,7 @@ st_autorefresh(interval=600_000, limit=None, key="keepalive")
 
 import os
 import sys
-import json
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from components.portfolio_summary import render_portfolio_summary
 from components.coin_allocation import render as render_coin_allocation
