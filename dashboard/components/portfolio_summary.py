@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import json
 import os
-from config.config import get_mode
+from utils.config import get_mode
 from utils.kraken_wrapper import get_prices, get_live_balances
 
 from streamlit_autorefresh import st_autorefresh
