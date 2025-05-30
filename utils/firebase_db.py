@@ -39,7 +39,7 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
 def load_user_api_keys(user_id, exchange):
     token = st.session_state.user["token"]
     db = firebase.database()
-    result = db.child("api_keys").child(user_id).child(exchange).get(token)
+    result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
     if result.val():
         encrypted_key = result.val().get("key", "")
         encrypted_secret = result.val().get("secret", "")
