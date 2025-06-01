@@ -5,6 +5,7 @@ import pandas as pd
 from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
 from utils.config import get_mode
 from utils.firebase_db import load_firebase_json
+from utils.firebase_db import load_user_data
 
 @st.cache_data(ttl=10)
 def get_live_price_data():
@@ -32,7 +33,7 @@ def render(mode=None, user_id=None):
         mode = get_mode(user_id)
 
     strategy_allocs = load_strategy_allocations(mode, user_id)
-    balances = load_live_balances(mode, user_id)
+    balances = load_balances(mode, user_id)
     prices_data = get_prices_with_change()
 
     for coin, strategies in strategy_allocs.items():
