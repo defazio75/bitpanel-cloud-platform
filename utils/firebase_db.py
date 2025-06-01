@@ -142,3 +142,15 @@ def load_firebase_json(path, mode, user_id):
 
 def save_firebase_json(path, data, mode, user_id):
     return save_user_data(user_id, path, data, mode)
+
+def list_firebase_files(path, mode, user_id):
+    db = firebase.database()
+    token = st.session_state.user.get("token")
+    try:
+        data = db.child("users").child(user_id).child(mode).child(path).get(token)
+        if data.each():
+            return [item.key() for item in data.each()]
+        return []
+    except Exception as e:
+        print(f"❌ Failed to list files at {path}: {e}")
+        return []
