@@ -43,7 +43,7 @@ if "user" not in st.session_state:
 
 if "user" in st.session_state:
     test_data = {"status": "test_write", "timestamp": time.time()}
-    success = save_firebase_json("test_write_check", test_data, "paper", st.session_state.user["user_id"])
+    success = save_firebase_json("test_write_check", test_data, "paper", st.session_state.user["localId"])
     if success:
         st.success("✅ Test write to Firebase successful")
     else:
