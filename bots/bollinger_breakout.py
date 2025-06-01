@@ -1,11 +1,17 @@
 from datetime import datetime
-from utils.config import get_mode
-from utils.trade_executor import execute_trade
 from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.performance_logger import log_trade_multi
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st  # Required for accessing session token
+
+from utils.config import get_mode
+
+mode = get_mode()
+if mode == "live":
+    from utils.trade_executor import execute_trade
+else:
+    from utils.trade_simulator import execute_trade
 
 STRATEGY = "BOLLINGER"
 
@@ -63,7 +69,9 @@ def run(price_data, user_id, coin="BTC", mode=None):
 
     # === Auto-initialize from existing BTC if no state ===
     if not state:
-        balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
+        portfolio_path = f"{mode}/portfolio/portfolio_snapshot.json"
+        portfolio_data = load_firebase_json(portfolio_path, user_id, token) or {}
+        balances = portfolio_data.get("balances", {})
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
             print(f"🔄 Initializing {bot_name} as Holding — {held:.6f} {coin} detected in account.")
