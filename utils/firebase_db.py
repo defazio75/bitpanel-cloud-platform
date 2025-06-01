@@ -117,3 +117,22 @@ def load_portfolio_snapshot_from_firebase(user_id, token):
     except Exception as e:
         print(f"❌ Failed to load snapshot from Firebase: {e}")
         return {}
+
+def load_user_data(user_id, path, mode):
+    db = firebase.database()
+    token = st.session_state.user.get("token")
+    try:
+        data = db.child("users").child(user_id).child(mode).child(path).get(token).val()
+        return data if data else {}
+    except Exception as e:
+        print(f"❌ Failed to load user data from {path}: {e}")
+        return {}
+
+def save_user_data(user_id, path, data, mode):
+    db = firebase.database()
+    token = st.session_state.user.get("token")
+    try:
+        db.child("users").child(user_id).child(mode).child(path).set(data, token)
+        print(f"✅ Saved user data to {path}")
+    except Exception as e:
+        print(f"❌ Failed to save user data to {path}: {e}")
