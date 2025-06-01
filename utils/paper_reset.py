@@ -25,8 +25,9 @@ def reset_paper_account(user_id):
     }
     with open(portfolio_path, "w") as f:
         json.dump(portfolio_data, f, indent=4)
-    save_firebase_json("portfolio_snapshot", portfolio_data, mode="paper", user_id=user_id)
-    print("💰 Reset portfolio snapshot to $100,000 USD and 0 coins.")
+    save_firebase_json("portfolio/portfolio_snapshot", portfolio_data, mode="paper", user_id=user_id)
+    save_firebase_json("balances", {"usd_balance": 100000.0, **{coin: 0.0 for coin in coins}}, mode="paper", user_id=user_id)
+    print("💰 Reset portfolio snapshot and balances to $100,000 USD and 0 coins.")
 
     # === 2. Reset trade log ===
     log_dir = os.path.join("data", "logs", "paper", user_id)
@@ -35,6 +36,7 @@ def reset_paper_account(user_id):
     with open(log_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["timestamp", "bot_name", "coin", "action", "price", "amount", "mode"])
+    # No Firebase upload needed unless logging trade logs to Firebase separately
     print("📄 Cleared trade log.")
 
     # === 3. Reset unified strategy state files ===
@@ -50,15 +52,18 @@ def reset_paper_account(user_id):
         file_path = os.path.join(current_path, f"{coin}_state.json")
         with open(file_path, "w") as f:
             json.dump(reset_state, f, indent=2)
-    print("🧠 Reset all unified bot state files.")
+        save_firebase_json(f"current/{coin}_state", reset_state, mode="paper", user_id=user_id)
+    print("🧠 Reset all unified bot state files and saved to Firebase.")
 
     # === 4. Reset performance logs per coin ===
     perf_folder = os.path.join("data", "json_paper", user_id, "performance")
     os.makedirs(perf_folder, exist_ok=True)
     for coin in coins:
-        with open(os.path.join(perf_folder, f"{coin.lower()}_profits.json"), "w") as f:
+        perf_path = os.path.join(perf_folder, f"{coin.lower()}_profits.json")
+        with open(perf_path, "w") as f:
             json.dump({"history": []}, f, indent=2)
-    print("📉 Reset performance files.")
+        save_firebase_json(f"performance/{coin.lower()}_profits", {"history": []}, mode="paper", user_id=user_id)
+    print("📉 Reset performance files and synced with Firebase.")
 
     # === 5. Clear historical snapshots ===
     history_path = os.path.join(portfolio_dir, "history")
@@ -66,7 +71,8 @@ def reset_paper_account(user_id):
         for file in os.listdir(history_path):
             if file.endswith(".json"):
                 os.remove(os.path.join(history_path, file))
-        print("🗑️ Cleared historical performance snapshots.")
+    save_firebase_json("history", {}, mode="paper", user_id=user_id)  # clear firebase history node
+    print("🗑️ Cleared historical performance snapshots in Firebase and locally.")
 
     # === 6. Final snapshot ===
     time.sleep(0.1)
