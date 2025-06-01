@@ -4,7 +4,6 @@ from utils.trade_executor import execute_trade
 from utils.account_summary import get_total_portfolio_value
 from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
-from utils.paper_reset import load_paper_balances
 from utils.performance_logger import log_trade_multi
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
