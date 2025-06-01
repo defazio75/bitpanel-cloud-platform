@@ -1,9 +1,14 @@
 from datetime import datetime
 from utils.kraken_wrapper import get_prices
 from utils.config import get_mode
-from utils.trade_executor import execute_trade
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
+
+mode = get_mode()
+if mode == "live":
+    from utils.trade_executor import execute_trade
+else:
+    from utils.trade_simulator import execute_trade
 
 def rebalance_hodl(user_id):
     mode = get_mode(user_id=user_id)
