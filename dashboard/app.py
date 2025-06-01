@@ -2,7 +2,7 @@ import streamlit as st
 st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
 from streamlit_autorefresh import st_autorefresh
 st_autorefresh(interval=600_000, limit=None, key="keepalive")
-
+import time
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
