@@ -5,18 +5,6 @@ from utils.kraken_wrapper import get_prices
 from utils.firebase_db import load_user_data, save_user_data
 from utils.config import get_mode
 
-# === Strategy File Utilities ===
-def get_strategy_path(mode, user_id):
-    return os.path.join("config", user_id, f"strategy_allocations_{mode}.json")
-
-def get_snapshot_path(mode, user_id):
-    folder = "json_paper" if mode == "paper" else "json_live"
-    return os.path.join("data", folder, user_id, "portfolio", "portfolio_snapshot.json")
-
-def get_state_path(coin, mode, user_id):
-    folder = f"json_{mode}"
-    return os.path.join("data", folder, user_id, "current", f"{coin}_state.json")
-
 def save_strategy_state(coin, allocations, user_id, mode):
     current_data = load_user_data(user_id, f"current/{coin}_state", mode) or {}
     for strategy, allocation in allocations.items():
@@ -24,22 +12,6 @@ def save_strategy_state(coin, allocations, user_id, mode):
             current_data[strategy] = {}
         current_data[strategy]["allocation"] = allocation
     save_user_data(user_id, f"current/{coin}_state", current_data, mode)
-
-def save_strategy_state(coin, allocations, mode, user_id):
-    path = get_state_path(coin, mode, user_id)
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            state = json.load(f)
-    else:
-        state = {}
-
-    for strategy, allocation in allocations.items():
-        if strategy not in state:
-            state[strategy] = {}
-        state[strategy]["allocation"] = allocation
-
-    with open(path, "w") as f:
-        json.dump(state, f, indent=2)
 
 def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, user_id, mode):
     strategy_snapshot = load_user_data(user_id, f"strategies/{coin}", mode) or {}
