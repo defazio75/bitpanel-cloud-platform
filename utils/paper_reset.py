@@ -4,6 +4,7 @@ import csv
 import time
 from utils.market_data_handler import get_price_data
 from utils.performance_tracker import snapshot_portfolio
+from utils.firebase_db import save_firebase_json
 
 def reset_paper_account(user_id):
     if not user_id:
@@ -24,6 +25,7 @@ def reset_paper_account(user_id):
     }
     with open(portfolio_path, "w") as f:
         json.dump(portfolio_data, f, indent=4)
+    save_firebase_json("portfolio_snapshot", portfolio_data, mode="paper", user_id=user_id)
     print("💰 Reset portfolio snapshot to $100,000 USD and 0 coins.")
 
     # === 2. Reset trade log ===
