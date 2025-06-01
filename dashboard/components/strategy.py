@@ -5,6 +5,11 @@ from utils.kraken_wrapper import get_prices
 from utils.firebase_db import load_user_data, save_user_data
 from utils.config import get_mode
 
+def load_strategy_state(coin, strategy_options, user_id, mode):
+    path = f"current/{coin}_state.json"
+    data = load_user_data(user_id, path, mode)
+    return data if data else {}
+
 def save_strategy_state(coin, allocations, user_id, mode):
     current_data = load_user_data(user_id, f"current/{coin}_state", mode) or {}
     for strategy, allocation in allocations.items():
