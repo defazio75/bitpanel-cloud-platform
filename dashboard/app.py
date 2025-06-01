@@ -20,7 +20,6 @@ from utils.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.load_keys import load_api_keys
-from utils.state_loader import load_bot_states
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
