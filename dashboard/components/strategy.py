@@ -4,7 +4,6 @@ import pandas as pd
 from utils.kraken_wrapper import get_prices
 from utils.firebase_db import load_user_data, save_user_data
 from utils.config import get_mode
-from utils.state_loader import load_strategy_state
 
 def save_strategy_state(coin, allocations, user_id, mode):
     current_data = load_user_data(user_id, f"current/{coin}_state", mode) or {}
