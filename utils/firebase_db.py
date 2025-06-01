@@ -136,3 +136,9 @@ def save_user_data(user_id, path, data, mode):
         print(f"✅ Saved user data to {path}")
     except Exception as e:
         print(f"❌ Failed to save user data to {path}: {e}")
+
+def load_firebase_json(path, mode, user_id):
+    return load_user_data(user_id, path, mode)
+
+def save_firebase_json(path, data, mode, user_id):
+    return save_user_data(user_id, path, data, mode)
