@@ -5,7 +5,7 @@ from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices, get_live_balances
-from utils.firebase_db import load_firebase_json
+from utils.firebase_db import load_user_data
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
@@ -16,7 +16,7 @@ def render_portfolio_summary(user_id=None, mode=None):
         mode = get_mode(user_id)
 
     # === Load Snapshot from Firebase ===
-    snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
+    snapshot = load_user_data(user_id, "portfolio/portfolio_snapshot", mode)
 
     if not snapshot:
         st.warning("No portfolio data found.")
