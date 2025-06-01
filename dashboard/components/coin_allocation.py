@@ -69,12 +69,12 @@ def render(mode=None, user_id=None):
     col_a.metric("💼 Total Portfolio Value", f"${portfolio_data['total_value']:,.2f}")
     col_b.metric("💰 Available USD", f"${portfolio_data['usd_balance']:,.2f}")
 
+    if not coin_data:
+        st.warning("⚠️ No coin data available to select.")
+        return
+
     selected_coin = st.selectbox("Choose Coin", list(coin_data.keys()), key=f"select_coin_{user_id}")
     updated_allocations = {}
-
-    if not coin_data:
-        st.warning("No coin data available.")
-        return
 
     col_left, col_right = st.columns([2, 1])
 
