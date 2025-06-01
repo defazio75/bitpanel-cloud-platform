@@ -206,7 +206,6 @@ if current_page == "📊 Portfolio":
     render_portfolio_summary(mode=mode, user_id=user_id)
 
 elif current_page == "💰 Allocation":
-    bot_states = load_bot_states(user_id=user_id)
     render_coin_allocation(mode=mode, user_id=user_id)
 
 elif current_page == "🧠 Strategies":
