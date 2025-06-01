@@ -4,7 +4,6 @@ from utils.config import get_mode
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
 
-mode = get_mode()
 if mode == "live":
     from utils.trade_executor import execute_trade
 else:
