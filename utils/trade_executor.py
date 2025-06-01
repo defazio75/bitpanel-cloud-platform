@@ -5,7 +5,6 @@ from utils.performance_logger import log_execution_event
 from utils.firebase_db import (
     load_firebase_json,
     save_firebase_json,
-    load_firebase_csv,
     save_firebase_csv
 )
 import streamlit as st
