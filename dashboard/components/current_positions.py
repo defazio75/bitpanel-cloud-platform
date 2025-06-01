@@ -2,7 +2,6 @@ from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 import pandas as pd
 
-from utils.state_loader import load_live_balances
 from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
 from utils.config import get_mode
 from utils.firebase_db import load_firebase_json
