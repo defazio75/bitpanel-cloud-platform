@@ -1,10 +1,15 @@
 from datetime import datetime
 from utils.config import get_mode
-from utils.kraken_wrapper import get_live_balances, get_live_prices
-from utils.trade_executor import execute_trade
+from utils.kraken_wrapper import get_live_balances
 from utils.performance_logger import log_dca_trade
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
+
+mode = get_mode()
+if mode == "live":
+    from utils.trade_executor import execute_trade
+else:
+    from utils.trade_simulator import execute_trade
 
 STRATEGY = "DCA_MATRIX"
 
@@ -40,14 +45,19 @@ def run(price_data, user_id, coin="BTC", mode=None):
         print(f"⚠️ No USD allocation set for {STRATEGY}. Exiting.")
         return
 
-    # Init state
     last_high = state.get("last_high", cur_price)
     if cur_price > last_high:
         last_high = cur_price
 
     open_tranches = state.get("open_tranches", [])
     sold_tranches = state.get("sold_tranches", [])
-    balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
+    
+    if mode == "live":
+        balances = get_live_balances(user_id)
+    else:
+        portfolio_path = f"{mode}/portfolio/portfolio_snapshot.json"
+        portfolio_data = load_firebase_json(portfolio_path, user_id, token) or {}
+        balances = portfolio_data.get("balances", {})
 
     # === Auto-initialize if BTC is held but state is empty
     if not open_tranches and balances.get(coin.upper(), 0) > 0:
