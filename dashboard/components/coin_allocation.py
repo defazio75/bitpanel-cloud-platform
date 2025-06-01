@@ -6,7 +6,7 @@ import plotly.express as px
 from utils.kraken_wrapper import get_prices, get_live_balances
 from utils.config import get_mode
 from utils.firebase_db import load_firebase_json, save_firebase_json
-from bots.rebalance_hodl import rebalance_hodl
+from bots.rebalance_bot import rebalance_hodl
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 
 def load_target_usd(coin, mode, user_id):
