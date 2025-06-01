@@ -1,11 +1,16 @@
 from datetime import datetime
 from utils.config import get_mode
-from utils.trade_executor import execute_trade
 from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.performance_logger import log_trade_multi
 from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
+
+mode = get_mode()
+if mode == "live":
+    from utils.trade_executor import execute_trade
+else:
+    from utils.trade_simulator import execute_trade
 
 STRATEGY = "RSI_5MIN"
 
@@ -33,11 +38,7 @@ def update_profit_json(user_id, coin, mode, coin_amount, profit_usd, token):
 
     save_firebase_json(path, data, user_id, token)
 
-def run(price_data, user_id, coin="BTC", mode=None):
-    if not mode:
-        mode = get_mode()
-        print(f"🚨 Running in {mode.upper()} MODE")
-
+def run(price_data, user_id, coin="BTC"):
     token = st.session_state.user["token"]
     bot_name = f"{STRATEGY.lower()}_{coin.lower()}"
 
@@ -95,6 +96,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
             execute_trade(bot_name, "buy", coin_amount, cur_price, mode, coin)
 
             log_trade_multi(
+                user_id=user_id,
                 coin=coin,
                 strategy=STRATEGY,
                 action="buy",
