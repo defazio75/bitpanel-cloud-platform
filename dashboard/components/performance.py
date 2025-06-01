@@ -5,7 +5,7 @@ from datetime import datetime
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
-from utils.firebase_db import list_firebase_files, load_firebase_json
+from utils.firebase_db load_firebase_json
 
 # === Load snapshots into DataFrame ===
 def load_performance_data(user_id, mode):
