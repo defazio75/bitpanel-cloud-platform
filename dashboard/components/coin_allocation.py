@@ -4,7 +4,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 from utils.kraken_wrapper import get_prices, get_live_balances
-from utils.paper_reset import load_paper_balances
 from utils.config import get_mode
 from utils.firebase_db import load_firebase_json, save_firebase_json
 from bots.rebalance_hodl import rebalance_hodl
