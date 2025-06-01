@@ -20,6 +20,7 @@ from utils.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.load_keys import load_api_keys
+from utils.firebase_db import save_firebase_json
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -39,6 +40,14 @@ if "user" not in st.session_state:
     st.warning("Please log in first.")
     st.session_state.page = "login"
     st.rerun()
+
+if "user" in st.session_state:
+    test_data = {"status": "test_write", "timestamp": time.time()}
+    success = save_firebase_json("test_write_check", test_data, "paper", st.session_state.user["user_id"])
+    if success:
+        st.success("✅ Test write to Firebase successful")
+    else:
+        st.error("❌ Test write to Firebase FAILED")
  
 user_id = st.session_state.user["localId"]
 exchange = "kraken"  # Default for now
