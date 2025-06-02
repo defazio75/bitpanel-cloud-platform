@@ -15,7 +15,7 @@ from utils.firebase_db import (
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
-def render_portfolio_summary(user_id=None, mode=None):
+def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
     if mode is None:
