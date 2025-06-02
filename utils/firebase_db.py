@@ -79,11 +79,10 @@ def save_strategy_config(user_id, config, token, mode):
         print(f"❌ Failed to save strategy config: {e}")
 
 # === Get user's saved strategy config ===
-def load_strategy_config(user_id, token):
-    from utils.firebase_config import firebase
+def load_strategy_config(user_id, token, mode):
     db = firebase.database()
     try:
-        data = db.child("users").child(user_id).child("strategy_config").get(token).val()
+        data = db.child("users").child(user_id).child(mode).child("settings").child("strategy_config").get(token).val()
         if data:
             return data
         else:
@@ -101,11 +100,10 @@ def save_portfolio_snapshot_to_firebase(user_id, snapshot, token, mode):
     except Exception as e:
         print(f"❌ Failed to save snapshot to Firebase: {e}")
 
-def load_portfolio_snapshot_from_firebase(user_id, token):
-    from utils.firebase_config import firebase
+def load_portfolio_snapshot_from_firebase(user_id, token, mode):
     db = firebase.database()
     try:
-        data = db.child("users").child(user_id).child("portfolio_snapshots").get(token).val()
+        data = db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").get(token).val()
         if data:
             print(f"📥 Loaded portfolio snapshot for {user_id}")
             return data
