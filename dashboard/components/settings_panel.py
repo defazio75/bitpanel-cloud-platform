@@ -19,7 +19,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     exchange_options = ["kraken", "binance", "coinbase"]
     selected_exchange = st.selectbox("Select Exchange", exchange_options, index=exchange_options.index(exchange))
 
-    current_keys = load_user_api_keys(user_id, selected_exchange)
+    current_keys = load_user_api_keys(user_id, selected_exchange, token=token)
 
     if "api_keys_saved" not in st.session_state:
          st.session_state.api_keys_saved = False
@@ -42,7 +42,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
 
         if submit:
             if new_key and new_secret:
-                save_user_api_keys(user_id, selected_exchange, new_key, new_secret)
+                save_user_api_keys(user_id, selected_exchange, new_key, new_secret, token=token)
                 st.success("✅ API keys saved successfully.")
                 st.session_state.api_keys_saved = True
                 st.experimental_rerun()
