@@ -35,9 +35,9 @@ print("✅ Live Balances from Kraken:\n", json.dumps(balances, indent=2))
 # === 3. Save to Firebase ===
 print("\n💾 Saving Live Snapshot to Firebase...")
 save_path = "portfolio/portfolio_snapshot.json"
-save_firebase_json(user_id, save_path, balances, mode, token=token)
+save_portfolio_snapshot(user_id, save_path, balances, mode, token=token)
 
 # === 4. Reload from Firebase ===
 print("\n🔄 Reloading Snapshot from Firebase...")
-reloaded = load_firebase_json(user_id, save_path, mode, token=token)
+reloaded = load_portfolio_snapshot(user_id, save_path, mode, token=token)
 print("✅ Reloaded Firebase Snapshot:\n", json.dumps(reloaded, indent=2))
