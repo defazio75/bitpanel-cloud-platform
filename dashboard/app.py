@@ -114,7 +114,7 @@ with st.sidebar:
     selected_mode = reverse_labels[selected_label]
 
     if selected_mode != st.session_state.mode:
-        if selected_mode == "live" and not keys:
+        if selected_mode == "live" and not user_api_keys:
             st.warning("⚠️ Live mode requires saved API keys.")
             if st.button("🔧 Go to API Settings"):
                 st.session_state.current_page = "⚙️ Settings"
