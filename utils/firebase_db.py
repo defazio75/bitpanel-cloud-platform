@@ -150,3 +150,14 @@ def list_firebase_files(path, mode, user_id):
     except Exception as e:
         print(f"❌ Failed to list files at {path}: {e}")
         return []
+
+def get_firebase_data(user_id, key, subfolder, mode, token=None):
+    url = f"{FIREBASE_BASE_URL}/users/{user_id}/{subfolder}/{key}.json"
+    if token:
+        url += f"?auth={token}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"❌ Firebase load failed: {response.text}")
+        return {}
