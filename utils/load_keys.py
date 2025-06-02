@@ -2,7 +2,6 @@ import requests
 import streamlit as st
 from utils.encryption import decrypt_string
 from utils.firebase_config import firebase
-from utils.firebase_db import load_user_api_keys
 
 def get_decrypted_api_keys(user_id, exchange):
     token = st.session_state.user["token"]
@@ -21,5 +20,5 @@ def api_keys_exist(user_id):
     """
     Checks if decrypted API keys exist for the user.
     """
-    keys = load_api_keys(user_id)
+    keys = get_decrypted_api_keys(user_id, "kraken")
     return bool(keys and keys.get("key") and keys.get("secret"))
