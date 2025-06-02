@@ -89,12 +89,8 @@ st.markdown(
 
 # === SIDEBAR ===
 with st.sidebar:
+    st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
 
-    # Show logged-in user
-    if "user" in st.session_state:
-        st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
-
-        # === Log Out Button at Top ===
     if st.button("🔓 Log Out", help="End your session and return to login"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
@@ -118,25 +114,25 @@ with st.sidebar:
             st.warning("⚠️ Live mode requires saved API keys.")
             if st.button("🔧 Go to API Settings"):
                 st.session_state.current_page = "⚙️ Settings"
-                st.rerun()        
+                st.rerun()
         else:
             request_mode_change(selected_mode)
 
-if "show_mode_confirm" not in st.session_state:
-    st.session_state.show_mode_confirm = False
+    if "show_mode_confirm" not in st.session_state:
+        st.session_state.show_mode_confirm = False
 
-if st.session_state.show_mode_confirm:
-    st.warning(f"Change to {st.session_state.pending_mode}?")
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        if st.button("✅ Confirm"):
-            st.session_state.mode = st.session_state.pending_mode
-            st.session_state.show_mode_confirm = False
-            st.rerun()
-    with col2:
-        if st.button("❌ Cancel"):
-            st.session_state.show_mode_confirm = False
-            st.session_state.mode_selector = st.session_state.mode
+    if st.session_state.show_mode_confirm:
+        st.warning(f"Change to {st.session_state.pending_mode}?")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("✅ Confirm"):
+                st.session_state.mode = st.session_state.pending_mode
+                st.session_state.show_mode_confirm = False
+                st.rerun()
+        with col2:
+            if st.button("❌ Cancel"):
+                st.session_state.show_mode_confirm = False
+                st.session_state.mode_selector = st.session_state.mode
 
     if st.session_state.mode == "paper":
         st.markdown("### 🔄 Reset Paper Account")
