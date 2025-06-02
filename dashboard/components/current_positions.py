@@ -30,7 +30,7 @@ def load_balances(mode, user_id):
         snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
         return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
 
-def render(mode=None, user_id=None):
+def render(mode, user_id, token):
     st_autorefresh(interval=10 * 1000, key="price_autorefresh")
     st.title("📍 Current Positions")
 
