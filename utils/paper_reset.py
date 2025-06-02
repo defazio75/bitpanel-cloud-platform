@@ -11,8 +11,6 @@ from utils.firebase_db import (
     save_performance_snapshot
 )
 from utils.firebase_config import firebase
-from utils.kraken_wrapper import get_price_data
-from utils.portfolio_writer import snapshot_portfolio
 
 def reset_paper_account(user_id):
     if not user_id:
@@ -86,9 +84,4 @@ def reset_paper_account(user_id):
     db.child("users").child(user_id).child(mode).child("portfolio").child("history").remove(token)
     print("🗑️ Cleared historical performance snapshots in Firebase and locally.")
 
-    # === 6. Final snapshot ===
-    time.sleep(0.1)
-    price_data = get_price_data()
-    snapshot_portfolio(price_data, mode="paper", user_id=user_id)
-    print("📸 Snapshot file updated.")
     print(f"✅ Paper account reset complete for user: {user_id}")
