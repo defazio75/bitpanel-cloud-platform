@@ -41,7 +41,7 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
         "secret": encrypted_secret
     }, token)
 
-def load_user_api_keys(user_id, exchange):
+def get_decrypted_api_keys(user_id, exchange):
     token = st.session_state.user["token"]
     db = firebase.database()
     result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
@@ -62,15 +62,6 @@ def get_all_user_ids():
     except Exception as e:
         print(f"❌ Failed to fetch user IDs: {e}")
         return []
-
-# === Get saved Kraken API keys for a user ===
-def get_api_keys(user_id):
-    try:
-        keys = firebase.database().child("users").child(user_id).child("api_keys").child("kraken").get()
-        return keys.val() if keys.val() else None
-    except Exception as e:
-        print(f"❌ Failed to fetch API keys for {user_id}: {e}")
-        return None
 
 def save_strategy_config(user_id, config, token, mode):
     db = firebase.database()
@@ -134,12 +125,6 @@ def save_user_data(user_id, path, data, mode):
         print(f"✅ Saved user data to {path}")
     except Exception as e:
         print(f"❌ Failed to save user data to {path}: {e}")
-
-def load_firebase_json(path, mode, user_id):
-    return load_user_data(user_id, path, mode)
-
-def save_firebase_json(path, data, mode, user_id):
-    return save_user_data(user_id, path, data, mode)
 
 def list_firebase_files(path, mode, user_id):
     db = firebase.database()
