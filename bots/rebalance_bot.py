@@ -21,9 +21,7 @@ def rebalance_hodl(user_id):
     token = st.session_state.user["token"]
 
     # === Load snapshot
-    snapshot_path = f"{mode}/balances/portfolio_snapshot.json"
-    current_snapshot = load_firebase_json(snapshot_path, user_id, token)
-
+    current_snapshot = load_portfolio_snapshot(user_id, token, mode)
     if not current_snapshot:
         print("❌ portfolio_snapshot.json not found.")
         return
@@ -35,9 +33,7 @@ def rebalance_hodl(user_id):
     coin_list = current_snapshot.get("coins", {}).keys()
 
     for coin in coin_list:
-        state_path = f"{mode}/current/{coin}/HODL.json"
-        state = load_firebase_json(state_path, user_id, token)
-
+        state = load_coin_state(user_id, coin, token, mode)
         if not state or "target_usd" not in state:
             continue  # skip coins without HODL targets
 
@@ -95,7 +91,7 @@ def rebalance_hodl(user_id):
             "buy_price": current_price,
             "timestamp": datetime.utcnow().isoformat()
         })
-        save_firebase_json(state_path, state, user_id, token)
+        save_coin_state(user_id, coin, state, token, mode)
 
     # === Final snapshot update
     current_snapshot["usd_balance"] = round(usd_balance, 2)
@@ -103,6 +99,6 @@ def rebalance_hodl(user_id):
     current_snapshot["total_value"] = round(
         usd_balance + sum(c["balance"] * c["price"] for c in current_snapshot["coins"].values()), 2
     )
-    save_firebase_json(snapshot_path, current_snapshot, user_id, token)
+    save_portfolio_snapshot(user_id, current_snapshot, token, mode)
 
     print("✅ Rebalancing complete.")
