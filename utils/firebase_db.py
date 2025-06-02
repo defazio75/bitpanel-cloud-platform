@@ -1,15 +1,14 @@
 import streamlit as st
-import requests
+from datetime import datetime
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
-import pyrebase
-from datetime import datetime
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
+# === USER PROFILE ===
 def save_user_profile(user_id, name, email, token, signup_date):
     db = firebase.database()
-    db.child("users").child(user_id).set({
+    db.child("users").child(user_id).update({
         "name": name,
         "email": email,
         "signup_date": signup_date
@@ -26,10 +25,10 @@ def load_user_profile(user_id, token):
     result = db.child("users").child(user_id).get(token)
     return result.val() if result.val() else None
 
+# === API KEYS ===
 def save_user_api_keys(user_id, exchange, api_key, api_secret):
     encrypted_key = encrypt_string(api_key, user_id)
     encrypted_secret = encrypt_string(api_secret, user_id)
-
     token = st.session_state.user["token"]
     db = firebase.database()
     db.child("users").child(user_id).child("api_keys").child(exchange).set({
@@ -74,7 +73,7 @@ def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
 
 def load_performance_snapshot(user_id, token, mode):
     db = firebase.database()
-    data = db.child("users").child(user_id).child(mode).child("portfolio").child("history").child(date_str).get(token).val()
+    data = db.child("users").child(user_id).child(mode).child("portfolio").child("history").get(token).val()
     return data if data else {}
 
 # === FILE LISTING ===
