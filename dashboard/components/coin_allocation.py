@@ -10,15 +10,15 @@ from bots.rebalance_bot import rebalance_hodl
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 
 def load_target_usd(coin, mode, user_id):
-    data = load_firebase_json(f"{coin}_state", mode, user_id)
+    data = load_user_data(user_id, path, mode)
     return data.get("HODL", {}).get("target_usd", 0.0)
 
 def save_target_usd(coin, mode, user_id, target_usd):
-    data = load_firebase_json(f"{coin}_state", mode, user_id)
+    save_user_data(user_id, path, data, mode)
     if "HODL" not in data:
         data["HODL"] = {}
     data["HODL"]["target_usd"] = round(target_usd, 2)
-    return save_firebase_json(f"{coin}_state", data, mode, user_id)
+    return save_user_data(user_id, path, data, mode)
 
 def render(mode=None, user_id=None):
     st.write("Active Mode:", mode)
