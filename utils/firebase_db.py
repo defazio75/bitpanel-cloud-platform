@@ -29,8 +29,8 @@ def load_user_profile(user_id, token):
     return None
 
 def save_user_api_keys(user_id, exchange, api_key, api_secret):
-    encrypted_key = encrypt_string(api_key)
-    encrypted_secret = encrypt_string(api_secret)
+    encrypted_key = encrypt_string(api_key, user_id)
+    encrypted_secret = encrypt_string(api_secret, user_id)
 
     token = st.session_state.user["token"]
     db = firebase.database()
@@ -47,8 +47,8 @@ def load_user_api_keys(user_id, exchange):
         encrypted_key = result.val().get("key", "")
         encrypted_secret = result.val().get("secret", "")
         return {
-            "key": decrypt_string(encrypted_key),
-            "secret": decrypt_string(encrypted_secret)
+            "key": decrypt_string(encrypted_key, user_id),
+            "secret": decrypt_string(encrypted_secret, user_id)
         }
     return None
 
