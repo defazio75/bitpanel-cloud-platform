@@ -28,7 +28,7 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
     if not user_id:
         raise ValueError("❌ user_id is required for private Kraken calls.")
 
-    keys = load_api_keys(user_id=user_id)
+    keys = load_user_api_keys(user_id=user_id)
     api_key = keys.get("key")
     api_secret = keys.get("secret")
 
