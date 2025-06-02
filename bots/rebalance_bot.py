@@ -1,8 +1,13 @@
 from datetime import datetime
 from utils.kraken_wrapper import get_prices
 from utils.config import get_mode
-from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
+from utils.firebase_db import (
+    load_coin_state,
+    save_coin_state,
+    load_portfolio_snapshot,
+    save_portfolio_snapshot
+)
 
 def rebalance_hodl(user_id):
     mode = get_mode(user_id=user_id)
