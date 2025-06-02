@@ -2,8 +2,13 @@ from datetime import datetime
 from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.performance_logger import log_trade_multi
-from utils.firebase_db import load_user_data, save_user_data
-import streamlit as st  # Required for accessing session token
+import streamlit as st
+from utils.firebase_db import (
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    save_coin_state
+)
 
 from utils.config import get_mode
 
@@ -16,9 +21,7 @@ else:
 STRATEGY = "BOLLINGER"
 
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
-    path = f"{mode}/allocations/strategy_allocations.json"
-    data = load_firebase_json(path, user_id, token) or {}
-    return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
+    data = load_strategy_allocations(user_id, token, mode) or {}
 
 def calculate_btc_allocation(price, allocated_usd):
     return 0 if price == 0 else allocated_usd / price
@@ -47,8 +50,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
     token = st.session_state.user["token"]
     bot_name = f"bollinger_breakout_{coin.lower()}"
 
-    state_path = f"{mode}/current/{coin}/{STRATEGY}.json"
-    state = load_firebase_json(state_path, user_id, token) or {}
+    state = load_coin_state(user_id, coin, token, mode) or {}
 
     allocated_usd = load_strategy_usd(user_id, coin, STRATEGY, mode, token)
     if allocated_usd <= 0:
@@ -59,7 +61,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
             "buy_price": 0.0,
             "usd_held": 0.0
         }
-        save_firebase_json(state_path, state, user_id, token)
+        save_coin_state(user_id, coin, state, token, mode)
         return
 
     cur_price = price_data.get("price")
@@ -69,8 +71,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
 
     # === Auto-initialize from existing BTC if no state ===
     if not state:
-        portfolio_path = f"{mode}/portfolio/portfolio_snapshot.json"
-        portfolio_data = load_firebase_json(portfolio_path, user_id, token) or {}
+        portfolio_data = load_portfolio_snapshot(user_id, token, mode) or {}
         balances = portfolio_data.get("balances", {})
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
@@ -155,5 +156,5 @@ def run(price_data, user_id, coin="BTC", mode=None):
         else:
             print(f"⚠️ {bot_name} breakout triggered, but profit condition not met. P/L: ${profit_usd:.2f}")
 
-    save_firebase_json(state_path, state, user_id, token)
+    save_coin_state(user_id, coin, state, token, mode)
     print(f"💾 {bot_name} state saved: {state}")
