@@ -22,7 +22,6 @@ def rate_limited_query_public(endpoint, params=None):
     return response.json()
 
 def rate_limited_query_private(endpoint, data=None, user_id=None):
-    from utils.load_keys import load_api_keys
 
     if data is None:
         data = {}
@@ -49,8 +48,11 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
     encoded = (nonce + post_data).encode()
     message = path.encode() + hashlib.sha256(encoded).digest()
 
-    signature = hmac.new(base64.b64decode(api_secret), message, hashlib.sha512)
-    sig_digest = base64.b64encode(signature.digest())
+    try:
+        signature = hmac.new(base64.b64decode(api_secret), message, hashlib.sha512)
+        sig_digest = base64.b64encode(signature.digest())
+    except Exception as e:
+        raise ValueError(f"❌ Signature generation failed. Likely invalid API secret. Error: {e}")
 
     headers = {
         "API-Key": api_key,
@@ -58,8 +60,21 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
     }
 
     response = requests.post(url, headers=headers, data=data)
-    response.raise_for_status()
-    return response.json()
+
+    print("🐙 Kraken raw response:", response.text)
+
+    try:
+        response.raise_for_status()
+        raw = response.json()
+
+        if raw.get("error"):
+            print("❌ Kraken returned errors:", raw["error"])
+
+        return raw
+    except Exception as e:
+        print(f"❌ Exception from Kraken request: {e}")
+        return {"error": [str(e)]}
+
 
 # === Live Price Fetching ===
 def get_prices(user_id=None):
