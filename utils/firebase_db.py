@@ -70,11 +70,10 @@ def get_api_keys(user_id):
         print(f"❌ Failed to fetch API keys for {user_id}: {e}")
         return None
 
-def save_strategy_config(user_id, config, token):
-    from utils.firebase_config import firebase
+def save_strategy_config(user_id, config, token, mode):
     db = firebase.database()
     try:
-        db.child("users").child(user_id).child("strategy_config").set(config, token)
+        db.child("users").child(user_id).child(mode).child("settings").child("strategy_config").set(config, token)
         print(f"✅ Saved strategy config for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save strategy config: {e}")
@@ -94,11 +93,10 @@ def load_strategy_config(user_id, token):
         print(f"❌ Failed to load strategy config: {e}")
         return {}
 
-def save_portfolio_snapshot_to_firebase(user_id, snapshot, token):
-    from utils.firebase_config import firebase
+def save_portfolio_snapshot_to_firebase(user_id, snapshot, token, mode):
     db = firebase.database()
     try:
-        db.child("users").child(user_id).child("portfolio_snapshots").set(snapshot, token)
+        db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").set(snapshot, token)
         print(f"✅ Saved snapshot to Firebase for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save snapshot to Firebase: {e}")
