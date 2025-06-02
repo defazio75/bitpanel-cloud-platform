@@ -41,15 +41,6 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
         "secret": encrypted_secret
     }, token)
 
-# === Get all registered user IDs ===
-def get_all_user_ids():
-    try:
-        users = firebase.database().child("users").get()
-        return [user.key() for user in users.each()] if users.each() else []
-    except Exception as e:
-        print(f"❌ Failed to fetch user IDs: {e}")
-        return []
-
 def save_strategy_config(user_id, config, token, mode):
     db = firebase.database()
     try:
@@ -124,14 +115,3 @@ def list_firebase_files(path, mode, user_id):
     except Exception as e:
         print(f"❌ Failed to list files at {path}: {e}")
         return []
-
-def get_firebase_data(user_id, key, subfolder, mode, token=None):
-    url = f"{FIREBASE_BASE_URL}/users/{user_id}/{subfolder}/{key}.json"
-    if token:
-        url += f"?auth={token}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"❌ Firebase load failed: {response.text}")
-        return {}
