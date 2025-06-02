@@ -1,11 +1,11 @@
 import json
 from utils.firebase_db import (
-    load_user_api_keys,
     load_portfolio_snapshot_from_firebase,
     load_user_data
 )
 from utils.kraken_wrapper import get_live_balances
 from utils.config import get_mode
+from utils.load_keys import load_user_api_keys
 
 user_id = "YOUR_TEST_USER_ID"  # ← replace this with your Firebase UID
 exchange = "kraken"
