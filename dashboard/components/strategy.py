@@ -2,8 +2,14 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 from utils.kraken_wrapper import get_prices
-from utils.firebase_db import load_user_data, save_user_data
 from utils.config import get_mode
+from utils.firebase_db import (
+    load_user_profile,
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    load_performance_snapshot
+)
 
 def load_strategy_state(coin, strategy_options, user_id, mode):
     path = f"current/{coin}_state.json"
