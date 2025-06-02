@@ -2,8 +2,13 @@ from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances
 from utils.performance_logger import log_dca_trade
-from utils.firebase_db import load_firebase_json, save_firebase_json
 import streamlit as st
+from utils.firebase_db import (
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    save_coin_state
+)
 
 mode = get_mode()
 if mode == "live":
@@ -24,8 +29,7 @@ DCA_ZONES = [
 ]
 
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
-    path = f"{mode}/allocations/strategy_allocations.json"
-    data = load_firebase_json(path, user_id, token) or {}
+    data = load_strategy_allocations(user_id, token, mode) or {}
     return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
 
 # === Main Bot Logic ===
