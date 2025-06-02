@@ -2,7 +2,7 @@ from datetime import datetime
 from utils.config_loader import get_setting
 from utils.kraken_wrapper import get_live_balances, get_live_prices
 from utils.performance_logger import log_trade_multi
-from utils.firebase_db import load_firebase_json, save_firebase_json
+from utils.firebase_db import load_user_data, save_user_data
 import streamlit as st  # Required for accessing session token
 
 from utils.config import get_mode
