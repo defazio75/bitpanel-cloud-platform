@@ -5,7 +5,13 @@ from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices, get_live_balances
-from utils.firebase_db import load_user_data, get_firebase_data
+from utils.firebase_db import (
+    load_user_profile,
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    load_performance_snapshot
+)
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
