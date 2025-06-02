@@ -3,7 +3,7 @@ import streamlit as st
 from utils.firebase_db import load_user_api_keys
 
 def run_key_test():
-    user_id = st.session_state.user.get("user_id")
+    user_id = st.session_state.user["localId"] if "user" in st.session_state else None
     exchange = "kraken"
 
     st.subheader("🔐 API Key Decryption Test")
