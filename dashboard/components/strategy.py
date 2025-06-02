@@ -11,26 +11,27 @@ from utils.firebase_db import (
     load_performance_snapshot
 )
 
-def load_strategy_state(coin, strategy_options, user_id, mode):
-    path = f"current/{coin}_state.json"
-    data = load_user_data(user_id, path, mode)
+def load_strategy_state(coin, strategy_options, user_id, token, mode):
+    data = load_coin_state(user_id, coin, token, mode)
     return data if data else {}
 
-def save_strategy_state(coin, allocations, user_id, mode):
-    current_data = load_user_data(user_id, f"current/{coin}_state", mode) or {}
+def save_strategy_state(coin, allocations, user_id, token, mode):
+    current_data = load_coin_state(user_id, coin, token, mode) or {}
     for strategy, allocation in allocations.items():
         if strategy not in current_data:
             current_data[strategy] = {}
         current_data[strategy]["allocation"] = allocation
-    save_user_data(user_id, f"current/{coin}_state", current_data, mode)
+    save_coin_state(user_id, coin, current_data, token, mode)
 
-def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, user_id, mode):
-    strategy_snapshot = load_user_data(user_id, f"strategies/{coin}", mode) or {}
-    strategy_snapshot.update(allocations)
-    save_user_data(user_id, f"strategies/{coin}", strategy_snapshot, mode)
-
-def load_portfolio_snapshot(user_id, mode):
-    return load_user_data(user_id, "portfolio/portfolio_snapshot", mode) or {}
+def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, user_id, token, mode):
+    # Save full strategy allocations to Firebase using existing save_strategy_allocations logic
+    current_allocations = {
+        "coin": coin,
+        "allocations": allocations,
+        "coin_amt": coin_amt,
+        "coin_usd": coin_usd
+    }
+    save_strategy_allocations(user_id, current_allocations, token, mode)
 
 def render(mode, user_id, token):
     st.title("🧠 Strategy Controls")
@@ -44,7 +45,7 @@ def render(mode, user_id, token):
         return
 
     token = st.session_state.user.get("token", "")
-    holdings_data = load_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
+    holdings_data = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
     if "strategy_allocations" not in st.session_state:
         st.session_state.strategy_allocations = {
@@ -77,7 +78,7 @@ def render(mode, user_id, token):
         strategy_summary = f"{active_strategies[0]}" if len(active_strategies) == 1 else f"Multiple ({len(active_strategies)})"
         with st.expander(f"🪙 {coin} — ${current_usd:,.2f} ({coin_amt} {coin}) — Strategy: {strategy_summary}"):
             strategy_live_values = {}
-            strategy_states = load_user_data(user_id, f"current/{coin}_state", mode) or {}
+            strategy_states = load_coin_state(user_id, coin, token, mode) or {}
             for strat in strategy_options:
                 strat_info = strategy_states.get(strat, {})
                 amount = strat_info.get("amount", 0)
@@ -150,8 +151,8 @@ def render(mode, user_id, token):
                         if sum(allocations.values()) != 100:
                             st.error("Allocations must equal 100%")
                         else:
-                            save_strategy_state(coin, allocations, user_id, mode)
-                            save_full_strategy_breakdown(coin, allocations, coin_amt, current_usd, user_id, mode)
+                            save_strategy_state(coin, allocations, user_id, token, mode)
+                            save_full_strategy_breakdown(coin, allocations, coin_amt, current_usd, user_id, token, mode)
                             st.session_state.pending_strategy_changes[coin] = False
                             st.success(f"{coin} strategy updated.")
                             st.rerun()
