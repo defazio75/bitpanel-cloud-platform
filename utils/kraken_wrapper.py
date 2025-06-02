@@ -22,7 +22,6 @@ def rate_limited_query_public(endpoint, params=None):
     return response.json()
 
 def rate_limited_query_private(endpoint, data=None, user_id=None):
-
     if data is None:
         data = {}
 
