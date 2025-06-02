@@ -2,7 +2,7 @@ import streamlit as st
 from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
 
-def render_settings_panel(user_id, exchange="kraken"):
+def render_settings_panel(user_id, token, exchange="kraken"):
     st.header("⚙️ Settings")
 
     # === Account Info ===
