@@ -1,10 +1,14 @@
 from datetime import datetime
 from utils.config import get_mode
-from utils.config_loader import get_setting
-from utils.kraken_wrapper import get_live_balances, get_live_prices
-from utils.performance_logger import log_trade_multi
-from utils.firebase_db import load_firebase_json, save_firebase_json
+from utils.kraken_wrapper import get_rsi, get_live_balances
+from utils.performance_logger import log_trade
 import streamlit as st
+from utils.firebase_db import (
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    save_coin_state
+)
 
 mode = get_mode()
 if mode == "live":
@@ -15,36 +19,15 @@ else:
 STRATEGY = "RSI_5MIN"
 
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
-    path = f"{mode}/allocations/strategy_allocations.json"
-    data = load_firebase_json(path, user_id, token) or {}
+    data = load_strategy_allocations(user_id, token, mode) or {}
     return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
-
-def calculate_btc_allocation(price, allocated_usd):
-    return 0 if price == 0 else allocated_usd / price
-
-def update_profit_json(user_id, coin, mode, coin_amount, profit_usd, token):
-    path = f"{mode}/performance/by_bot/{STRATEGY}.json"
-    data = load_firebase_json(path, user_id, token) or {
-        f"{coin}_accumulated": 0.0,
-        "profit_usd": 0.0,
-        "trades": 0,
-        "last_trade_time": None
-    }
-
-    data[f"{coin}_accumulated"] += coin_amount
-    data["profit_usd"] += profit_usd
-    data["trades"] += 1
-    data["last_trade_time"] = datetime.utcnow().isoformat()
-
-    save_firebase_json(path, data, user_id, token)
 
 def run(price_data, user_id, coin="BTC"):
     token = st.session_state.user["token"]
     bot_name = f"{STRATEGY.lower()}_{coin.lower()}"
 
-    # === Load bot state from Firebase ===
-    state_path = f"{mode}/current/{coin}/{STRATEGY}.json"
-    state = load_firebase_json(state_path, user_id, token) or {}
+    state = load_coin_state(user_id, coin, token, mode) or {}
+    strat_state = state.get(STRATEGY, {})
 
     allocated_usd = load_strategy_usd(user_id, coin, STRATEGY, mode, token)
     if allocated_usd <= 0:
@@ -55,7 +38,7 @@ def run(price_data, user_id, coin="BTC"):
             "buy_price": 0.0,
             "usd_held": 0.0
         }
-        save_firebase_json(state_path, state, user_id, token)
+        save_coin_state(user_id, coin, state, token, mode)
         return
 
     cur_price = price_data.get("price")
@@ -146,5 +129,5 @@ def run(price_data, user_id, coin="BTC"):
             print(f"⚠️ {bot_name} skipped sell — RSI > 70 but profit condition not met. P/L: ${profit_usd:.2f}")
 
     # === Save updated state ===
-    save_firebase_json(state_path, state, user_id, token)
+    save_coin_state(user_id, coin, state, token, mode)
     print(f"💾 {bot_name} state saved: {state}")
