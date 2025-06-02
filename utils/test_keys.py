@@ -1,18 +1,48 @@
-# dashboard/test_keys.py
-import streamlit as st
-from utils.firebase_db import load_user_api_keys
+import json
+from utils.firebase_db import (
+    load_user_api_keys,
+    load_portfolio_snapshot_from_firebase,
+    load_user_data
+)
+from utils.kraken_wrapper import get_live_balances
+from utils.config import get_mode
 
-def run_key_test():
-    user_id = st.session_state.user["localId"] if "user" in st.session_state else None
-    exchange = "kraken"
+user_id = "YOUR_TEST_USER_ID"  # ← replace this with your Firebase UID
+exchange = "kraken"
+mode = get_mode(user_id)
 
-    st.subheader("🔐 API Key Decryption Test")
-    st.write(f"Testing decryption for user: `{user_id}`")
+print("🔐 Testing Firebase + Kraken Decryption + Live Pull")
 
-    try:
-        keys = load_user_api_keys(user_id, exchange)
-        st.success("✅ Keys decrypted successfully!")
-        st.code(f"API Key: {keys.get('key')[:6]}...", language="text")
-        st.code(f"API Secret: {keys.get('secret')[:6]}...", language="text")
-    except Exception as e:
-        st.error(f"❌ Error decrypting API keys: {e}")
+# === Test API Key Decryption ===
+print("\n🔑 Testing API Key Decryption...")
+keys = load_user_api_keys(user_id, exchange)
+if keys:
+    print("✅ Decrypted API Key:", keys["key"][:8] + "...")
+    print("✅ Decrypted API Secret:", keys["secret"][:8] + "...")
+else:
+    print("❌ Failed to load API keys")
+
+# === Test Live Kraken Balance ===
+print("\n💰 Testing Live Kraken Balance Fetch...")
+try:
+    balances = get_live_balances(user_id=user_id)
+    print("✅ Live Balances:", json.dumps(balances, indent=2))
+except Exception as e:
+    print("❌ Error getting balances:", e)
+
+# === Test Firebase Portfolio Snapshot ===
+print("\n📊 Testing Firebase Portfolio Snapshot...")
+try:
+    token = None
+    snapshot = load_portfolio_snapshot_from_firebase(user_id, token, mode)
+    print("✅ Firebase Snapshot:", json.dumps(snapshot, indent=2))
+except Exception as e:
+    print("❌ Error loading snapshot:", e)
+
+# === Test Firebase Bot State (e.g. BTC) ===
+print("\n📁 Testing Firebase Bot State (BTC_state)...")
+try:
+    btc_state = load_user_data(user_id, "current/BTC_state.json", mode)
+    print("✅ BTC Bot State:", json.dumps(btc_state, indent=2))
+except Exception as e:
+    print("❌ Error loading BTC state:", e)
