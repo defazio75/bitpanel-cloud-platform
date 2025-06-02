@@ -2,7 +2,7 @@ import streamlit as st
 from utils.encryption import decrypt_string
 from utils.firebase_config import firebase
 
-def load_user_api_keys(user_id, exchange):
+def load_user_api_keys(user_id, exchange, token):
     token = st.session_state.user["token"]
     db = firebase.database()
     result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
