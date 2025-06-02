@@ -1,4 +1,5 @@
 import json
+from utils.firebase_auth import sign_in
 from utils.firebase_db import (
     load_portfolio_snapshot,
     load_coin_state,
@@ -7,6 +8,11 @@ from utils.firebase_db import (
 from utils.kraken_wrapper import get_live_balances
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
+
+# Temporary login to get valid token (for testing)
+auth_user = sign_in("your_email@gmail.com", "your_password")
+user_id = auth_user["localId"]
+token = auth_user["idToken"]
 
 # === USER SETUP ===
 user_id = "YOUR_TEST_USER_ID"  # 🔁 Replace with your Firebase UID
