@@ -10,7 +10,7 @@ import json
 import os
 import pandas as pd
 import streamlit as st
-from utils.load_keys import load_api_keys
+from utils.load_keys import load_user_api_keys
 
 API_URL = "https://api.kraken.com"
 
