@@ -49,7 +49,7 @@ def render(mode, user_id, token):
 
     if "strategy_allocations" not in st.session_state:
         st.session_state.strategy_allocations = {
-            coin: load_strategy_state(coin, strategy_options, user_id, mode, token)
+            coin: load_strategy_state(coin, strategy_options, user_id, token, mode)
             for coin in coin_list
         }
 
@@ -158,7 +158,7 @@ def render(mode, user_id, token):
                             st.rerun()
                 with col2:
                     if st.button(f"❌ Cancel {coin} Changes"):
-                        st.session_state.strategy_allocations[coin] = load_strategy_state(coin, strategy_options, user_id, mode)
+                        st.session_state.strategy_allocations[coin] = load_strategy_state(coin, strategy_options, user_id, token, mode)
                         st.session_state.pending_strategy_changes[coin] = False
                         st.rerun()
 
