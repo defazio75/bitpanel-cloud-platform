@@ -42,12 +42,13 @@ if "user" not in st.session_state:
 user_id = st.session_state.user["localId"]
 exchange = "kraken"
 
-if "keys" not in st.session_state:
-    st.session_state.keys = load_user_api_keys(user_id, exchange)
-keys = st.session_state.keys
+if "api_keys" not in st.session_state:
+    st.session_state.api_keys = load_user_api_keys(user_id, exchange)
+
+user_api_keys = st.session_state.api_keys
 
 if "mode" not in st.session_state:
-    if keys and keys.get("key") and keys.get("secret"):
+    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret"):
         st.session_state.mode = "live"
     else:
         st.session_state.mode = "paper"
@@ -56,7 +57,7 @@ mode = st.session_state.mode
 
 # === GATEKEEP LIVE MODE ACCESS ===
 if mode == "live":
-    if not keys:
+    if not user_api_keys:
         st.warning("🔐 Live mode requires API keys. You've been switched back to Paper mode.")
         st.session_state.mode = "paper"
         st.rerun()
