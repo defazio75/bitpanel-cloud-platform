@@ -1,21 +1,24 @@
 import json
 from utils.firebase_db import (
-    load_portfolio_snapshot_from_firebase,
-    load_user_data
+    load_portfolio_snapshot,
+    load_coin_state,
+    load_user_profile
 )
 from utils.kraken_wrapper import get_live_balances
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
 
-user_id = "YOUR_TEST_USER_ID"  # ← replace this with your Firebase UID
+# === USER SETUP ===
+user_id = "YOUR_TEST_USER_ID"  # 🔁 Replace with your Firebase UID
 exchange = "kraken"
 mode = get_mode(user_id)
+token = None  # Replace with actual token if needed
 
 print("🔐 Testing Firebase + Kraken Decryption + Live Pull")
 
 # === Test API Key Decryption ===
 print("\n🔑 Testing API Key Decryption...")
-keys = load_user_api_keys(user_id, exchange)
+keys = load_user_api_keys(user_id, exchange, token=token)
 if keys:
     print("✅ Decrypted API Key:", keys["key"][:8] + "...")
     print("✅ Decrypted API Secret:", keys["secret"][:8] + "...")
@@ -33,16 +36,15 @@ except Exception as e:
 # === Test Firebase Portfolio Snapshot ===
 print("\n📊 Testing Firebase Portfolio Snapshot...")
 try:
-    token = None
-    snapshot = load_portfolio_snapshot_from_firebase(user_id, token, mode)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
     print("✅ Firebase Snapshot:", json.dumps(snapshot, indent=2))
 except Exception as e:
     print("❌ Error loading snapshot:", e)
 
-# === Test Firebase Bot State (e.g. BTC) ===
-print("\n📁 Testing Firebase Bot State (BTC_state)...")
+# === Test Firebase Coin State (e.g. BTC) ===
+print("\n📁 Testing Firebase Coin State (BTC_state)...")
 try:
-    btc_state = load_user_data(user_id, "current/BTC_state.json", mode)
-    print("✅ BTC Bot State:", json.dumps(btc_state, indent=2))
+    btc_state = load_coin_state(user_id, "BTC", token, mode)
+    print("✅ BTC State:", json.dumps(btc_state, indent=2))
 except Exception as e:
     print("❌ Error loading BTC state:", e)
