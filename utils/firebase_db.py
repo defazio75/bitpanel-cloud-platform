@@ -41,19 +41,6 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
         "secret": encrypted_secret
     }, token)
 
-def get_decrypted_api_keys(user_id, exchange):
-    token = st.session_state.user["token"]
-    db = firebase.database()
-    result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
-    if result.val():
-        encrypted_key = result.val().get("key", "")
-        encrypted_secret = result.val().get("secret", "")
-        return {
-            "key": decrypt_string(encrypted_key, user_id),
-            "secret": decrypt_string(encrypted_secret, user_id)
-        }
-    return None
-
 # === Get all registered user IDs ===
 def get_all_user_ids():
     try:
