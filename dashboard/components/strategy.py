@@ -37,13 +37,18 @@ def render(mode, user_id):
 
     strategy_options = ["HODL", "RSI 5-Min", "RSI 1-Hour", "Bollinger Bot", "DCA Matrix"]
     coin_list = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
-    prices = get_prices()
+    prices = get_prices(user_id=user_id)
 
-    holdings_data = load_portfolio_snapshot(user_id, mode)
+    if "user" not in st.session_state:
+        st.warning("⚠️ Please log in to access strategy controls.")
+        return
+
+    token = st.session_state.user.get("token", "")
+    holdings_data = load_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
 
     if "strategy_allocations" not in st.session_state:
         st.session_state.strategy_allocations = {
-            coin: load_strategy_state(coin, strategy_options, user_id, mode)
+            coin: load_strategy_state(coin, strategy_options, user_id, mode, token)
             for coin in coin_list
         }
 
