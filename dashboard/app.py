@@ -122,18 +122,21 @@ with st.sidebar:
         else:
             request_mode_change(selected_mode)
 
-    if st.session_state.show_mode_confirm:
-        st.warning(f"Change to {st.session_state.pending_mode}?")
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            if st.button("✅ Confirm"):
-                st.session_state.mode = st.session_state.pending_mode
-                st.session_state.show_mode_confirm = False
-                st.rerun()
-        with col2:
-            if st.button("❌ Cancel"):
-                st.session_state.show_mode_confirm = False
-                st.session_state.mode_selector = st.session_state.mode  # revert radio button
+if "show_mode_confirm" not in st.session_state:
+    st.session_state.show_mode_confirm = False
+
+if st.session_state.show_mode_confirm:
+    st.warning(f"Change to {st.session_state.pending_mode}?")
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("✅ Confirm"):
+            st.session_state.mode = st.session_state.pending_mode
+            st.session_state.show_mode_confirm = False
+            st.rerun()
+    with col2:
+        if st.button("❌ Cancel"):
+            st.session_state.show_mode_confirm = False
+            st.session_state.mode_selector = st.session_state.mode
 
     if st.session_state.mode == "paper":
         st.markdown("### 🔄 Reset Paper Account")
