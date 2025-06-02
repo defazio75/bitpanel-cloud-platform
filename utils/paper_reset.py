@@ -63,7 +63,7 @@ def reset_paper_account(user_id):
         file_path = os.path.join(current_path, f"{coin}_state.json")
         with open(file_path, "w") as f:
             json.dump(reset_state, f, indent=2)
-        save_firebase_json(f"current/{coin}_state", reset_state, mode="paper", user_id=user_id)
+        save_coin_state(user_id, coin, reset_state, token, mode)
     print("🧠 Reset all unified bot state files and saved to Firebase.")
 
     # === 4. Reset performance logs per coin ===
