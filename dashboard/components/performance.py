@@ -87,7 +87,7 @@ def show_coin_performance(df):
         col2.write(f"🟢 Bot: {roi:.2f}%\n⚪ Market: {market_roi:.2f}%")
 
 # === Main Render Function ===
-def render(mode=None, user_id=None):
+def render(mode, user_id, token):
     st.title("📈 Portfolio Performance")
 
     if mode is None:
