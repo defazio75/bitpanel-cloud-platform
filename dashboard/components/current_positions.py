@@ -16,18 +16,14 @@ from utils.firebase_db import (
 def get_live_price_data():
     return get_prices_with_change()
 
-def load_strategy_state(coin, mode, user_id):
-    data = load_firebase_json(f"{coin}_state", mode, user_id)
-    return data if data else {}
+def load_strategy_state(coin, mode, user_id, token):
+    return load_coin_state(user_id, coin, token, mode)
 
-def load_strategy_allocations(mode, user_id):
-    return load_firebase_json("strategy_allocations", mode, user_id)
-
-def load_balances(mode, user_id):
+def load_balances(mode, user_id, token):
     if mode == "live":
         return get_live_balances(user_id=user_id)
     else:
-        snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
+        snapshot = load_portfolio_snapshot(user_id, token, mode)
         return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
 
 def render(mode, user_id, token):
@@ -37,8 +33,8 @@ def render(mode, user_id, token):
     if mode is None:
         mode = get_mode(user_id)
 
-    strategy_allocs = load_strategy_allocations(mode, user_id)
-    balances = load_balances(mode, user_id)
+    strategy_allocs = load_strategy_allocations(user_id, token, mode)
+    balances = load_balances(mode, user_id, token)
     prices_data = get_prices_with_change()
 
     for coin, strategies in strategy_allocs.items():
