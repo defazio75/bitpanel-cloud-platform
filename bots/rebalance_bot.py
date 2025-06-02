@@ -97,8 +97,8 @@ def rebalance_hodl(user_id):
     current_snapshot["usd_balance"] = round(usd_balance, 2)
     current_snapshot["timestamp"] = datetime.utcnow().isoformat()
     current_snapshot["total_value"] = round(
-        usd_balance + sum(c["balance"] * c["price"] for c in current_snapshot["coins"].values()), 2
-    )
+    usd_balance + sum(c.get("balance", 0) * c.get("price", 0) for c in current_snapshot["coins"].values()), 2
+)
     save_portfolio_snapshot(user_id, current_snapshot, token, mode)
 
     print("✅ Rebalancing complete.")
