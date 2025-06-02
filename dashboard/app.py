@@ -40,6 +40,7 @@ if "user" not in st.session_state:
 
 # === Determine initial mode based on API keys ===
 user_id = st.session_state.user["localId"]
+token = st.session_state.token
 exchange = "kraken"
 
 if "api_keys" not in st.session_state:
@@ -197,19 +198,19 @@ current_page = st.session_state["current_page"]
 mode = st.session_state.mode
 
 if current_page == "📊 Portfolio":
-    render_portfolio_summary(mode=mode, user_id=user_id)
+    render_portfolio_summary(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "💰 Allocation":
-    render_coin_allocation(mode=mode, user_id=user_id)
+    render_coin_allocation(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "🧠 Strategies":
-    render_strategy_controls(mode=mode, user_id=user_id)
+    render_strategy_controls(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "📜 Positions":
-    render_current_positions(mode=mode, user_id=user_id)
+    render_current_positions(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "📈 Performance":
-    render_performance(mode=mode, user_id=user_id)
+    render_performance(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange)
