@@ -10,7 +10,6 @@ import json
 import os
 import pandas as pd
 import streamlit as st
-
 from utils.load_keys import load_api_keys
 
 API_URL = "https://api.kraken.com"
@@ -34,6 +33,9 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
     keys = load_api_keys(user_id=user_id)
     api_key = keys.get("key")
     api_secret = keys.get("secret")
+
+    print("🔑 API KEY (first 6 chars):", api_key[:6], "…")
+    print("🔑 API SECRET (first 6 chars):", api_secret[:6], "…")
 
     if not api_key or not api_secret:
         raise ValueError("❌ Missing Kraken API keys.")
@@ -84,6 +86,7 @@ def get_live_balances(user_id=None):
     try:
         raw = rate_limited_query_private("Balance", user_id=user_id)
         balances = raw.get("result", {})
+        print("🔍 RAW BALANCES:", json.dumps(balances, indent=2))
         mapped = {}
 
         for k, v in balances.items():
