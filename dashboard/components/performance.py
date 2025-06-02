@@ -14,21 +14,28 @@ from utils.firebase_db import (
 )
 
 # === Load snapshots into DataFrame ===
-def load_performance_data(user_id, mode):
-    file_keys = list_firebase_files("performance/history", mode, user_id)
+def load_performance_data(user_id, mode, token):
+    db_path = f"users/{user_id}/{mode}/performance/history"
     snapshots = []
 
-    for key in sorted(file_keys):
-        data = load_firebase_json(key.replace(".json", ""), mode, user_id, subfolder="performance/history")
-        date = key.replace(".json", "")
-        total_value = data.get("total_value", 0.0)
-        coins = data.get("coins", {})
-        snapshot = {
-            "date": date,
-            "total_value": total_value,
-            **{coin: coins[coin].get("usd", 0.0) for coin in coins}
-        }
-        snapshots.append(snapshot)
+    try:
+        raw_data = load_performance_snapshot(user_id, token, mode)
+        if not raw_data:
+            return pd.DataFrame()
+
+        for date, entry in sorted(raw_data.items()):
+            total_value = entry.get("total_value", 0.0)
+            coins = entry.get("coins", {})
+            snapshot = {
+                "date": date,
+                "total_value": total_value,
+                **{coin: coins[coin].get("usd", 0.0) for coin in coins}
+            }
+            snapshots.append(snapshot)
+
+    except Exception as e:
+        st.error(f"Error loading performance history: {e}")
+        return pd.DataFrame()
 
     df = pd.DataFrame(snapshots)
     if df.empty:
@@ -93,7 +100,7 @@ def render(mode, user_id, token):
     if mode is None:
         mode = get_mode(user_id)
 
-    df = load_performance_data(user_id, mode)
+    df = load_performance_data(user_id, mode, token)
 
     if df.empty:
         st.warning("No portfolio history found. Start running your strategies to build performance data.")
