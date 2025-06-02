@@ -65,7 +65,7 @@ def render(mode, user_id, token):
     for coin in coin_list:
         allocations = st.session_state.strategy_allocations[coin]
         pending_change = st.session_state.pending_strategy_changes[coin]
-        active_strategies = [s for s, pct in allocations.items() if pct > 0]
+        active_strategies = [s for s, v in allocations.items() if isinstance(v, dict) and v.get("allocation", 0) > 0]
         
         strategy_summary = f"{active_strategies[0]}" if len(active_strategies) == 1 else f"Multiple ({len(active_strategies)})"
         coin_data = holdings_data.get(coin, {"usd": 0, "amt": 0})
@@ -103,7 +103,7 @@ def render(mode, user_id, token):
             for idx, strategy in enumerate(strategy_options):
                 with toggle_cols[idx]:
                     toggle_key = f"{coin}_{strategy}_toggle"
-                    active = allocations.get(strategy, 0) > 0
+                    active = allocations.get(strategy, {}).get("allocation", 0) > 0
                     new_state = st.checkbox(strategy, value=active, key=toggle_key)
                     if new_state != active:
                         allocations[strategy] = 1 if new_state else 0
@@ -117,7 +117,7 @@ def render(mode, user_id, token):
                         )
 
             st.markdown("---")
-            active_allocs = {s: a for s, a in allocations.items() if a > 0}
+            active_allocs = {s: a["allocation"] for s, a in allocations.items() if isinstance(a, dict) and a.get("allocation", 0) > 0}
             total_alloc = sum(active_allocs.values())
 
             slider_cols = st.columns(len(active_allocs) + 1)
@@ -131,8 +131,8 @@ def render(mode, user_id, token):
                         value=value,
                         key=f"{coin}_{strategy}_slider"
                     )
-                    if alloc_pct != allocations[strategy]:
-                        allocations[strategy] = alloc_pct
+                    if alloc_pct != allocations[strategy]["allocation"]:
+                        allocations[strategy]["allocation"] = alloc_pct
                         st.session_state.pending_strategy_changes[coin] = True
                     st.markdown(f"`{alloc_pct}%` — Allocated: `${(alloc_pct / 100) * current_usd:,.2f}`")
 
