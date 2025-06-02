@@ -16,9 +16,7 @@ from components.settings_panel import render_settings_panel
 from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
-from utils.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
-from utils.kraken_wrapper import save_portfolio_snapshot
 from utils.load_keys import load_user_api_keys
 
 if "page" not in st.session_state:
@@ -40,26 +38,19 @@ if "user" not in st.session_state:
     st.session_state.page = "login"
     st.rerun()
 
-if "user" in st.session_state:
-    test_data = {"status": "test_write", "timestamp": time.time()}
-    success = save_firebase_json("test_write_check", test_data, "paper", st.session_state.user["localId"])
-    if success:
-        st.success("✅ Test write to Firebase successful")
-    else:
-        st.error("❌ Test write to Firebase FAILED")
- 
+# === Determine initial mode based on API keys ===
 user_id = st.session_state.user["localId"]
-exchange = "kraken"  # Default for now
-keys = load_api_keys(user_id=user_id)
+exchange = "kraken"
 
-# === Sync session_state with mode.json on load ===
-current_mode = get_mode(user_id)
+if "keys" not in st.session_state:
+    st.session_state.keys = load_user_api_keys(user_id, exchange)
+keys = st.session_state.keys
+
 if "mode" not in st.session_state:
-    st.session_state.mode = current_mode
-if "pending_mode" not in st.session_state:
-    st.session_state.pending_mode = st.session_state.mode
-if "show_mode_confirm" not in st.session_state:
-    st.session_state.show_mode_confirm = False
+    if keys and keys.get("key") and keys.get("secret"):
+        st.session_state.mode = "live"
+    else:
+        st.session_state.mode = "paper"
 
 mode = st.session_state.mode
 
@@ -68,13 +59,8 @@ if mode == "live":
     if not keys:
         st.warning("🔐 Live mode requires API keys. You've been switched back to Paper mode.")
         st.session_state.mode = "paper"
-        save_mode("paper", user_id)
         st.rerun()
     # (In the future) Also check for paid user status here
-
-# === Save snapshot if in live mode ===
-if st.session_state.mode == "live":
-    save_portfolio_snapshot("live", user_id=user_id)
 
 # Initialize current page
 if "current_page" not in st.session_state:
@@ -141,7 +127,6 @@ with st.sidebar:
         with col1:
             if st.button("✅ Confirm"):
                 st.session_state.mode = st.session_state.pending_mode
-                save_mode(st.session_state.mode, user_id)
                 st.session_state.show_mode_confirm = False
                 st.rerun()
         with col2:
