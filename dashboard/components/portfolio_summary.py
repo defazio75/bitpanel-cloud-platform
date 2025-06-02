@@ -22,7 +22,7 @@ def render_portfolio_summary(user_id=None, mode=None):
         mode = get_mode(user_id)
 
     # === Load Snapshot from Firebase ===
-    snapshot = get_firebase_data(user_id=user_id, key="portfolio_snapshot", subfolder="portfolio", mode=mode)
+    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode)
 
     if not snapshot:
         st.warning("No portfolio data found.")
