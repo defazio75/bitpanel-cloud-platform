@@ -19,7 +19,7 @@ from components.reset_password import reset_password
 from utils.config import get_mode, save_mode
 from utils.paper_reset import reset_paper_account
 from utils.kraken_wrapper import save_portfolio_snapshot
-from utils.load_keys import load_api_keys
+from utils.load_keys import load_user_api_keys
 from utils.firebase_db import save_firebase_json
 
 if "page" not in st.session_state:
