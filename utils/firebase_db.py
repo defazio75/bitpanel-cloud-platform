@@ -4,6 +4,8 @@ from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 import pyrebase
 
+FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
+
 def save_user_profile(user_id, name, email, token, signup_date):
     db = firebase.database()
     db.child("users").child(user_id).set({
