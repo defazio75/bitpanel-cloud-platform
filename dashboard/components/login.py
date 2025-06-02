@@ -27,9 +27,10 @@ def login():
                     "email": email,
                     "token": token,
                     "name": profile.get("name", "User"),
-                    "localId": user_id,
-                    st.session_state.token = token
+                    "localId": user_id
                 }
+
+                st.session_state.token = token
                 
                 st.success("✅ Login successful!")
                 st.session_state.page = "📊 Portfolio"
