@@ -16,7 +16,7 @@ def rebalance_hodl(user_id):
     if mode == "live":
         from utils.trade_executor import execute_trade
     else:
-        from utils.trade_simulator import execute_trade
+        from utils.trade_simulator import simulate_trade as execute_trade
 
     token = st.session_state.user["token"]
 
