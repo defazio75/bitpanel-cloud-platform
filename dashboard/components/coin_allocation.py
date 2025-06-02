@@ -24,7 +24,7 @@ def save_target_usd(coin, mode, user_id, target_usd):
     if "HODL" not in state:
         state["HODL"] = {}
     state["HODL"]["target_usd"] = round(target_usd, 2)
-    return save_coin_state(user_id=user_id, coin=coin, data=state, mode=mode, token=st.session_state.token)
+    return save_coin_state(user_id=user_id, coin=coin, state=state, mode=mode, token=st.session_state.token)
 
 def render(mode, user_id, token):
     if "token" not in st.session_state:
