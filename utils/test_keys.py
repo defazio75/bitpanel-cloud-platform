@@ -1,56 +1,43 @@
 import json
 from utils.firebase_auth import sign_in
 from utils.firebase_db import (
-    load_portfolio_snapshot,
-    load_coin_state,
-    load_user_profile
+    load_firebase_json,
+    save_firebase_json,
 )
 from utils.kraken_wrapper import get_live_balances
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
 
-# Temporary login to get valid token (for testing)
-auth_user = sign_in("your_email@gmail.com", "your_password")
+# === USER CONFIG ===
+email = "dave.defazio@gmail.com"   # ✅ Replace with your Firebase email
+password = "Allfor1!"       # ✅ Replace with your Firebase password
+exchange = "kraken"
+
+# === LOGIN & AUTH ===
+auth_user = sign_in(email, password)
 user_id = auth_user["localId"]
 token = auth_user["idToken"]
+mode = "live"  # specifically test live mode
 
-# === USER SETUP ===
-user_id = "YOUR_TEST_USER_ID"  # 🔁 Replace with your Firebase UID
-exchange = "kraken"
-mode = get_mode(user_id)
-token = None  # Replace with actual token if needed
+print(f"🧪 Running Live Mode Test for: {user_id}")
 
-print("🔐 Testing Firebase + Kraken Decryption + Live Pull")
-
-# === Test API Key Decryption ===
-print("\n🔑 Testing API Key Decryption...")
+# === 1. Load API Keys ===
+print("\n🔑 Decrypting Kraken Keys...")
 keys = load_user_api_keys(user_id, exchange, token=token)
-if keys:
-    print("✅ Decrypted API Key:", keys["key"][:8] + "...")
-    print("✅ Decrypted API Secret:", keys["secret"][:8] + "...")
-else:
-    print("❌ Failed to load API keys")
+print("✅ Key:", keys['key'][:6] + "...")
+print("✅ Secret:", keys['secret'][:6] + "...")
 
-# === Test Live Kraken Balance ===
-print("\n💰 Testing Live Kraken Balance Fetch...")
-try:
-    balances = get_live_balances(user_id=user_id)
-    print("✅ Live Balances:", json.dumps(balances, indent=2))
-except Exception as e:
-    print("❌ Error getting balances:", e)
+# === 2. Pull Live Balances ===
+print("\n📡 Fetching Live Kraken Balances...")
+balances = get_live_balances(user_id=user_id)
+print("✅ Live Balances from Kraken:\n", json.dumps(balances, indent=2))
 
-# === Test Firebase Portfolio Snapshot ===
-print("\n📊 Testing Firebase Portfolio Snapshot...")
-try:
-    snapshot = load_portfolio_snapshot(user_id, token, mode)
-    print("✅ Firebase Snapshot:", json.dumps(snapshot, indent=2))
-except Exception as e:
-    print("❌ Error loading snapshot:", e)
+# === 3. Save to Firebase ===
+print("\n💾 Saving Live Snapshot to Firebase...")
+save_path = "portfolio/portfolio_snapshot.json"
+save_firebase_json(user_id, save_path, balances, mode, token=token)
 
-# === Test Firebase Coin State (e.g. BTC) ===
-print("\n📁 Testing Firebase Coin State (BTC_state)...")
-try:
-    btc_state = load_coin_state(user_id, "BTC", token, mode)
-    print("✅ BTC State:", json.dumps(btc_state, indent=2))
-except Exception as e:
-    print("❌ Error loading BTC state:", e)
+# === 4. Reload from Firebase ===
+print("\n🔄 Reloading Snapshot from Firebase...")
+reloaded = load_firebase_json(user_id, save_path, mode, token=token)
+print("✅ Reloaded Firebase Snapshot:\n", json.dumps(reloaded, indent=2))
