@@ -213,7 +213,7 @@ elif current_page == "📈 Performance":
     render_performance(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "⚙️ Settings":
-    render_settings_panel(user_id=user_id, exchange=exchange)
+    render_settings_panel(user_id=user_id, exchange=exchange, token=token)
 
 elif current_page == "🧪 Test Keys":
     from utils.test_keys import run_key_test
