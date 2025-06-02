@@ -3,6 +3,7 @@ import requests
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 import pyrebase
+from datetime import datetime
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
@@ -21,14 +22,9 @@ def update_last_login(user_id, token):
     }, token)
 
 def load_user_profile(user_id, token):
-    """
-    Load user profile from Firebase Realtime Database using Pyrebase.
-    """
     db = firebase.database()
     result = db.child("users").child(user_id).get(token)
-    if result.val():
-        return result.val()
-    return None
+    return result.val() if result.val() else None
 
 def save_user_api_keys(user_id, exchange, api_key, api_secret):
     encrypted_key = encrypt_string(api_key, user_id)
@@ -41,69 +37,47 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
         "secret": encrypted_secret
     }, token)
 
-def save_strategy_config(user_id, config, token, mode):
+# === STRATEGY CONFIGURATION ===
+def save_strategy_allocations(user_id, config, token, mode):
     db = firebase.database()
-    try:
-        db.child("users").child(user_id).child(mode).child("settings").child("strategy_config").set(config, token)
-        print(f"✅ Saved strategy config for {user_id}")
-    except Exception as e:
-        print(f"❌ Failed to save strategy config: {e}")
+    db.child("users").child(user_id).child(mode).child("strategy").child("allocations").set(config, token)
 
-# === Get user's saved strategy config ===
-def load_strategy_config(user_id, token, mode):
+def load_strategy_allocations(user_id, token, mode):
     db = firebase.database()
-    try:
-        data = db.child("users").child(user_id).child(mode).child("settings").child("strategy_config").get(token).val()
-        if data:
-            return data
-        else:
-            print(f"⚠️ No strategy config found for {user_id}")
-            return {}
-    except Exception as e:
-        print(f"❌ Failed to load strategy config: {e}")
-        return {}
+    data = db.child("users").child(user_id).child(mode).child("strategy").child("allocations").get(token).val()
+    return data if data else {}
 
-def save_portfolio_snapshot_to_firebase(user_id, snapshot, token, mode):
+# === PORTFOLIO SNAPSHOT ===
+def save_portfolio_snapshot(user_id, snapshot, token, mode):
     db = firebase.database()
-    try:
-        db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").set(snapshot, token)
-        print(f"✅ Saved snapshot to Firebase for {user_id}")
-    except Exception as e:
-        print(f"❌ Failed to save snapshot to Firebase: {e}")
+    db.child("users").child(user_id).child(mode).child("portfolio").child("portfolio_snapshot").set(snapshot, token)
 
-def load_portfolio_snapshot_from_firebase(user_id, token, mode):
+def load_portfolio_snapshot(user_id, token, mode):
     db = firebase.database()
-    try:
-        data = db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").get(token).val()
-        if data:
-            print(f"📥 Loaded portfolio snapshot for {user_id}")
-            return data
-        else:
-            print(f"⚠️ No portfolio snapshot found for {user_id}")
-            return {}
-    except Exception as e:
-        print(f"❌ Failed to load snapshot from Firebase: {e}")
-        return {}
+    data = db.child("users").child(user_id).child(mode).child("portfolio").child("portfolio_snapshot").get(token).val()
+    return data if data else {}
 
-def load_user_data(user_id, path, mode):
+# === COIN STATE ===
+def save_coin_state(user_id, coin, state_data, token, mode):
     db = firebase.database()
-    token = st.session_state.user.get("token")
-    try:
-        data = db.child("users").child(user_id).child(mode).child(path).get(token).val()
-        return data if data else {}
-    except Exception as e:
-        print(f"❌ Failed to load user data from {path}: {e}")
-        return {}
+    db.child("users").child(user_id).child(mode).child("current").child(f"{coin}_state").set(state_data, token)
 
-def save_user_data(user_id, path, data, mode):
+def load_coin_state(user_id, coin, token, mode):
     db = firebase.database()
-    token = st.session_state.user.get("token")
-    try:
-        db.child("users").child(user_id).child(mode).child(path).set(data, token)
-        print(f"✅ Saved user data to {path}")
-    except Exception as e:
-        print(f"❌ Failed to save user data to {path}: {e}")
+    data = db.child("users").child(user_id).child(mode).child("current").child(f"{coin}_state").get(token).val()
+    return data if data else {}
 
+# === PERFORMANCE HISTORY ===
+def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
+    db = firebase.database()
+    db.child("users").child(user_id).child(mode).child("portfolio").child("history").child(date_str).set(snapshot, token)
+
+def load_performance_snapshot(user_id, date_str, token, mode):
+    db = firebase.database()
+    data = db.child("users").child(user_id).child(mode).child("portfolio").child("history").child(date_str).get(token).val()
+    return data if data else {}
+
+# === FILE LISTING ===
 def list_firebase_files(path, mode, user_id):
     db = firebase.database()
     token = st.session_state.user.get("token")
