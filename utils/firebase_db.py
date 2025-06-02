@@ -72,7 +72,7 @@ def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
     db = firebase.database()
     db.child("users").child(user_id).child(mode).child("portfolio").child("history").child(date_str).set(snapshot, token)
 
-def load_performance_snapshot(user_id, date_str, token, mode):
+def load_performance_snapshot(user_id, token, mode):
     db = firebase.database()
     data = db.child("users").child(user_id).child(mode).child("portfolio").child("history").child(date_str).get(token).val()
     return data if data else {}
