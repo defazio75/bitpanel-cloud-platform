@@ -32,7 +32,7 @@ def save_full_strategy_breakdown(coin, allocations, coin_amt, coin_usd, user_id,
 def load_portfolio_snapshot(user_id, mode):
     return load_user_data(user_id, "portfolio/portfolio_snapshot", mode) or {}
 
-def render(mode, user_id):
+def render(mode, user_id, token):
     st.title("🧠 Strategy Controls")
 
     strategy_options = ["HODL", "RSI 5-Min", "RSI 1-Hour", "Bollinger Bot", "DCA Matrix"]
