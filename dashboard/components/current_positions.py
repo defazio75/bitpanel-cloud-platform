@@ -4,8 +4,13 @@ import pandas as pd
 
 from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
 from utils.config import get_mode
-from utils.firebase_db import load_firebase_json
-from utils.firebase_db import load_user_data
+from utils.firebase_db import (
+    load_user_profile,
+    load_strategy_allocations,
+    load_portfolio_snapshot,
+    load_coin_state,
+    load_performance_snapshot
+)
 
 @st.cache_data(ttl=10)
 def get_live_price_data():
