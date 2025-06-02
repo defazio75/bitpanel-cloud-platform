@@ -1,8 +1,8 @@
 import json
 from utils.firebase_auth import sign_in
 from utils.firebase_db import (
-    load_firebase_json,
-    save_firebase_json,
+    load_portfolio_snapshot,
+    save_portfolio_snapshot,
 )
 from utils.kraken_wrapper import get_live_balances
 from utils.config import get_mode
