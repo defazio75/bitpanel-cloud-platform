@@ -28,12 +28,12 @@ def get_user_encryption_key(user_id):
 
 # Encrypt using user-specific key
 def encrypt_string(plain_text, user_id):
-    key = get_user_key(user_id)
+    key = get_user_encryption_key(user_id)
     f = Fernet(key)
     return f.encrypt(plain_text.encode()).decode()
 
 # Decrypt using user-specific key
 def decrypt_string(encrypted_text, user_id):
-    key = get_user_key(user_id)
+    key = get_user_encryption_key(user_id)
     f = Fernet(key)
     return f.decrypt(encrypted_text.encode()).decode()
