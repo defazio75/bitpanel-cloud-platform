@@ -1,5 +1,6 @@
 import streamlit as st
-from utils.firebase_db import save_user_api_keys, load_user_api_keys
+from utils.firebase_db import save_user_api_keys
+from utils.load_keys import load_user_api_keys
 
 def render_settings_panel(user_id, exchange="kraken"):
     st.header("⚙️ Settings")
