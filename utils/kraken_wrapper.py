@@ -265,7 +265,7 @@ def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
     from utils.firebase_db import save_portfolio_snapshot_to_firebase
     token = st.session_state.user.get("token")
     if user_id and token:
-        save_portfolio_snapshot_to_firebase(user_id, snapshot, token)
+        save_portfolio_snapshot_to_firebase(user_id, snapshot, token, mode)
 
     # Optional: live auto-rebalance
     if auto_rebalance and mode == "live":
