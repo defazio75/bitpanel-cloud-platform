@@ -42,7 +42,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
     cur_price = price_data.get("price")
     bot_name = STRATEGY.lower()
     state_path = f"{mode}/current/{coin}/{STRATEGY}.json"
-    state = load_firebase_json(state_path, user_id, token) or {}
+    state = load_coin_state(user_id, coin, token, mode) or {}
 
     allocated_usd = load_strategy_usd(user_id, coin, STRATEGY, mode, token)
     if allocated_usd <= 0:
@@ -59,8 +59,7 @@ def run(price_data, user_id, coin="BTC", mode=None):
     if mode == "live":
         balances = get_live_balances(user_id)
     else:
-        portfolio_path = f"{mode}/portfolio/portfolio_snapshot.json"
-        portfolio_data = load_firebase_json(portfolio_path, user_id, token) or {}
+        portfolio_data = load_portfolio_snapshot(user_id, token, mode) or {}
         balances = portfolio_data.get("balances", {})
 
     # === Auto-initialize if BTC is held but state is empty
@@ -156,5 +155,5 @@ def run(price_data, user_id, coin="BTC", mode=None):
         "open_tranches": new_tranches,
         "sold_tranches": sold_tranches
     }
-    save_firebase_json(state_path, state, user_id, token)
+    save_coin_state(user_id, coin, state, token, mode)
     print(f"💾 {STRATEGY} state saved")
