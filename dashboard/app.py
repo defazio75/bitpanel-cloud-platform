@@ -44,7 +44,7 @@ token = st.session_state.token
 exchange = "kraken"
 
 if "api_keys" not in st.session_state:
-    st.session_state.api_keys = load_user_api_keys(user_id, exchange)
+    st.session_state.api_keys = load_user_api_keys(user_id, exchange, token=token)
 
 user_api_keys = st.session_state.api_keys
 
