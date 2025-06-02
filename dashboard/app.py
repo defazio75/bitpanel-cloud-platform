@@ -183,8 +183,7 @@ with st.sidebar:
         "🧠 Strategies",
         "📜 Positions",
         "📈 Performance",
-        "⚙️ Settings",
-        "🧪 Test Keys"
+        "⚙️ Settings"
     ]
 
     for page in pages:
@@ -214,7 +213,3 @@ elif current_page == "📈 Performance":
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange, token=token)
-
-elif current_page == "🧪 Test Keys":
-    from utils.test_keys import run_key_test
-    run_key_test()
