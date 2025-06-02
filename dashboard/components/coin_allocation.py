@@ -8,195 +8,126 @@ from utils.config import get_mode
 from utils.firebase_db import (
     load_user_profile,
     load_strategy_allocations,
-    load_coin_state
+    load_coin_state,
+    save_coin_state,
+    load_portfolio_snapshot
 )
 from bots.rebalance_bot import rebalance_hodl
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 
 def load_target_usd(coin, mode, user_id):
-    data = load_user_data(user_id, path, mode)
-    return data.get("HODL", {}).get("target_usd", 0.0)
+    state = load_coin_state(user_id=user_id, coin=coin, mode=mode)
+    return state.get("HODL", {}).get("target_usd", 0.0)
 
 def save_target_usd(coin, mode, user_id, target_usd):
-    save_user_data(user_id, path, data, mode)
-    if "HODL" not in data:
-        data["HODL"] = {}
-    data["HODL"]["target_usd"] = round(target_usd, 2)
-    return save_user_data(user_id, path, data, mode)
+    state = load_coin_state(user_id=user_id, coin=coin, mode=mode)
+    if "HODL" not in state:
+        state["HODL"] = {}
+    state["HODL"]["target_usd"] = round(target_usd, 2)
+    return save_coin_state(user_id=user_id, coin=coin, data=state, mode=mode)
 
 def render(mode=None, user_id=None):
-    st.write("Active Mode:", mode)
     st.title("🎯 Coin Allocation")
-
     if mode is None:
         mode = get_mode(user_id)
 
-    snapshot = load_firebase_json("portfolio_snapshot", mode, user_id)
-
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
-    portfolio_data = {
-        "usd_balance": 0,
-        "coins": {},
-        "total_value": 0
-    }
-    prices = get_prices()
-    usd_balance = snapshot.get("usd_balance", 0)
-    portfolio_data["usd_balance"] = usd_balance
+    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode)
+    prices = get_prices(user_id=user_id)
 
+    usd_balance = snapshot.get("usd_balance", 0)
     total_value = usd_balance
+    coins = {}
 
     for coin, info in snapshot.get("coins", {}).items():
         balance = info.get("balance", 0)
         price = prices.get(coin, 0)
         usd_value = round(balance * price, 2)
-
-        portfolio_data["coins"][coin] = {
+        total_value += usd_value
+        coins[coin] = {
             "balance": balance,
-            "price": price,
-             "usd": usd_value
+            "usd": usd_value,
+            "price": price
         }
+        
         total_value += usd_value
 
     portfolio_data["total_value"] = round(total_value, 2)
 
-    coin_data = {}
-    for coin, info in portfolio_data["coins"].items():
-        target_usd = load_target_usd(coin, mode, user_id)
-        coin_data[coin] = {
-            "amount": info.get("balance", 0),
-            "usd": info.get("usd", 0),
-            "usd_target": target_usd
-        }
+    st.metric("💼 Total Portfolio Value", f"${total_value:,.2f}")
+    st.metric("💰 Available USD", f"${usd_balance:,.2f}")
 
-    col_a, col_b = st.columns(2)
-    col_a.metric("💼 Total Portfolio Value", f"${portfolio_data['total_value']:,.2f}")
-    col_b.metric("💰 Available USD", f"${portfolio_data['usd_balance']:,.2f}")
-
-    if not coin_data:
-        st.warning("⚠️ No coin data available to select.")
+    if not coins:
+        st.warning("⚠️ No coin holdings to allocate.")
         return
 
-    selected_coin = st.selectbox("Choose Coin", list(coin_data.keys()), key=f"select_coin_{user_id}")
-    updated_allocations = {}
+    selected_coin = st.selectbox("Choose Coin", list(coins.keys()), key=f"select_coin_{user_id}")
+    coin_info = coins[selected_coin]
+    coin_price = coin_info["price"]
 
-    col_left, col_right = st.columns([2, 1])
+    target_usd = load_target_usd(selected_coin, mode, user_id)
 
-    data = coin_data.get(selected_coin, {})
+    st.markdown(f"💲 **Current {selected_coin} Value:** ${coin_info['usd']:,.2f} ({coin_info['balance']:.4f} {selected_coin})")
 
-    with col_left:
-        st.markdown(
-            f"💲 **Current {selected_coin} Value:** ${data['usd']:,.2f} ({data['amount']:.2f} {selected_coin})"
-        )
+    with st.expander("Buy/Sell", expanded=False):
+        col1, col2 = st.columns(2)
 
-        with st.expander("Buy/Sell", expanded=False):
-            col1, col2 = st.columns(2)
+        max_buy_usd = float(max(usd_balance, 0.0))
+        max_sell_usd = float(max(coin_info["usd"], 0.0))
 
-            coin_price = portfolio_data["coins"][selected_coin]["price"]
-            coin_balance = portfolio_data["coins"][selected_coin]["balance"]
-            max_buy_usd = float(max(portfolio_data["usd_balance"], 0.0))
-            max_sell_usd = float(max(coin_balance * coin_price, 0.0)) if coin_price > 0 else 0.0
+        buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
+        sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
 
-            # Keys for session state
-            buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
-            sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
+        if buy_key not in st.session_state:
+            st.session_state[buy_key] = 0.0
+        if sell_key not in st.session_state:
+            st.session_state[sell_key] = 0.0
 
-            # Initialize session state
-            if buy_key not in st.session_state:
-                st.session_state[buy_key] = 0.0
-            if sell_key not in st.session_state:
-                st.session_state[sell_key] = 0.0
+        with col1:
+            st.subheader("Buy")
+            if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
+                st.session_state[buy_key] = round(max_buy_usd, 2)
 
-                if st.button("Max (Buy)", key=f"buy_max_{selected_coin}_btn"):
-                    st.session_state[buy_key] = round(max_buy_usd, 2)
+            st.number_input("Amount (USD)", 0.0, max_buy_usd, step=0.01, format="%.2f", key=buy_key)
+            usd_amount = st.session_state[buy_key]
+            coin_amt = usd_amount / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
-            # BUY SECTION
-            with col1:
-                st.subheader("Buy")
+            if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
+                new_target = round(target_usd + usd_amount, 2)
+                save_target_usd(selected_coin, mode, user_id, new_target)
+                st.success("✅ Allocation updated. Rebalancing...")
+                rebalance_hodl(user_id)
+                st.rerun()
 
-                if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}_{mode}_{user_id}"):
-                    st.session_state[buy_key] = min(round(max_buy_usd, 2), float(f"{max_buy_usd:.2f}"))
+        with col2:
+            st.subheader("Sell")
+            if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
+                st.session_state[sell_key] = round(max_sell_usd, 2)
 
-                st.number_input(
-                    "Amount (USD)",
-                    min_value=0.0,
-                    max_value=max_buy_usd,
-                    step=0.01,
-                    format="%.2f",
-                    key=buy_key
-                )
+            st.number_input("Amount (USD)", 0.0, max_sell_usd, step=0.01, format="%.2f", key=sell_key)
+            sell_usd = st.session_state[sell_key]
+            sell_amt = sell_usd / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
-                usd_amount = float(st.session_state[buy_key])
-                coin_amount = usd_amount / coin_price if coin_price > 0 else 0
-                st.write(f"Equivalent: **{coin_amount:.6f} {selected_coin}** at ${coin_price:,.2f}")
+            if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
+                new_target = round(max(target_usd - sell_usd, 0), 2)
+                save_target_usd(selected_coin, mode, user_id, new_target)
+                st.success("✅ Allocation updated. Rebalancing...")
+                rebalance_hodl(user_id)
+                st.rerun()
 
-                if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}_{mode}_{user_id}"):
-                    st.success(f"Buying {coin_amount:.6f} {selected_coin} for ${usd_amount:,.2f}")
-                    current_usd = data.get("usd", 0)
-                    new_target_usd = round(current_usd + usd_amount, 2)
-                    success = save_target_usd(selected_coin, mode, user_id, new_target_usd)
-                    if success:
-                        st.success("✅ Allocation updated. Rebalancing...")
-                        rebalance_hodl(user_id=user_id)
-                        st.rerun()
+    # Portfolio Pie Chart
+    labels, values = ["USD"], [usd_balance]
+    for coin, info in coins.items():
+        if info["usd"] > 0:
+            labels.append(coin)
+            values.append(info["usd"])
 
-            # SELL SECTION
-            with col2:
-                st.subheader("Sell")
-
-                if sell_key not in st.session_state:
-                    st.session_state[sell_key] = 0.0
-
-                if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}_{mode}_{user_id}"):
-                    st.session_state[sell_key] = float(f"{min(max_sell_usd, max_sell_usd - 0.01):.2f}")
-
-                st.number_input(
-                    "Amount (USD)",
-                    min_value=0.0,
-                    max_value=max_sell_usd,
-                    step=0.01,
-                    format="%.2f",
-                    key=sell_key
-                )
-
-                sell_usd_amount = float(st.session_state[sell_key])
-                sell_coin_amount = sell_usd_amount / coin_price if coin_price > 0 else 0
-                st.write(f"Equivalent: **{sell_coin_amount:.6f} {selected_coin}** at ${coin_price:,.2f}")
-
-                if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}_{mode}_{user_id}"):
-                    st.warning(f"Selling {sell_coin_amount:.6f} {selected_coin} for ${sell_usd_amount:,.2f}")
-                    current_usd = data.get("usd", 0)
-                    new_target_usd = round(max(current_usd - sell_usd_amount, 0), 2)
-                    success = save_target_usd(selected_coin, mode, user_id, new_target_usd)
-                    if success:
-                        st.success("✅ Allocation updated. Rebalancing...")
-                        rebalance_hodl(user_id=user_id)
-                        st.rerun()
-
-    with col_right:
-        coin_labels = []
-        coin_values = []
-
-        usd_balance = portfolio_data.get("usd_balance", 0)
-        if usd_balance > 0:
-            coin_labels.append("USD")
-            coin_values.append(usd_balance)
-
-        for coin, info in portfolio_data.get("coins", {}).items():
-            value = info.get("usd", 0)
-            if value > 0:
-                coin_labels.append(coin)
-                coin_values.append(value)
-
-        if coin_labels and coin_values and len(coin_labels) == len(coin_values):
-            fig = px.pie(
-                names=coin_labels,
-                values=coin_values,
-                title="Current Portfolio Breakdown",
-                hole=0.4
-            )
-            fig.update_layout(height=400, width=400)
-            st.plotly_chart(fig, use_container_width=True, key="current_allocation_pie")
-        else:
-            st.info("No valid portfolio data available to display chart.")
-
+    if len(labels) > 1:
+        fig = px.pie(names=labels, values=values, title="Current Portfolio Breakdown", hole=0.4)
+        fig.update_layout(height=400, width=400)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No valid data to display pie chart.")
