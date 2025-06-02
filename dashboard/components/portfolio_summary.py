@@ -27,7 +27,7 @@ def render_portfolio_summary(mode, user_id, token):
         return
 
     token = st.session_state.user.get("token", "")
-    snapshot = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
 
     if not snapshot:
         st.warning("No portfolio data found.")
