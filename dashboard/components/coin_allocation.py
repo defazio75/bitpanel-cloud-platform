@@ -27,6 +27,9 @@ def save_target_usd(coin, mode, user_id, target_usd):
     return save_coin_state(user_id=user_id, coin=coin, data=state, mode=mode, token=st.session_state.token)
 
 def render(mode=None, user_id=None):
+    if "token" not in st.session_state:
+        st.session_state.token = None
+
     st.title("🎯 Coin Allocation")
     if mode is None:
         mode = get_mode(user_id)
