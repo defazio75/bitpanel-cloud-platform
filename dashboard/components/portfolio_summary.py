@@ -22,7 +22,8 @@ def render_portfolio_summary(user_id=None, mode=None):
         mode = get_mode(user_id)
 
     # === Load Snapshot from Firebase ===
-    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode)
+    token = st.session_state.user.get("token", "")
+    snapshot = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
     if not snapshot:
         st.warning("No portfolio data found.")
