@@ -1,10 +1,18 @@
 import os
-import json
 import csv
+import json
 import time
-from utils.market_data_handler import get_price_data
-from utils.performance_tracker import snapshot_portfolio
-from utils.firebase_db import save_firebase_json
+from datetime import datetime
+import streamlit as st
+
+from utils.firebase_db import (
+    save_portfolio_snapshot,
+    save_coin_state,
+    save_performance_snapshot
+)
+from utils.firebase_config import firebase
+from utils.kraken_wrapper import get_price_data
+from utils.portfolio_writer import snapshot_portfolio
 
 def reset_paper_account(user_id):
     if not user_id:
@@ -12,6 +20,8 @@ def reset_paper_account(user_id):
 
     print(f"🔄 Resetting paper account for user: {user_id}...")
 
+    token = st.session_state.user["token"]
+    mode = "paper"
     coins = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
 
     # === 1. Reset portfolio snapshot ===
@@ -21,12 +31,14 @@ def reset_paper_account(user_id):
     portfolio_data = {
         "total_value": 100000.0,
         "usd_balance": 100000.0,
-        "coins": {coin: {"balance": 0.0} for coin in coins}
+        "holdings": {},
+        "last_updated": datetime.utcnow().isoformat() + "Z"
     }
+    
     with open(portfolio_path, "w") as f:
         json.dump(portfolio_data, f, indent=4)
-    save_firebase_json("portfolio/portfolio_snapshot", portfolio_data, mode="paper", user_id=user_id)
-    save_firebase_json("balances", {"usd_balance": 100000.0, **{coin: 0.0 for coin in coins}}, mode="paper", user_id=user_id)
+
+    save_portfolio_snapshot(user_id, portfolio_data, token, mode)
     print("💰 Reset portfolio snapshot and balances to $100,000 USD and 0 coins.")
 
     # === 2. Reset trade log ===
@@ -36,7 +48,6 @@ def reset_paper_account(user_id):
     with open(log_path, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["timestamp", "bot_name", "coin", "action", "price", "amount", "mode"])
-    # No Firebase upload needed unless logging trade logs to Firebase separately
     print("📄 Cleared trade log.")
 
     # === 3. Reset unified strategy state files ===
@@ -62,7 +73,7 @@ def reset_paper_account(user_id):
         perf_path = os.path.join(perf_folder, f"{coin.lower()}_profits.json")
         with open(perf_path, "w") as f:
             json.dump({"history": []}, f, indent=2)
-        save_firebase_json(f"performance/{coin.lower()}_profits", {"history": []}, mode="paper", user_id=user_id)
+        save_performance_snapshot(user_id, {"history": []}, "init", token, mode)
     print("📉 Reset performance files and synced with Firebase.")
 
     # === 5. Clear historical snapshots ===
@@ -71,7 +82,8 @@ def reset_paper_account(user_id):
         for file in os.listdir(history_path):
             if file.endswith(".json"):
                 os.remove(os.path.join(history_path, file))
-    save_firebase_json("history", {}, mode="paper", user_id=user_id)  # clear firebase history node
+    db = firebase.database()
+    db.child("users").child(user_id).child(mode).child("portfolio").child("history").remove(token)
     print("🗑️ Cleared historical performance snapshots in Firebase and locally.")
 
     # === 6. Final snapshot ===
