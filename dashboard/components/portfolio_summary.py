@@ -21,7 +21,11 @@ def render_portfolio_summary(user_id=None, mode=None):
     if mode is None:
         mode = get_mode(user_id)
 
-    # === Load Snapshot from Firebase ===
+    # === Safely Load Token ===
+    if "user" not in st.session_state:
+        st.warning("⚠️ Not logged in. Please log in to view portfolio data.")
+        return
+
     token = st.session_state.user.get("token", "")
     snapshot = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
