@@ -1,8 +1,6 @@
-import requests
 import streamlit as st
 from utils.encryption import decrypt_string
-from utils.firebase_db import save_user_api_keys
-from utils.load_keys import load_user_api_keys
+from utils.firebase_config import firebase
 
 def load_user_api_keys(user_id, exchange):
     token = st.session_state.user["token"]
