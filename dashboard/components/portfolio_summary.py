@@ -34,7 +34,7 @@ def render_portfolio_summary(mode, user_id, token):
     st.subheader("📈 Portfolio Allocation")
     allocation_data = []
     for coin, data in snapshot["coins"].items():
-        allocation_data.append({"coin": coin, "value": data["value"]})
+        allocation_data.append({"coin": coin, "value": data["usd_value"]})
     df = px.data.tips()  # placeholder to prevent empty px error
     if allocation_data:
         df = px.data.frame(allocation_data)
