@@ -17,7 +17,7 @@ from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
 from utils.paper_reset import reset_paper_account
-from utils.load_keys import load_user_api_keys, api_key_exist
+from utils.load_keys import load_user_api_keys, api_keys_exist
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
