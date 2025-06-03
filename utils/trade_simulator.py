@@ -2,6 +2,7 @@ import os
 import json
 import streamlit as st
 from datetime import datetime
+from utils.logger import log_trade_multi
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
 from utils.firebase_db import (
@@ -57,15 +58,16 @@ def simulate_trade(user_id, coin, action, amount, price=None):
     save_portfolio_snapshot(user_id, snapshot, token, mode)
 
     # === Log trade ===
-    trade_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "coin": coin_key,
-        "action": action,
-        "amount": round(amount, 8),
-        "price": round(price, 2),
-        "value_usd": round(usd_value, 2)
-    }
-    append_trade_log(user_id, trade_entry, mode, token)
+    log_trade_multi(
+        user_id=user_id,
+        coin=coin_key,
+        strategy="HODL",  # or detect dynamically
+        action=action,
+        amount=amount,
+        price=price,
+        mode=mode,
+        notes="Simulated trade"
+    )
 
     print(f"✅ Simulated {action} of {amount} {coin_key} at ${price:.2f}.")
 
