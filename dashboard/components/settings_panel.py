@@ -5,7 +5,7 @@ from utils.kraken_wrapper import get_live_balances
 
 def test_kraken_balance_fetch(user_id):
     try:
-        balances = get_live_balances(user_id=user_id)
+        balances = get_live_balances(user_id=user_id, token=token)
         usd = balances.get("USD", 0)
         print(f"✅ USD Balance from Kraken for {user_id}: ${usd}")
         return usd
@@ -21,7 +21,7 @@ def debug_fetch_raw_balance(user_id, token):
     except Exception as e:
         raise RuntimeError(f"Kraken balance fetch failed: {e}")
 
-def render_settings_panel(user_id, token, exchange="kraken"):
+def render_settings_panel(user_id, exchange="kraken", token):
     st.header("⚙️ Settings")
 
     # === Account Info ===
@@ -74,7 +74,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.subheader("🧪 Test Kraken Connection")
 
     if st.button("🔍 Test Kraken Balance Fetch"):
-        balances = get_live_balances(user_id=user_id)
+        balances = get_live_balances(user_id=user_id, token=token)
 
         try:
             raw_result = debug_fetch_raw_balance(user_id, token)
