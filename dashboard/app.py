@@ -17,7 +17,7 @@ from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
 from utils.paper_reset import reset_paper_account
-from utils.load_keys import load_user_api_keys
+from utils.load_keys import load_user_api_keys, api_key_exist
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -58,8 +58,8 @@ mode = st.session_state.mode
 
 # === GATEKEEP LIVE MODE ACCESS ===
 if mode == "live":
-    if not user_api_keys:
-        st.warning("🔐 Live mode requires API keys. You've been switched back to Paper mode.")
+    if not api_keys_exist(user_id, token, exchange="kraken"):
+        st.warning("🔐 Live mode requires saved API keys. You've been switched back to Paper mode.")
         st.session_state.mode = "paper"
         st.rerun()
     # (In the future) Also check for paid user status here
@@ -111,11 +111,15 @@ with st.sidebar:
     selected_mode = reverse_labels[selected_label]
 
     if selected_mode != st.session_state.mode:
-        if selected_mode == "live" and not user_api_keys:
-            st.warning("⚠️ Live mode requires saved API keys.")
-            if st.button("🔧 Go to API Settings"):
-                st.session_state.current_page = "⚙️ Settings"
-                st.rerun()
+        if selected_mode == "live":
+            st.session_state.api_keys = load_user_api_keys(user_id, exchange, token=token)
+            if not st.session_state.api_keys or not st.session_state.api_keys.get("key") or not st.session_state.api_keys.get("secret"):
+                st.warning("⚠️ Live mode requires saved API keys.")
+                if st.button("🔧 Go to API Settings"):
+                    st.session_state.current_page = "⚙️ Settings"
+                    st.rerun()
+            else:
+                request_mode_change(selected_mode)
         else:
             request_mode_change(selected_mode)
 
