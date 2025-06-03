@@ -1,7 +1,7 @@
 from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import rate_limited_query_private
-from utils.performance_logger import log_execution_event
+from utils.logger import log_trade_multi
 from utils.firebase_db import (
     load_firebase_json,
     save_firebase_json,
@@ -123,8 +123,16 @@ def send_live_order(order, token):
             return
 
         # Log to live portfolio
-        user_id = order["user_id"]
-        log_trade(order, "live", user_id, token)
+        log_trade_multi(
+            user_id=order["user_id"],
+            coin=order["coin"],
+            strategy=order.get("bot_name", "Unknown"),
+            action=order["action"],
+            amount=order["amount"],
+            price=order["price"],
+            mode=order["mode"],
+            notes="Executed via send_live_order()"
+        )
 
     except Exception as e:
         print(f"❌ Error placing Kraken order: {e}")
