@@ -37,7 +37,7 @@ def render_portfolio_summary(mode, user_id, token):
         allocation_data.append({"coin": coin, "value": data["usd_value"]})
     df = px.data.tips()  # placeholder to prevent empty px error
     if allocation_data:
-        df = px.data.frame(allocation_data)
+        df = pd.DataFrame(allocation_data)
         fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
         st.plotly_chart(fig, use_container_width=True)
 
