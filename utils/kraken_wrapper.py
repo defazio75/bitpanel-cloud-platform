@@ -22,14 +22,13 @@ def rate_limited_query_public(endpoint, params=None):
     response.raise_for_status()
     return response.json()
 
-def rate_limited_query_private(endpoint, data=None, user_id=None):
+def rate_limited_query_private(endpoint, data=None, user_id=None, token=None):
     if data is None:
         data = {}
-
     if not user_id:
         raise ValueError("❌ user_id is required for private Kraken calls.")
 
-    keys = load_user_api_keys(user_id=user_id)
+    keys = load_user_api_keys(user_id=user_id, token=token)
     api_key = keys.get("key")
     api_secret = keys.get("secret")
 
