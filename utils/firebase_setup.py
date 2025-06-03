@@ -3,21 +3,18 @@ def initialize_user_structure(user_id, token, name, email, signup_date):
 
     db = firebase.database()
 
-    # Set up the user's root profile info
+    # Set up the user's root structure
     db.child("users").child(user_id).set({
-        "name": name,
-        "email": email,
-        "signup_date": signup_date,
-        "api_keys": {},  # optional initial placeholders
-        "settings": {},
-        "strategy_allocations": {
-            "paper": {},
-            "live": {}
+        "profile": {
+            "name": name,
+            "email": email,
+            "signup_date": signup_date,
+            "payment_info": {}  # placeholder for future billing data
         },
-        "coin_allocations": {
-            "paper": {}
-        },
+        "api_keys": {},  # Placeholder
         "paper": {
+            "strategy_allocations": {},
+            "coin_allocations": {},
             "current": {},
             "performance": {},
             "history": {},
@@ -25,6 +22,7 @@ def initialize_user_structure(user_id, token, name, email, signup_date):
             "trade_logs": {}
         },
         "live": {
+            "strategy_allocations": {},
             "current": {},
             "performance": {},
             "history": {},
