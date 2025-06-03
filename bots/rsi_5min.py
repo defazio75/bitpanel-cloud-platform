@@ -7,7 +7,8 @@ from utils.firebase_db import (
     load_strategy_allocations,
     load_portfolio_snapshot,
     load_coin_state,
-    save_coin_state
+    save_coin_state,
+    load_balances_from_firebase
 )
 
 mode = get_mode()
@@ -21,6 +22,11 @@ STRATEGY = "RSI_5MIN"
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
     data = load_strategy_allocations(user_id, token, mode) or {}
     return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
+
+def load_balances_from_firebase(user_id, token, mode):
+    path = f"{mode}_data/balances"
+    data = firebase.database().child("users").child(user_id).child(path).get(token).val()
+    return data if data else {}
 
 def run(price_data, user_id, coin="BTC"):
     token = st.session_state.user["token"]
@@ -46,7 +52,8 @@ def run(price_data, user_id, coin="BTC"):
 
     # === Auto-initialize if bot is empty but coin held ===
     if not state:
-        balances = get_live_balances(user_id) if mode == "live" else load_paper_balances(user_id)
+        token = st.session_state.user["token"]  # Or pass this down from controller
+        balances = get_live_balances(user_id) if mode == "live" else load_balances_from_firebase(user_id, token, mode)
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
             print(f"🔄 Initializing {bot_name} as Holding — {held:.6f} {coin} detected in account.")
@@ -57,6 +64,7 @@ def run(price_data, user_id, coin="BTC"):
             }
 
             log_trade_multi(
+                user_id=user_id
                 coin=coin,
                 strategy=STRATEGY,
                 action="buy",
