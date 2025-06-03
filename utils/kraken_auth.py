@@ -1,6 +1,5 @@
 # utils/kraken_auth.py
 
-import krakenex
 from utils.load_keys import API_KEY, API_SECRET
 
 def get_kraken_clients(user_id):
