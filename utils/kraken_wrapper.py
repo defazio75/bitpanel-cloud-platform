@@ -257,31 +257,28 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
     return round(last_bb, 4)
 
 def update_portfolio_snapshot_from_kraken(user_id, token):
-    mode = get_mode(user_id)
+    mode = "live"
     keys = load_user_api_keys(user_id, "kraken", token)
     if not keys:
         print("⚠️ No API keys found.")
         return
 
-    # Auth & call Kraken API using keys['key'] and keys['secret']
-    # Assume get_kraken_balances() returns a dictionary: { "BTC": {"balance": x}, "USD": {"balance": y} }
-    balances = get_kraken_balances(keys)  # <-- Replace this with your actual call
+    balances = get_live_balances(user_id=user_id)  
 
     snapshot = {
-        "usd_balance": float(balances.get("USD", {}).get("balance", 0)),
-        "coins": {}
+        "usd_balance": float(balances.get("USD", 0)),
     }
 
-    for coin, data in balances.items():
+    for coin, amount in balances.items():
         if coin != "USD":
-            snapshot["coins"][coin] = {
-                "balance": float(data.get("balance", 0))
+            snapshot[coin] = {
+                "amount": float(amount)
             }
 
     save_portfolio_snapshot(user_id, snapshot, token, mode)
 
-    # Optional: live auto-rebalance
-    if auto_rebalance and mode == "live":
+    # Optional: auto-rebalance
+    if mode == "live":
         try:
             from bots.rebalance_bot import rebalance_hodl
             rebalance_hodl(user_id=user_id)
