@@ -33,13 +33,18 @@ def render_portfolio_summary(mode, user_id, token):
     # === Pie Chart ===
     st.subheader("📈 Portfolio Allocation")
     allocation_data = []
-    for coin, data in snapshot["coins"].items():
-        allocation_data.append({"coin": coin, "value": data["usd_value"]})
-    df = px.data.tips()  # placeholder to prevent empty px error
+    
+    for coin, data in snapshot.get("coins", {}).items():
+        usd_value = data.get("usd_value", 0)
+        if usd_value > 0:
+            
     if allocation_data:
         df = pd.DataFrame(allocation_data)
         fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
         st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.info("No live allocation data to display.")
 
     # === Performance ===
     st.subheader("📊 Portfolio Performance")
@@ -59,7 +64,7 @@ def render_portfolio_summary(mode, user_id, token):
     st.subheader("🧠 Current Strategies")
     strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLL"]
     for coin in snapshot["coins"]:
-        state = load_coin_state(coin, user_id=user_id, token=token, mode=mode)
+        state = load_coin_state(user_id, coin, token, mode)
         if not state:
             continue
 
