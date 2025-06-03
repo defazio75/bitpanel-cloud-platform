@@ -60,12 +60,16 @@ def render_settings_panel(user_id, token, exchange="kraken"):
             else:
                 st.error("Please enter both API key and secret.")
 
-    # Optional Delete Button (not implemented in Firebase yet)
-    # if current_keys:
-    #     if st.button("🗑️ Delete Saved API Keys"):
-    #         delete_user_api_keys(user_id, selected_exchange)
-    #         st.success("🚫 API keys deleted.")
-    #         st.experimental_rerun()
+    st.markdown("---")
+
+    # === Test Balance Button ===
+    st.subheader("🔍 Test Kraken Connection")
+    if st.button("Test Kraken Balance Fetch"):
+        usd_balance = test_kraken_balance_fetch(user_id)
+        if usd_balance is not None:
+            st.success(f"✅ USD Balance: ${usd_balance:,.2f}")
+        else:
+            st.error("❌ Could not fetch balance. Check your API keys and try again.")
 
     st.markdown("---")
     st.markdown("Future settings like subscriptions and theme preferences will be added here.")
