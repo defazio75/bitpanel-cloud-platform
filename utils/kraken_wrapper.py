@@ -266,13 +266,6 @@ def update_portfolio_snapshot_from_kraken(user_id, token):
         except Exception as e:
             print(f"❌ Failed to auto-rebalance: {e}")
 
-def test_kraken_balance_fetch(user_id):
-    try:
-        balances = get_live_balances(user_id=user_id)
-        usd = balances.get("USD", 0)
-        print(f"✅ USD Balance from Kraken for {user_id}: ${usd}")
-        return usd
-
 def get_live_balances_and_snapshot(user_id, token):
     """
     Pulls live balances, saves snapshot to Firebase, and returns balances.
@@ -294,6 +287,3 @@ def get_live_balances_and_snapshot(user_id, token):
     save_portfolio_snapshot(user_id, snapshot, token, mode="live")
     return balances
 
-    except Exception as e:
-        print(f"❌ Test Fetch Failed: {e}")
-        return None
