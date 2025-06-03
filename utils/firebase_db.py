@@ -44,41 +44,92 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
 
 # === STRATEGY CONFIGURATION ===
 def save_strategy_allocations(user_id, config, token, mode):
-    firebase.database().child("users").child(user_id).child(f"{mode}_data").child("strategy_allocations").set(config, token)
+    firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("performance") \
+        .child("strategy_allocations") \
+        .set(config, token)
 
 def load_strategy_allocations(user_id, token, mode):
-    data = firebase.database().child("users").child(user_id).child(f"{mode}_data").child("strategy_allocations").get(token).val()
+    data = firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("performance") \
+        .child("strategy_allocations") \
+        .get(token) \
+        .val()
     return data if data else {}
 
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token, mode):
-    firebase.database().child("users").child(user_id).child(f"{mode}_data").child("portfolio_snapshot").set(snapshot, token)
+    firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("balances") \
+        .child("portfolio_snapshot") \
+        .set(snapshot, token)
 
 def load_portfolio_snapshot(user_id, token, mode):
-    data = firebase.database().child("users").child(user_id).child(f"{mode}_data").child("portfolio_snapshot").get(token).val()
+    data = firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("balances") \
+        .child("portfolio_snapshot") \
+        .get(token) \
+        .val()
     return data if data else {}
 
 # === COIN STATE ===
 def save_coin_state(user_id, coin, state_data, token, mode):
-    firebase.database().child("users").child(user_id).child(f"{mode}_data").child("coin_state").child(coin).set(state_data, token)
+    firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("current") \
+        .child(f"{coin}_state") \
+        .set(state_data, token)
 
 def load_coin_state(user_id, coin, token, mode):
-    data = firebase.database().child("users").child(user_id).child(f"{mode}_data").child("coin_state").child(coin).get(token).val()
+    data = firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("current") \
+        .child(f"{coin}_state") \
+        .get(token) \
+        .val()
     return data if data else {}
 
 # === PERFORMANCE HISTORY ===
 def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
-    firebase.database().child("users").child(user_id).child(f"{mode}_data").child("performance_history").child(date_str).set(snapshot, token)
+    firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("history") \
+        .child(date_str) \
+        .set(snapshot, token)
 
 def load_performance_snapshot(user_id, token, mode):
-    data = firebase.database().child("users").child(user_id).child(f"{mode}_data").child("performance_history").get(token).val()
+    data = firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("history") \
+        .get(token) \
+        .val()
     return data if data else {}
 
 # === FILE LISTING ===
 def list_firebase_files(path, mode, user_id):
     token = st.session_state.user.get("token")
     try:
-        data = firebase.database().child("users").child(user_id).child(f"{mode}_data").child(path).get(token)
+        data = firebase.database().child("users").child(user_id).child(mode).child(path).get(token)
         if data.each():
             return [item.key() for item in data.each()]
         return []
