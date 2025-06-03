@@ -1,24 +1,42 @@
-# utils/kraken_auth.py
-
+import time
+import requests
+import base64
+import hashlib
+import hmac
+from urllib.parse import urlencode
 from utils.load_keys import load_user_api_keys
-from utils.firebase_config import auth
+from utils.firebase_config import auth  # Needed if using token-based auth with Firebase
 
-def get_kraken_clients(user_id):
-    api_key, api_secret = load_keys(user_id)
+API_URL = "https://api.kraken.com"
 
-    api = krakenex.API()
-    api.key = API_KEY
-    api.secret = API_SECRET
+def rate_limited_query_private(endpoint, data=None, user_id=None):
+    if data is None:
+        data = {}
 
-    return api, KrakenWrapper(api)
+    # Load encrypted keys
+    keys = load_user_api_keys(user_id, "kraken", token=auth.current_user['idToken'])
+    api_key = keys["key"]
+    api_secret = keys["secret"]
 
-class KrakenWrapper:
-    def __init__(self, api):
-        self.api = api
+    # Prepare headers
+    nonce = str(int(1000 * time.time()))
+    data["nonce"] = nonce
+    post_data = urlencode(data)
 
-    def get_account_balance(self):
-        try:
-            return self.api.query_private('Balance')
-        except Exception as e:
-            print(f"❌ Balance fetch error: {e}")
-            return None
+    # Message signing
+    message = (nonce + post_data).encode()
+    sha256 = hashlib.sha256(message).digest()
+    path = f"/0/private/{endpoint.split('/')[-1]}"
+    secret_decoded = base64.b64decode(api_secret)
+    signature = hmac.new(secret_decoded, path.encode() + sha256, hashlib.sha512)
+    sig_digest = base64.b64encode(signature.digest())
+
+    headers = {
+        "API-Key": api_key,
+        "API-Sign": sig_digest.decode()
+    }
+
+    url = f"{API_URL}{endpoint}"
+    response = requests.post(url, headers=headers, data=data)
+    response.raise_for_status()
+    return response.json()
