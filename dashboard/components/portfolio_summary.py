@@ -5,170 +5,72 @@ from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices, get_live_balances
-from utils.firebase_db import (
-    load_user_profile,
-    load_strategy_allocations,
-    load_portfolio_snapshot,
-    load_coin_state,
-    load_performance_snapshot
-)
+from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
-    if mode is None:
-        mode = get_mode(user_id)
-
-    # === Safely Load Token ===
-    if "user" not in st.session_state:
-        st.warning("⚠️ Not logged in. Please log in to view portfolio data.")
-        return
-
-    token = st.session_state.user.get("token", "")
+    user = st.session_state.user
+    token = user["token"]
+    user_id = user["localId"]
+    mode = get_mode(user_id)
     snapshot = load_portfolio_snapshot(user_id, token, mode)
-
     if not snapshot:
         st.warning("No portfolio data found.")
         return
 
     prices = get_prices(user_id=user_id)
     
-    total_value = snapshot.get("usd_balance", 0)
-    coin_data = {}
+    # === Portfolio Header ===
+    st.subheader("💰 Total Portfolio Value")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Value", f"${snapshot['total_value']:,.2f}")
+    col2.metric("USD Balance", f"${snapshot['usd_balance']:,.2f}")
+    col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
 
-    for coin, info in snapshot.items():
-        if coin in ["usd_balance", "total_value", "total_value_usd"]:
-            continue  # skip meta fields
+    # === Pie Chart ===
+    st.subheader("📈 Portfolio Allocation")
+    allocation_data = []
+    for coin, data in snapshot["coins"].items():
+        allocation_data.append({"coin": coin, "value": data["value"]})
+    df = px.data.tips()  # placeholder to prevent empty px error
+    if allocation_data:
+        df = px.data.frame(allocation_data)
+        fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
+        st.plotly_chart(fig, use_container_width=True)
 
-        if not isinstance(info, dict):
+    # === Performance ===
+    st.subheader("📊 Portfolio Performance")
+    performance_data = load_performance_snapshot(user_id=user_id, token=token, mode=mode)
+    if not performance_data:
+        st.info("Performance data not available.")
+    else:
+        cols = st.columns(5)
+        for i, (period, data) in enumerate(performance_data.items()):
+            cols[i].metric(
+                label=period,
+                value=f"${data.get('profit', 0):,.2f}",
+                delta=f"{data.get('pct', 0):.2f}%"
+            )
+
+    # === Strategy Breakdown ===
+    st.subheader("🧠 Current Strategies")
+    strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLL"]
+    for coin in snapshot["coins"]:
+        state = load_coin_state(coin, user_id=user_id, token=token, mode=mode)
+        if not state:
             continue
 
-        balance = info.get("amount", 0)
-        price = prices.get(coin, 0)
-        value = round(balance * price, 2)
-
-        coin_data[coin] = {
-            "balance": balance,
-            "value": value,
-            "price": price
-        }
-
-        total_value += value
-
-    snapshot["total_value"] = round(total_value, 2)
-
-    # === Header Metrics ===
-    st.markdown("## **Portfolio Balances**")
-    col1, col2, col3 = st.columns(3)
-
-    btc_price = prices.get("BTC", 0)
-
-    with col1:
-        st.markdown(f'<div class="bubble-card"><h4>Portfolio Value</h4><p>${snapshot["total_value"]:,.2f}</p></div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown(f'<div class="bubble-card"><h4>Available USD</h4><p>${snapshot["usd_balance"]:,.2f}</p></div>', unsafe_allow_html=True)
-    with col3:
-        st.markdown(f'<div class="bubble-card"><h4>BTC Price</h4><p>${btc_price:,.2f}</p></div>', unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    # === Pie Chart Data ===
-    coin_labels = []
-    coin_values = []
-
-    if snapshot["usd_balance"] > 0:
-        coin_labels.append("USD")
-        coin_values.append(snapshot["usd_balance"])
-
-    for coin, info in coin_data.items():
-        value = info.get("value", 0)
-        if value > 0:
-            coin_labels.append(coin)
-            coin_values.append(value)
-
-    # === Portfolio Breakdown and Chart ===
-    col_left, col_right = st.columns([2, 1])
-
-    with col_left:
-        st.subheader("📊 Allocation Summary")
-        st.markdown("**Holdings:**")
-        for coin, info in coin_data.items():
-            balance = info.get("balance", 0)
-            value = info.get("value", 0.0)
-            if balance > 0:
-                st.markdown(f"<p style='margin-bottom:2px;'><strong>{coin}</strong> – ${value:,.2f} ({balance:.4f} {coin})</p>", unsafe_allow_html=True)
-
-    with col_right:
-        if coin_labels and coin_values:
-            fig = px.pie(
-                names=coin_labels,
-                values=coin_values,
-                title="Portfolio Allocation",
-                hole=0.4
-            )
-            fig.update_layout(height=350, width=350)
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No valid portfolio data available to display chart.")
-
-    st.markdown("---")
-
-    # === Performance Section (To be replaced with real calc) ===
-    st.markdown("### 📈 Performance")
-    performance_data = {
-        "Daily": {"profit": 420.35, "pct": 0.28},
-        "Weekly": {"profit": 2750.10, "pct": 1.85},
-        "Monthly": {"profit": 8820.45, "pct": 6.30},
-        "Yearly": {"profit": 51230.77, "pct": 52.63},
-        "Overall": {"profit": 68750.55, "pct": 86.28}
-    }
-
-    timeframes = ["Daily", "Weekly", "Monthly", "Yearly"]
-    cols = st.columns(len(timeframes))
-
-    for i, tf in enumerate(timeframes):
-        data = performance_data[tf]
-        st.metric(
-            label=f"{tf} Profit",
-            value=f"${data['profit']:,.2f}",
-            delta=f"{data['pct']:.2f}%",
-            delta_color="normal" if data['profit'] == 0 else ("inverse" if data['profit'] < 0 else "off")
-        )
-
-    # === Strategy Breakdown (Mock) ===
-    st.markdown("---")
-    st.markdown("### 🧠 Current Strategies")
-
-    coins = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
-    strategies = ["Core", "5 Min RSI", "1 HR RSI", "Bollinger"]
-
-    mock_data = {
-        coin: {
-            strategy: {
-                "usd": 1000 + i * 250,
-                "pct": 25,
-                "profit": 50.0 - i * 10,
-                "status": "Holding" if i % 2 == 0 else "Waiting"
-            }
-            for i, strategy in enumerate(strategies)
-        }
-        for coin in coins
-    }
-
-    tab_objs = st.tabs(coins)
-    for i, coin in enumerate(coins):
-        with tab_objs[i]:
-            st.subheader(f"{coin} Strategy Breakdown")
+        with st.expander(f"{coin} Strategy Breakdown"):
             for strategy in strategies:
-                data = mock_data[coin][strategy]
-                st.markdown(
-                    f"<p style='margin-bottom:6px;'>"
-                    f"<strong>{strategy}</strong>: "
-                    f"${data['usd']:,} ({data['pct']}%) | "
-                    f"Profit: ${data['profit']:.2f} | "
-                    f"Status: {data['status']}"
-                    f"</p>",
-                    unsafe_allow_html=True
-                )
+                strat_data = state.get(strategy)
+                if not strat_data:
+                    continue
+                amount = strat_data.get("amount", 0)
+                usd_held = strat_data.get("usd_held", 0)
+                status = strat_data.get("status", "Unknown")
+                profit = strat_data.get("profit", 0)
+                total_usd = round(amount * prices.get(coin, 0), 2) + usd_held
+                st.write(f"**{strategy}** | Status: `{status}` | Value: `${total_usd:,.2f}` | Profit: `${profit:,.2f}`")
