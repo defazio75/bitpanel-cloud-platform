@@ -54,7 +54,7 @@ def render_portfolio_summary(mode, user_id, token):
 
         total_value += value
 
-     snapshot["total_value"] = round(total_value, 2)
+    snapshot["total_value"] = round(total_value, 2)
 
     # === Header Metrics ===
     st.markdown("## **Portfolio Balances**")
