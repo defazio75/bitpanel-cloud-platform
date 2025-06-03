@@ -1,6 +1,7 @@
 # utils/kraken_auth.py
 
-from utils.load_keys import API_KEY, API_SECRET
+from utils.load_keys import load_user_api_keys
+from utils.firebase_config import auth
 
 def get_kraken_clients(user_id):
     api_key, api_secret = load_keys(user_id)
