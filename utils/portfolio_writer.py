@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from datetime import datetime
 from utils.config import get_mode
-from utils.kraken_wrapper import get_prices
+from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import save_firebase_json, load_firebase_json
 
 
@@ -98,3 +98,36 @@ def write_portfolio_snapshot(user_id, mode=None, token=None):
 
     except Exception as e:
         print(f"❌ Error writing portfolio snapshot: {e}")
+
+def save_daily_snapshot(user_id, token, mode):
+    balances = get_live_balances(user_id)
+    prices = get_prices(user_id)
+    
+    snapshot = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "usd_balance": balances.get("USD", 0),
+        "coins": {},
+        "total_value": 0
+    }
+
+    for coin, amount in balances.items():
+        if coin == "USD":
+            continue
+        price = prices.get(coin, 0)
+        value = amount * price
+        snapshot["coins"][coin] = {
+            "balance": round(amount, 6),
+            "price": price,
+            "value": round(value, 2)
+        }
+        snapshot["total_value"] += value
+
+    snapshot["total_value"] += snapshot["usd_balance"]
+
+    # Save to Firebase
+    path = f"{mode}/balances/portfolio_snapshot"
+    save_firebase_json(path, snapshot, user_id, token)
+
+    # Save daily history
+    date_path = f"{mode}/history/{datetime.now().strftime('%Y-%m-%d')}.json"
+    save_firebase_json(date_path, snapshot, user_id, token)
