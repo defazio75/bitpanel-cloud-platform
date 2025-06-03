@@ -1,6 +1,17 @@
 import streamlit as st
 from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
+from utils.kraken_wrapper import get_live_balances
+
+def test_kraken_balance_fetch(user_id):
+    try:
+        balances = get_live_balances(user_id=user_id)
+        usd = balances.get("USD", 0)
+        print(f"✅ USD Balance from Kraken for {user_id}: ${usd}")
+        return usd
+    except Exception as e:
+        print(f"❌ Test Fetch Failed: {e}")
+        return None
 
 def render_settings_panel(user_id, token, exchange="kraken"):
     st.header("⚙️ Settings")
@@ -20,10 +31,6 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     selected_exchange = st.selectbox("Select Exchange", exchange_options, index=exchange_options.index(exchange))
 
     current_keys = load_user_api_keys(user_id, selected_exchange, token=token)
-
-if st.button("🔍 Test Kraken Balance Fetch"):
-    usd_balance = test_kraken_balance_fetch(user_id)
-    st.success(f"USD Balance: ${usd_balance}")
 
     if "api_keys_saved" not in st.session_state:
          st.session_state.api_keys_saved = False
