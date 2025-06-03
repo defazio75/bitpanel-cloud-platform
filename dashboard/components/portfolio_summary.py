@@ -37,6 +37,7 @@ def render_portfolio_summary(mode, user_id, token):
     for coin, data in snapshot.get("coins", {}).items():
         usd_value = data.get("usd_value", 0)
         if usd_value > 0:
+             allocation_data.append({"coin": coin, "value": usd_value})
             
     if allocation_data:
         df = pd.DataFrame(allocation_data)
