@@ -49,11 +49,11 @@ def load_strategy_allocations(user_id, token, mode):
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token, mode):
     db = firebase.database()
-    db.child("users").child(user_id).child(mode).child("portfolio").child("portfolio_snapshot").set(snapshot, token)
+    db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").set(snapshot, token)
 
 def load_portfolio_snapshot(user_id, token, mode):
     db = firebase.database()
-    data = db.child("users").child(user_id).child(mode).child("portfolio").child("portfolio_snapshot").get(token).val()
+    data = db.child("users").child(user_id).child(mode).child("balances").child("portfolio_snapshot").get(token).val()
     return data if data else {}
 
 # === COIN STATE ===
