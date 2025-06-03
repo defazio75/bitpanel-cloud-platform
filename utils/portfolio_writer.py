@@ -1,41 +1,92 @@
 import os
 import json
-import csv
+import pandas as pd
 from datetime import datetime
+from utils.config import get_mode
+from utils.kraken_wrapper import get_prices
+from utils.firebase_db import save_firebase_json, save_firebase_csv, load_firebase_csv
 
-def write_portfolio_snapshot(mode, usd_balance, coin_data):
-    now = datetime.now()
-    date_str = now.date().isoformat()
 
-    # === 1. Save latest snapshot
-    latest_path = os.path.join("data", f"json_{mode}", "portfolio", "portfolio_snapshot.json")
-    os.makedirs(os.path.dirname(latest_path), exist_ok=True)
+def write_portfolio_snapshot(user_id, mode=None, token=None):
+    if not mode:
+        mode = get_mode(user_id)
 
-    total_value = usd_balance + sum(c["value"] for c in coin_data.values())
+    prices = get_prices(user_id=user_id)
 
+    # Load balances
+    snapshot_path = f"{mode}/balances/portfolio_snapshot.json"
+    history_dir = f"{mode}/history"
+    log_csv_path = f"{mode}/logs/portfolio_log.csv"
+
+    # Construct snapshot
     snapshot = {
-        "timestamp": now.isoformat(),
-        "date": date_str,
-        "mode": mode,
-        "usd_balance": usd_balance,
-        "coins": coin_data,
-        "total_value": total_value
+        "timestamp": datetime.utcnow().isoformat(),
+        "usd_balance": 0.0,
+        "coins": {},
+        "total_value": 0.0
     }
 
-    with open(latest_path, "w") as f:
-        json.dump(snapshot, f, indent=2)
+    try:
+        # Load from previously saved snapshot to grab balances
+        # (could also pull live balances if needed)
+        portfolio = snapshot.copy()
 
-    # === 2. If it's 7:00–7:05 PM CST, save historical snapshot
-    if now.hour == 19 and now.minute < 5:
-        history_path = os.path.join("data", f"json_{mode}", "portfolio", "history", f"{date_str}.json")
-        os.makedirs(os.path.dirname(history_path), exist_ok=True)
-        if not os.path.exists(history_path):
-            with open(history_path, "w") as f:
-                json.dump(snapshot, f, indent=2)
+        for coin, price in prices.items():
+            state_path = f"{mode}/current/{coin}_state.json"
+            try:
+                from utils.firebase_db import load_firebase_json
+                state = load_firebase_json(state_path, user_id, token)
+            except:
+                state = {}
 
-    # === 3. Log snapshot to CSV (for time-series tracking)
-    csv_log_path = os.path.join("data", "logs", mode, "portfolio_log.csv")
-    os.makedirs(os.path.dirname(csv_log_path), exist_ok=True)
-    with open(csv_log_path, "a", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([now.isoformat(), mode, total_value])
+            balance = 0.0
+            if "HODL" in state:
+                balance += float(state["HODL"].get("amount", 0))
+            if "usd_held" in state.get("HODL", {}):
+                snapshot["usd_balance"] += float(state["HODL"].get("usd_held", 0))
+
+            for strategy in ["RSI_5MIN", "RSI_1HR", "BOLL"]:
+                if strategy in state:
+                    balance += float(state[strategy].get("amount", 0))
+                    if "usd_held" in state[strategy]:
+                        snapshot["usd_balance"] += float(state[strategy].get("usd_held", 0))
+
+            value = balance * price
+            snapshot["coins"][coin] = {
+                "balance": round(balance, 6),
+                "price": price,
+                "value": round(value, 2)
+            }
+
+            snapshot["total_value"] += value
+
+        snapshot["total_value"] += snapshot["usd_balance"]
+
+        # Save latest snapshot JSON
+        save_firebase_json(snapshot_path, snapshot, user_id, token)
+
+        # Save history snapshot if between 7:00–7:05 PM CST
+        now = datetime.now()
+        if now.hour == 19 and now.minute <= 5:
+            history_path = f"{history_dir}/{now.strftime('%Y-%m-%d')}.json"
+            save_firebase_json(history_path, snapshot, user_id, token)
+
+        # Append to portfolio log CSV
+        try:
+            df_existing = load_firebase_csv(log_csv_path, user_id, token)
+        except:
+            df_existing = pd.DataFrame()
+
+        new_row = pd.DataFrame([{
+            "timestamp": snapshot["timestamp"],
+            "usd_balance": round(snapshot["usd_balance"], 2),
+            "total_value": round(snapshot["total_value"], 2)
+        }])
+
+        df_updated = pd.concat([df_existing, new_row], ignore_index=True)
+        save_firebase_csv(log_csv_path, df_updated, user_id, token)
+
+        print("✅ Portfolio snapshot saved to Firebase.")
+
+    except Exception as e:
+        print(f"❌ Error writing portfolio snapshot: {e}")
