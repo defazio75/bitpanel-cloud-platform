@@ -12,6 +12,7 @@ import pandas as pd
 import streamlit as st
 from utils.load_keys import load_user_api_keys
 from utils.firebase_db import save_portfolio_snapshot
+from utils.kraken_auth import rate_limited_query_private
 
 API_URL = "https://api.kraken.com"
 
@@ -96,49 +97,30 @@ def get_prices(user_id=None):
     return prices
 
 # === Live Balances (Private API) ===
-def get_live_balances(user_id=None, token=None):
-    print(f"\n🧪 [DEBUG] Starting balance fetch for user: {user_id}")
+def get_live_balances(user_id, token=None):
+    from utils.kraken_auth import rate_limited_query_private
 
-    try:
-        raw = rate_limited_query_private("Balance", user_id=user_id, token=token)
+    result = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
 
-        print("\n🧪 [DEBUG] Raw Kraken Response:")
-        print(json.dumps(raw, indent=2))
+    raw_balances = result.get("result", {})
+    
+    # Map Kraken's internal codes to readable symbols
+    kraken_symbol_map = {
+        "XXBT": "BTC",
+        "XETH": "ETH",
+        "ZUSD": "USD",
+        "XXRP": "XRP",
+        "DOT": "DOT",
+        "LINK": "LINK",
+        "SOL": "SOL"   
+    }
 
-        if not raw or "result" not in raw:
-            print("❌ No result found in Kraken response.")
-            return {}
+    balances = {}
+    for k_code, amount in raw_balances.items():
+        symbol = kraken_symbol_map.get(k_code, k_code)  # fallback to raw code if not mapped
+        balances[symbol] = float(amount)
 
-        balances = raw["result"]
-        print("🔍 [DEBUG] Raw Balances Extracted:", json.dumps(balances, indent=2))
-
-        mapped = {}
-
-        for k, v in balances.items():
-            amount = float(v)
-            if amount < 1e-6:
-                continue
-            if k == "XXBT":
-                mapped["BTC"] = amount
-            elif k == "XETH":
-                mapped["ETH"] = amount
-            elif k == "SOL":
-                mapped["SOL"] = amount
-            elif k == "XXRP":
-                mapped["XRP"] = amount
-            elif k == "DOT":
-                mapped["DOT"] = amount
-            elif k == "LINK":
-                mapped["LINK"] = amount
-            elif k == "ZUSD":
-                mapped["USD"] = amount
-
-        print("✅ [DEBUG] Cleaned Coin Balances:", mapped)
-        return mapped
-
-    except Exception as e:
-        print(f"❌ [EXCEPTION] Error fetching Kraken balances: {e}")
-        return {}
+    return balances
 
 def get_prices_with_change():
     pairs = {
