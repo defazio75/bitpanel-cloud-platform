@@ -18,6 +18,6 @@ def load_user_api_keys(user_id, exchange, token=None):
         }
     return None
 
-def api_keys_exist(user_id):
-    keys = load_user_api_keys(user_id, "kraken")
+def api_keys_exist(user_id, token, exchange="kraken"):
+    keys = load_user_api_keys(user_id, exchange, token)
     return bool(keys and keys.get("key") and keys.get("secret"))
