@@ -12,11 +12,8 @@ st_autorefresh(interval=10_000, key="auto_refresh_summary")
 def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
-    user = st.session_state.user
-    token = user["token"]
-    user_id = user["localId"]
-    mode = get_mode(user_id)
-    portfolio = load_portfolio_snapshot(user_id, mode, token)
+    # === Load Portfolio ===
+    snapshot = load_portfolio_snapshot(user_id, mode, token)
     if not snapshot:
         st.warning("No portfolio data found.")
         return
@@ -43,7 +40,7 @@ def render_portfolio_summary(mode, user_id, token):
 
     # === Performance ===
     st.subheader("📊 Portfolio Performance")
-    performance = load_performance_snapshot(user_id, mode, token)
+    performance_data = load_performance_snapshot(user_id, mode, token)
     if not performance_data:
         st.info("Performance data not available.")
     else:
@@ -73,4 +70,6 @@ def render_portfolio_summary(mode, user_id, token):
                 status = strat_data.get("status", "Unknown")
                 profit = strat_data.get("profit", 0)
                 total_usd = round(amount * prices.get(coin, 0), 2) + usd_held
-                st.write(f"**{strategy}** | Status: `{status}` | Value: `${total_usd:,.2f}` | Profit: `${profit:,.2f}`")
+                st.write(
+                    f"**{strategy}** | Status: `{status}` | Value: `${total_usd:,.2f}` | Profit: `${profit:,.2f}`"
+                )
