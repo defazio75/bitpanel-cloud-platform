@@ -1,28 +1,36 @@
 import streamlit as st
 from datetime import datetime
+import pytz
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
 # === USER PROFILE ===
-def save_user_profile(user_id, name, email, token, signup_date):
-    db = firebase.database()
-    db.child("users").child(user_id).update({
+def save_user_profile(user_id, name, email, signup_date=None, last_login=None):
+    tz = pytz.timezone("America/Chicago")
+    if not signup_date:
+        signup_date = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
+    if not last_login:
+        last_login = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
+    profile_data = {
         "name": name,
         "email": email,
-        "signup_date": signup_date
-    }, token)
+        "signup_date": signup_date,
+        "last_login": last_login
+    }
+    firebase.database().child("users").child(user_id).child("profile").set(profile_data)
 
 def update_last_login(user_id, token):
-    db = firebase.database()
-    db.child("users").child(user_id).update({
-        "last_login": datetime.utcnow().isoformat() + "Z"
+    tz = pytz.timezone("America/Chicago")
+    last_login = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
+
+    firebase.database().child("users").child(user_id).child("profile").update({
+        "last_login": last_login
     }, token)
 
 def load_user_profile(user_id, token):
-    db = firebase.database()
-    result = db.child("users").child(user_id).get(token)
+    result = firebase.database().child("users").child(user_id).child("profile").get(token)
     return result.val() if result.val() else None
 
 # === API KEYS ===
@@ -30,10 +38,9 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret):
     encrypted_key = encrypt_string(api_key, user_id)
     encrypted_secret = encrypt_string(api_secret, user_id)
     token = st.session_state.user["token"]
-    db = firebase.database()
-    db.child("users").child(user_id).child("api_keys").child(exchange).set({
-        "key": encrypted_key,
-        "secret": encrypted_secret
+    firebase.database().child("users").child(user_id).child("api_keys").child(exchange).set({
+        "public": encrypted_key,
+        "private": encrypted_secret
     }, token)
 
 # === STRATEGY CONFIGURATION ===
