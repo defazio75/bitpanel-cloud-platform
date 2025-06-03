@@ -11,6 +11,7 @@ import os
 import pandas as pd
 import streamlit as st
 from utils.load_keys import load_user_api_keys
+from utils.firebase_db import save_portfolio_snapshot
 
 API_URL = "https://api.kraken.com"
 
@@ -255,46 +256,29 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
     last_bb = (upper.iloc[-1] - lower.iloc[-1]) / sma.iloc[-1]
     return round(last_bb, 4)
 
-def save_portfolio_snapshot(mode="live", auto_rebalance=False, user_id=None):
-    if not user_id:
-        raise ValueError("❌ user_id is required to save portfolio snapshot.")
+def update_portfolio_snapshot_from_kraken(user_id, token):
+    mode = get_mode(user_id)
+    keys = load_user_api_keys(user_id, "kraken", token)
+    if not keys:
+        print("⚠️ No API keys found.")
+        return
 
-    balances = get_live_balances(user_id=user_id)
-    prices = get_prices(user_id=user_id)
+    # Auth & call Kraken API using keys['key'] and keys['secret']
+    # Assume get_kraken_balances() returns a dictionary: { "BTC": {"balance": x}, "USD": {"balance": y} }
+    balances = get_kraken_balances(keys)  # <-- Replace this with your actual call
 
     snapshot = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "total_value": 0,
-        "usd_balance": balances.get("USD", 0),
+        "usd_balance": float(balances.get("USD", {}).get("balance", 0)),
         "coins": {}
     }
 
-    total = snapshot["usd_balance"]
-    live_portfolio = {"USD": snapshot["usd_balance"]}
+    for coin, data in balances.items():
+        if coin != "USD":
+            snapshot["coins"][coin] = {
+                "balance": float(data.get("balance", 0))
+            }
 
-    for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
-        amt = max(0, balances.get(coin, 0))
-        price = prices.get(coin, 0)
-        value = round(amt * price, 2) if amt and price else 0.0
-
-        snapshot["coins"][coin] = {
-            "balance": amt,
-            "price": price,
-            "value": value
-        }
-
-        live_portfolio[coin] = amt
-        total += value
-
-        print(f"✅ {mode.upper()} {coin} → amt={amt}, price={price}, value={value}")
-
-    snapshot["total_value"] = round(total, 2)
-
-    # 🔥 Save to Firebase only
-    from utils.firebase_db import save_portfolio_snapshot_to_firebase
-    token = st.session_state.user.get("token")
-    if user_id and token:
-        save_portfolio_snapshot_to_firebase(user_id, snapshot, token, mode)
+    save_portfolio_snapshot(user_id, snapshot, token, mode)
 
     # Optional: live auto-rebalance
     if auto_rebalance and mode == "live":
