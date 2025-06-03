@@ -13,10 +13,10 @@ def test_kraken_balance_fetch(user_id):
         print(f"❌ Test Fetch Failed: {e}")
         return None
 
-def debug_fetch_raw_balance(user_id):
+def debug_fetch_raw_balance(user_id, token):
     from utils.kraken_auth import rate_limited_query_private
     try:
-        result = rate_limited_query_private("/0/private/Balance", {}, user_id)
+        result = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
         return result
     except Exception as e:
         raise RuntimeError(f"Kraken balance fetch failed: {e}")
@@ -77,7 +77,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
         balances = get_live_balances(user_id=user_id)
 
         try:
-            raw_result = debug_fetch_raw_balance(user_id)
+            raw_result = debug_fetch_raw_balance(user_id, token)
             if raw_result:
                 st.subheader("📦 Raw Kraken API Response:")
                 st.json(raw_result)
