@@ -24,7 +24,6 @@ def save_user_profile(user_id, name, email, signup_date=None, last_login=None):
 def update_last_login(user_id, token):
     tz = pytz.timezone("America/Chicago")
     last_login = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
-
     firebase.database().child("users").child(user_id).child("profile").update({
         "last_login": last_login
     }, token)
@@ -63,6 +62,17 @@ def load_strategy_allocations(user_id, token, mode):
         .val()
     return data if data else {}
 
+def load_portfolio_snapshot(user_id, mode, token):
+    db = firebase.database()
+    data = db.child("users") \
+             .child(user_id) \
+             .child(mode) \
+             .child("balances") \
+             .child("portfolio_snapshot") \
+             .get(token) \
+             .val()
+    return data if data else {}
+
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token, mode):
     firebase.database() \
@@ -73,7 +83,7 @@ def save_portfolio_snapshot(user_id, snapshot, token, mode):
         .child("portfolio_snapshot") \
         .set(snapshot, token)
 
-def load_portfolio_snapshot(user_id, token, mode):
+def load_portfolio_snapshot(user_id, mode, token):
     data = firebase.database() \
         .child("users") \
         .child(user_id) \
@@ -115,7 +125,7 @@ def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
         .child(date_str) \
         .set(snapshot, token)
 
-def load_performance_snapshot(user_id, token, mode):
+def load_performance_snapshot(user_id, mode, token):
     data = firebase.database() \
         .child("users") \
         .child(user_id) \
