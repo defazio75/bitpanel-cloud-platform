@@ -96,11 +96,11 @@ def get_prices(user_id=None):
     return prices
 
 # === Live Balances (Private API) ===
-def get_live_balances(user_id=None):
+def get_live_balances(user_id=None, token=None):
     print(f"\n🧪 [DEBUG] Starting balance fetch for user: {user_id}")
 
     try:
-        raw = rate_limited_query_private("Balance", user_id=user_id)
+        raw = rate_limited_query_private("Balance", user_id=user_id, token=token)
 
         print("\n🧪 [DEBUG] Raw Kraken Response:")
         print(json.dumps(raw, indent=2))
@@ -262,7 +262,7 @@ def update_portfolio_snapshot_from_kraken(user_id, token):
         print("⚠️ No API keys found.")
         return
 
-    balances = get_live_balances(user_id=user_id)  
+    balances = get_live_balances(user_id=user_id, token=token) 
 
     snapshot = {
         "usd_balance": float(balances.get("USD", 0)),
