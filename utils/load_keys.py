@@ -3,6 +3,9 @@ from utils.encryption import decrypt_string
 from utils.firebase_config import firebase
 
 def load_user_api_keys(user_id, exchange, token=None):
+    if not token:
+        raise ValueError("❌ Missing token required to access Firebase API keys.")
+    
     path = f"users/{user_id}/api_keys/{exchange}"
     data = firebase.database().child("users").child(user_id).child("api_keys").child(exchange).get(token).val()
 
