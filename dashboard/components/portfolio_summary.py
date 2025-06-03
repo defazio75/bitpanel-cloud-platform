@@ -42,6 +42,9 @@ def render_portfolio_summary(mode, user_id, token):
         if coin in ["usd_balance", "total_value", "total_value_usd"]:
             continue  # skip meta fields
 
+        if not isinstance(info, dict):
+            continue
+
         balance = info.get("amount", 0)
         price = prices.get(coin, 0)
         value = round(balance * price, 2)
