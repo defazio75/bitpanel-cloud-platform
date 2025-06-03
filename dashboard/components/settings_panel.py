@@ -21,6 +21,10 @@ def render_settings_panel(user_id, token, exchange="kraken"):
 
     current_keys = load_user_api_keys(user_id, selected_exchange, token=token)
 
+if st.button("🔍 Test Kraken Balance Fetch"):
+    usd_balance = test_kraken_balance_fetch(user_id)
+    st.success(f"USD Balance: ${usd_balance}")
+
     if "api_keys_saved" not in st.session_state:
          st.session_state.api_keys_saved = False
 
