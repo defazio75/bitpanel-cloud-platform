@@ -272,6 +272,28 @@ def test_kraken_balance_fetch(user_id):
         usd = balances.get("USD", 0)
         print(f"✅ USD Balance from Kraken for {user_id}: ${usd}")
         return usd
+
+def get_live_balances_and_snapshot(user_id, token):
+    """
+    Pulls live balances, saves snapshot to Firebase, and returns balances.
+    """
+    balances = get_live_balances(user_id=user_id, token=token)
+    prices = get_prices(user_id=user_id)
+
+    snapshot = {
+        "usd_balance": float(balances.get("USD", 0)),
+    }
+
+    for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
+        amount = balances.get(coin, 0)
+        snapshot[coin] = {
+            "amount": float(amount),
+            "usd_value": round(amount * prices.get(coin, 0), 2)
+        }
+
+    save_portfolio_snapshot(user_id, snapshot, token, mode="live")
+    return balances
+
     except Exception as e:
         print(f"❌ Test Fetch Failed: {e}")
         return None
