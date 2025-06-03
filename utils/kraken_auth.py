@@ -9,12 +9,12 @@ from utils.firebase_config import auth  # Needed if using token-based auth with 
 
 API_URL = "https://api.kraken.com"
 
-def rate_limited_query_private(endpoint, data=None, user_id=None):
+def rate_limited_query_private(endpoint, data, user_id, token):
     if data is None:
         data = {}
 
     # Load encrypted keys
-    keys = load_user_api_keys(user_id, "kraken", token=token)
+    keys = load_user_api_keys(user_id, "kraken", token)
     api_key = keys["key"]
     api_secret = keys["secret"]
 
