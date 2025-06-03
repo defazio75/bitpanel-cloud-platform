@@ -3,20 +3,18 @@ from utils.encryption import decrypt_string
 from utils.firebase_config import firebase
 
 def load_user_api_keys(user_id, exchange, token=None):
-    if not token:
-        token = st.session_state.user["token"]
+    path = f"users/{user_id}/api_keys/{exchange}"
+    data = firebase.database().child("users").child(user_id).child("api_keys").child(exchange).get(token).val()
 
-    db = firebase.database()
-    result = db.child("users").child(user_id).child("api_keys").child(exchange).get(token)
+    if not data:
+        return {}
 
-    if result.val():
-        encrypted_key = result.val().get("public", "")
-        encrypted_secret = result.val().get("private", "")
-        return {
-            "key": decrypt_string(encrypted_key, user_id),
-            "secret": decrypt_string(encrypted_secret, user_id)
-        }
-    return None
+    key = decrypt_string(data.get("public"), user_id)
+    secret = decrypt_string(data.get("private"), user_id)
+    return {
+        "key": key,
+        "secret": secret
+    }
 
 def api_keys_exist(user_id, token, exchange="kraken"):
     keys = load_user_api_keys(user_id, exchange, token)
