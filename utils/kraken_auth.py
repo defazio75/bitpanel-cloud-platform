@@ -14,7 +14,7 @@ def rate_limited_query_private(endpoint, data=None, user_id=None):
         data = {}
 
     # Load encrypted keys
-    keys = load_user_api_keys(user_id, "kraken", token=auth.current_user['idToken'])
+    keys = load_user_api_keys(user_id, "kraken", token=token)
     api_key = keys["key"]
     api_secret = keys["secret"]
 
