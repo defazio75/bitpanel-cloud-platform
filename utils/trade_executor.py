@@ -43,27 +43,7 @@ def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_i
     }
 
     print(f"📝 [{bot_name.upper()}] {action.upper()} {order['amount']} {coin} @ ${order['price']:,.2f}")
-
-    if mode == "paper":
-        log_trade(order, mode, user_id, token)
-    else:
-        send_live_order(order, token)
-
-# === Paper Trade Logger ===
-def log_trade(order, mode, user_id, token):
-    log_trade_to_csv(order, mode, user_id, token)
-    update_portfolio_snapshot(order, mode, user_id, token)
-
-def log_trade_to_csv(order, mode, user_id, token):
-    path = f"{mode}/trades/trade_log.csv"
-    try:
-        df_existing = load_firebase_csv(path, user_id, token)
-    except:
-        df_existing = pd.DataFrame()
-
-    new_row = pd.DataFrame([order])
-    df_updated = pd.concat([df_existing, new_row], ignore_index=True)
-    save_firebase_csv(path, df_updated, user_id, token)
+    send_live_order(order, token)
 
 # === Portfolio Snapshot Updater ===
 def update_portfolio_snapshot(order, mode, user_id, token):
