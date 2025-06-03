@@ -34,7 +34,7 @@ def load_user_profile(user_id, token):
     return result.val() if result.val() else None
 
 # === API KEYS ===
-def save_user_api_keys(user_id, exchange, api_key, api_secret):
+def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
     encrypted_key = encrypt_string(api_key, user_id)
     encrypted_secret = encrypt_string(api_secret, user_id)
     token = st.session_state.user["token"]
