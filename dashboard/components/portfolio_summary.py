@@ -35,17 +35,26 @@ def render_portfolio_summary(mode, user_id, token):
 
     prices = get_prices(user_id=user_id)
     
-    # === Recalculate total value with updated prices ===
     total_value = snapshot.get("usd_balance", 0)
-    for coin, info in snapshot.get("coins", {}).items():
-        balance = info.get("balance", 0)
+    coin_data = {}
+
+    for coin, info in snapshot.items():
+        if coin in ["usd_balance", "total_value", "total_value_usd"]:
+            continue  # skip meta fields
+
+        balance = info.get("amount", 0)
         price = prices.get(coin, 0)
         value = round(balance * price, 2)
-        info["price"] = price
-        info["value"] = value
+
+        coin_data[coin] = {
+            "balance": balance,
+            "value": value,
+            "price": price
+        }
+
         total_value += value
 
-    snapshot["total_value"] = round(total_value, 2)
+     snapshot["total_value"] = round(total_value, 2)
 
     # === Header Metrics ===
     st.markdown("## **Portfolio Balances**")
@@ -70,7 +79,7 @@ def render_portfolio_summary(mode, user_id, token):
         coin_labels.append("USD")
         coin_values.append(snapshot["usd_balance"])
 
-    for coin, info in snapshot["coins"].items():
+    for coin, info in coin_data.items():
         value = info.get("value", 0)
         if value > 0:
             coin_labels.append(coin)
@@ -82,7 +91,7 @@ def render_portfolio_summary(mode, user_id, token):
     with col_left:
         st.subheader("📊 Allocation Summary")
         st.markdown("**Holdings:**")
-        for coin, info in snapshot["coins"].items():
+        for coin, info in coin_data.items():
             balance = info.get("balance", 0)
             value = info.get("value", 0.0)
             if balance > 0:
