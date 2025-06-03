@@ -1,67 +1,52 @@
-import csv
-import os
+import streamlit as st
 from datetime import datetime
-import requests
+from utils.firebase_config import firebase
 
-def log_trade(user_id, bot_name, action, price, btc_amount, profit=None, portfolio_value=None):
-    log_file = os.path.join("data", "logs", user_id, "trade_log.csv")
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+def log_trade_to_firebase(user_id, mode, trade):
+    """
+    Logs a single trade to Firebase under:
+    users/{user_id}/{mode}/trade_logs/{YYYY-MM-DD}/{timestamp}
+    """
+    token = st.session_state.user.get("token")
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    timestamp = datetime.now().strftime("%H-%M-%S")
 
-    file_exists = os.path.isfile(log_file)
+    path = (
+        firebase.database()
+        .child("users")
+        .child(user_id)
+        .child(mode)
+        .child("trade_logs")
+        .child(date_str)
+        .child(timestamp)
+    )
 
-    with open(log_file, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        if not file_exists:
-            writer.writerow([
-                'timestamp',
-                'bot_name',
-                'action',
-                'price',
-                'btc_amount',
-                'usd_value',
-                'profit',
-                'portfolio_value'
-            ])
+    path.set(trade, token)
 
-        usd_value = price * btc_amount if btc_amount else 0
 
-        writer.writerow([
-            datetime.now().isoformat(),
-            bot_name,
-            action,
-            round(price, 2),
-            round(btc_amount, 8),
-            round(usd_value, 2),
-            round(profit, 2) if profit is not None else '',
-            round(portfolio_value, 2) if portfolio_value is not None else ''
-        ])
+def log_trade_multi(
+    user_id,
+    coin,
+    strategy,
+    action,
+    amount,
+    price,
+    mode,
+    profit_usd=0.0,
+    notes=""
+):
+    usd_value = round(amount * price, 2)
 
-    # Optional: Push notification via ntfy
-    try:
-        topic = "btc-bot-alerts"
-        url = f"https://ntfy.sh/{topic}"
-        message = (
-            f"{bot_name} just {action.upper()} {round(btc_amount, 8)} BTC\n"
-            f"@ ${round(price, 2)} per BTC\n"
-            f"Total: ${round(price * btc_amount, 2)}"
-        )
-        requests.post(url, data=message.encode('utf-8'))
-    except Exception as e:
-        print(f"[Notification Error] {e}")
+    trade = {
+        "coin": coin,
+        "strategy": strategy,
+        "action": action,
+        "amount": round(amount, 6),
+        "price": round(price, 2),
+        "usd_value": usd_value,
+        "profit": round(profit_usd, 2),
+        "notes": notes,
+    }
 
-def init_log(user_id):
-    log_file = os.path.join("data", "logs", user_id, "trade_log.csv")
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    if not os.path.exists(log_file):
-        with open(log_file, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([
-                'timestamp',
-                'bot_name',
-                'action',
-                'price',
-                'btc_amount',
-                'usd_value',
-                'profit',
-                'portfolio_value'
-            ])
+    log_trade_to_firebase(user_id, mode, trade)
+    print(f"📝 Trade logged: {trade}")
