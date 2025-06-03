@@ -97,15 +97,26 @@ def get_prices(user_id=None):
 
 # === Live Balances (Private API) ===
 def get_live_balances(user_id=None):
+    print(f"\n🧪 [DEBUG] Starting balance fetch for user: {user_id}")
+
     try:
         raw = rate_limited_query_private("Balance", user_id=user_id)
-        balances = raw.get("result", {})
-        print("🔍 RAW BALANCES:", json.dumps(balances, indent=2))
+
+        print("\n🧪 [DEBUG] Raw Kraken Response:")
+        print(json.dumps(raw, indent=2))
+
+        if not raw or "result" not in raw:
+            print("❌ No result found in Kraken response.")
+            return {}
+
+        balances = raw["result"]
+        print("🔍 [DEBUG] Raw Balances Extracted:", json.dumps(balances, indent=2))
+
         mapped = {}
 
         for k, v in balances.items():
             amount = float(v)
-            if amount < 1e-6:  # Ignore dust
+            if amount < 1e-6:
                 continue
             if k == "XXBT":
                 mapped["BTC"] = amount
@@ -122,10 +133,11 @@ def get_live_balances(user_id=None):
             elif k == "ZUSD":
                 mapped["USD"] = amount
 
-        print("✅ Cleaned balances:", mapped)
+        print("✅ [DEBUG] Cleaned Coin Balances:", mapped)
         return mapped
+
     except Exception as e:
-        print(f"❌ Error fetching live balances: {e}")
+        print(f"❌ [EXCEPTION] Error fetching Kraken balances: {e}")
         return {}
 
 def get_prices_with_change():
