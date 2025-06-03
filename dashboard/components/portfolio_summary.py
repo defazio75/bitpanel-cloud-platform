@@ -4,7 +4,7 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
-from utils.kraken_wrapper import get_live_balances_and_snapshot
+from utils.kraken_wrapper import get_prices, get_live_balances_and_snapshot
 from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
