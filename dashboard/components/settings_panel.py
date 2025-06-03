@@ -21,7 +21,7 @@ def debug_fetch_raw_balance(user_id, token):
     except Exception as e:
         raise RuntimeError(f"Kraken balance fetch failed: {e}")
 
-def render_settings_panel(user_id, exchange="kraken", token):
+def render_settings_panel(user_id, token, exchange="kraken"):
     st.header("⚙️ Settings")
 
     # === Account Info ===
