@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import get_prices
-from utils.firebase_db import save_firebase_json, save_firebase_csv, load_firebase_csv
+from utils.firebase_db import save_firebase_json, load_firebase_json
 
 
 def write_portfolio_snapshot(user_id, mode=None, token=None):
@@ -64,6 +64,14 @@ def write_portfolio_snapshot(user_id, mode=None, token=None):
 
         # Save latest snapshot JSON
         save_firebase_json(snapshot_path, snapshot, user_id, token)
+
+        # Save performance log to performance/daily.json
+        performance_path = f"{mode}/performance/daily.json"
+        performance_data = {
+            "timestamp": snapshot["timestamp"],
+            "total_value": round(snapshot["total_value"], 2)
+        }
+        save_firebase_json(performance_path, performance_data, user_id, token)
 
         # Save history snapshot if between 7:00–7:05 PM CST
         now = datetime.now()
