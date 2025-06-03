@@ -37,7 +37,6 @@ def load_user_profile(user_id, token):
 def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
     encrypted_key = encrypt_string(api_key, user_id)
     encrypted_secret = encrypt_string(api_secret, user_id)
-    token = st.session_state.user["token"]
     firebase.database().child("users").child(user_id).child("api_keys").child(exchange).set({
         "public": encrypted_key,
         "private": encrypted_secret
