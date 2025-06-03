@@ -267,22 +267,28 @@ def update_portfolio_snapshot_from_kraken(user_id, token):
             print(f"❌ Failed to auto-rebalance: {e}")
 
 def get_live_balances_and_snapshot(user_id, token):
-    """
-    Pulls live balances, saves snapshot to Firebase, and returns balances.
-    """
     balances = get_live_balances(user_id=user_id, token=token)
     prices = get_prices(user_id=user_id)
 
+    usd_balance = float(balances.get("USD", 0))
+    total_value = usd_balance
+
     snapshot = {
-        "usd_balance": float(balances.get("USD", 0)),
+        "usd_balance": usd_balance,
+        "coins": {}
     }
 
     for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
-        amount = balances.get(coin, 0)
-        snapshot[coin] = {
-            "amount": float(amount),
-            "usd_value": round(amount * prices.get(coin, 0), 2)
+        amount = float(balances.get(coin, 0))
+        price = prices.get(coin, 0)
+        usd_value = round(amount * price, 2)
+        snapshot["coins"][coin] = {
+            "amount": amount,
+            "usd_value": usd_value
         }
+        total_value += usd_value
+
+    snapshot["total_value"] = round(total_value, 2)
 
     save_portfolio_snapshot(user_id, snapshot, token, mode="live")
     return balances
