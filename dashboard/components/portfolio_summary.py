@@ -16,7 +16,7 @@ def render_portfolio_summary(mode, user_id, token):
     token = user["token"]
     user_id = user["localId"]
     mode = get_mode(user_id)
-    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    portfolio = load_portfolio_snapshot(user_id, mode, token)
     if not snapshot:
         st.warning("No portfolio data found.")
         return
@@ -43,7 +43,7 @@ def render_portfolio_summary(mode, user_id, token):
 
     # === Performance ===
     st.subheader("📊 Portfolio Performance")
-    performance_data = load_performance_snapshot(user_id=user_id, token=token, mode=mode)
+    performance = load_performance_snapshot(user_id, mode, token)
     if not performance_data:
         st.info("Performance data not available.")
     else:
