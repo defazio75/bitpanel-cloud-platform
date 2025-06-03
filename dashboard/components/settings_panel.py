@@ -62,14 +62,19 @@ def render_settings_panel(user_id, token, exchange="kraken"):
 
     st.markdown("---")
 
-    # === Test Balance Button ===
-    st.subheader("🔍 Test Kraken Connection")
-    if st.button("Test Kraken Balance Fetch"):
-        usd_balance = test_kraken_balance_fetch(user_id)
-        if usd_balance is not None:
-            st.success(f"✅ USD Balance: ${usd_balance:,.2f}")
+    # === Test Kraken Connection Section ===
+    st.subheader("🧪 Test Kraken Connection")
+
+    if st.button("🔍 Test Kraken Balance Fetch"):
+        balances = get_live_balances(user_id=user_id)
+
+        if balances:
+            st.write("🧾 **Raw Kraken Balances:**")
+            st.json(balances)
+            usd_balance = balances.get("USD", 0)
+            st.success(f"✅ USD Balance: ${usd_balance:.2f}")
         else:
-            st.error("❌ Could not fetch balance. Check your API keys and try again.")
+            st.error("❌ No balances returned. Check API key validity or Kraken API access.")
 
     st.markdown("---")
     st.markdown("Future settings like subscriptions and theme preferences will be added here.")
