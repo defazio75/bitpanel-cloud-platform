@@ -81,7 +81,7 @@ def reset_paper_account(user_id):
             if file.endswith(".json"):
                 os.remove(os.path.join(history_path, file))
     db = firebase.database()
-    db.child("users").child(user_id).child(mode).child("portfolio").child("history").remove(token)
+    db.child("users").child(user_id).child(mode).child("history").remove(token)
     print("🗑️ Cleared historical performance snapshots in Firebase and locally.")
 
     print(f"✅ Paper account reset complete for user: {user_id}")
