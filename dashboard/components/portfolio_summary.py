@@ -16,7 +16,7 @@ def render_portfolio_summary(mode, user_id, token):
     if mode == "live":
         get_live_balances_and_snapshot(user_id, token)  # Save latest snapshot to Firebase
 
-    snapshot = load_portfolio_snapshot(user_id, mode, token)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
     if not snapshot:
         st.warning(f"No portfolio data found for {mode.upper()} mode.")
         return
@@ -49,7 +49,7 @@ def render_portfolio_summary(mode, user_id, token):
 
     # === Performance ===
     st.subheader("📊 Portfolio Performance")
-    performance_data = load_performance_snapshot(user_id, mode, token)
+    performance_data = load_performance_snapshot(user_id, token, mode)
     if not performance_data:
         st.info("Performance data not available.")
     else:
