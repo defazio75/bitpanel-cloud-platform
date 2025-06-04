@@ -2,7 +2,7 @@ import streamlit as st
 from utils.firebase_auth import sign_up
 from utils.firebase_setup import initialize_user_structure
 from datetime import datetime
-from utils.firebase_db import save_user_profile, initialize_paper_account
+from utils.firebase_db import save_user_profile, create_default_snapshot
 
 def signup():
     st.title("🆕 Create Your BitPanel Account")
@@ -35,7 +35,12 @@ def signup():
                     signup_date=datetime.utcnow().isoformat()
                 )
 
-                initialize_paper_account(user_id, token)
+                create_default_snapshot(
+                    user_id=user_id,
+                    token=token,
+                    mode="paper",
+                    usd_balance=100_000.00
+                )
 
                 st.success("✅ Account created successfully!")
                 st.session_state.page = "login"
