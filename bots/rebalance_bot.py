@@ -9,7 +9,7 @@ from utils.firebase_db import (
     save_portfolio_snapshot
 )
 
-def rebalance_hodl(user_id):
+def rebalance_hodl(user_id, token):
     mode = get_mode(user_id=user_id)
     print(f"[Rebalance HODL] Running in {mode.upper()} mode...")
 
