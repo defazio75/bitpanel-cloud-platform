@@ -146,9 +146,6 @@ def create_default_snapshot(user_id, token, mode, usd_balance=100000.0):
     save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
     print(f"✅ Initialized {mode} account for {user_id} with ${usd_balance:.2f} USD and 0.0 in all coins.")
 
-    save_portfolio_snapshot(user_id, starting_snapshot, token, mode="paper")
-    print("🚀 Initialized paper account with $100,000.")
-
 # === FILE LISTING ===
 def list_firebase_files(path, mode, user_id):
     token = st.session_state.user.get("token")
