@@ -23,7 +23,7 @@ def load_balances(mode, user_id, token):
     if mode == "live":
         return get_live_balances(user_id=user_id)
     else:
-        snapshot = load_portfolio_snapshot(user_id, mode, token)
+        snapshot = load_portfolio_snapshot(user_id, token, mode)
         return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
 
 def render(mode, user_id, token):
