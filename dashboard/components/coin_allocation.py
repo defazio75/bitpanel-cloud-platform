@@ -54,9 +54,6 @@ def render(user_id, token, mode):
             "price": price
         }
 
-    portfolio_data = {}
-    portfolio_data["total_value"] = round(total_value, 2)
-
     st.metric("💼 Total Portfolio Value", f"${total_value:,.2f}")
     st.metric("💰 Available USD", f"${usd_balance:,.2f}")
 
