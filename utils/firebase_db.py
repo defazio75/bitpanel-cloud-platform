@@ -125,8 +125,6 @@ def create_default_snapshot(user_id, token, mode, usd_balance=100000.0):
     coins = {
         coin: {
             "balance": 0.0,
-            "price": 0.0,
-            "value": 0.0
         }
         for coin in SUPPORTED_COINS
     }
