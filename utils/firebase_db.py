@@ -47,7 +47,6 @@ def save_strategy_allocations(user_id, config, token, mode):
         .child("users") \
         .child(user_id) \
         .child(mode) \
-        .child("performance") \
         .child("strategy_allocations") \
         .set(config, token)
 
@@ -56,11 +55,9 @@ def load_strategy_allocations(user_id, token, mode):
         .child("users") \
         .child(user_id) \
         .child(mode) \
-        .child("performance") \
         .child("strategy_allocations") \
         .get(token) \
         .val()
-    return data if data else {}
 
 def load_portfolio_snapshot(user_id, mode, token):
     db = firebase.database()
