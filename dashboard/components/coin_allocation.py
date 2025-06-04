@@ -39,7 +39,7 @@ def render(mode, user_id, token):
     current_snapshot = load_portfolio_snapshot(user_id, token, mode)
     prices = get_prices(user_id=user_id)
 
-    usd_balance = snapshot.get("usd_balance", 0)
+    usd_balance = current_snapshot.get("usd_balance", 0)
     total_value = usd_balance
     coins = {}
 
