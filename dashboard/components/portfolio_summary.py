@@ -64,7 +64,7 @@ def render_portfolio_summary(mode, user_id, token):
     # === Strategy Breakdown ===
     st.subheader("🧠 Current Strategies")
     strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLL"]
-    for coin in snapshot["coins"]:
+    for coin, data in snapshot.get("coins", {}).items():
         state = load_coin_state(user_id, coin, token, mode)
         if not state:
             continue
