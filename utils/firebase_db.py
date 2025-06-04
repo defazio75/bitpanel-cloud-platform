@@ -59,7 +59,7 @@ def load_strategy_allocations(user_id, token, mode):
         .get(token) \
         .val()
 
-def load_portfolio_snapshot(user_id, mode, token):
+def load_portfolio_snapshot(user_id, token, mode):
     db = firebase.database()
     data = db.child("users") \
              .child(user_id) \
