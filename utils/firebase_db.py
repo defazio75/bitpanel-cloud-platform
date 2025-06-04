@@ -135,6 +135,21 @@ def load_performance_snapshot(user_id, mode, token):
         .val()
     return data if data else {}
 
+def initialize_paper_account(user_id, token):
+    existing = load_portfolio_snapshot(user_id, mode="paper", token=token)
+    if existing:
+        print("✅ Paper account already initialized.")
+        return
+
+    starting_snapshot = {
+        "usd_balance": 100000.00,
+        "total_value": 100000.00,
+        "coins": {}  # No coins yet
+    }
+
+    save_portfolio_snapshot(user_id, starting_snapshot, token, mode="paper")
+    print("🚀 Initialized paper account with $100,000.")
+
 # === FILE LISTING ===
 def list_firebase_files(path, mode, user_id):
     token = st.session_state.user.get("token")
