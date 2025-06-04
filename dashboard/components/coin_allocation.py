@@ -26,7 +26,7 @@ def save_target_usd(coin, mode, user_id, target_usd):
     state["HODL"]["target_usd"] = round(target_usd, 2)
     return save_coin_state(user_id=user_id, coin=coin, state_data=state, mode=mode, token=st.session_state.token)
 
-def render(mode, user_id, token):
+def render(user_id, token, mode):
     if not token and "token" in st.session_state:
         token = st.session_state.token
 
@@ -101,7 +101,7 @@ def render(mode, user_id, token):
                 new_target = round(target_usd + usd_amount, 2)
                 save_target_usd(selected_coin, mode, user_id, new_target)
                 st.success("✅ Allocation updated. Rebalancing...")
-                rebalance_hodl(user_id)
+                rebalance_hodl(user_id=user_id, mode=mode, token=token)
                 st.rerun()
 
         with col2:
