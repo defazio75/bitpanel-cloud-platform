@@ -59,17 +59,6 @@ def load_strategy_allocations(user_id, token, mode):
         .get(token) \
         .val()
 
-def load_portfolio_snapshot(user_id, token, mode):
-    db = firebase.database()
-    data = db.child("users") \
-             .child(user_id) \
-             .child(mode) \
-             .child("balances") \
-             .child("portfolio_snapshot") \
-             .get(token) \
-             .val()
-    return data if data else {}
-
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token, mode):
     firebase.database() \
@@ -80,7 +69,7 @@ def save_portfolio_snapshot(user_id, snapshot, token, mode):
         .child("portfolio_snapshot") \
         .set(snapshot, token)
 
-def load_portfolio_snapshot(user_id, mode, token):
+def load_portfolio_snapshot(user_id, token, mode):
     data = firebase.database() \
         .child("users") \
         .child(user_id) \
