@@ -86,6 +86,12 @@ def simulate_trade(user_id, coin, action, amount, price=None):
         old_usd = strat_block.get("usd_held", 0)
         strat_block["usd_held"] = round(old_usd - usd_value, 2) if action == "buy" else round(old_usd + usd_value, 2)
 
+        # ✅ Set strategy status based on holdings
+        if strat_block["amount"] > 0 or strat_block["usd_held"] > 0:
+            strat_block["status"] = "Active"
+        else:
+            strat_block["status"] = "Inactive"
+
         state[strategy_key] = strat_block
         save_coin_state(user_id=user_id, coin=coin_key, state_data=state, token=token, mode=mode)
         print(f"📦 Updated {coin_key} strategy state for {strategy_key}.")
