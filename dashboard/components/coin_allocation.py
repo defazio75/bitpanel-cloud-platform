@@ -36,7 +36,7 @@ def render(user_id, token, mode):
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
-    snapshot = load_portfolio_snapshot(user_id, mode, token)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
     prices = get_prices(user_id=user_id)
 
     usd_balance = snapshot.get("usd_balance", 0)
