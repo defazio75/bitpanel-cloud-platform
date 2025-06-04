@@ -111,7 +111,7 @@ def save_performance_snapshot(user_id, snapshot, date_str, token, mode):
         .child(date_str) \
         .set(snapshot, token)
 
-def load_performance_snapshot(user_id, mode, token):
+def load_performance_snapshot(user_id, token, mode):
     data = firebase.database() \
         .child("users") \
         .child(user_id) \
