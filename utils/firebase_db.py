@@ -3,6 +3,7 @@ from datetime import datetime
 import pytz
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
+from utils.kraken_wrapper import get_prices
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
@@ -121,17 +122,29 @@ def load_performance_snapshot(user_id, token, mode):
         .val()
     return data if data else {}
 
-def initialize_paper_account(user_id, token):
-    existing = load_portfolio_snapshot(user_id, mode="paper", token=token)
-    if existing:
-        print("✅ Paper account already initialized.")
-        return
+SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
 
-    starting_snapshot = {
-        "usd_balance": 100000.00,
-        "total_value": 100000.00,
-        "coins": {}  # No coins yet
+def create_default_snapshot(user_id, token, mode, usd_balance=100000.0):
+    prices = get_prices(user_id=user_id)
+
+    coins = {
+        coin: {
+            "balance": 0.0,
+            "price": prices.get(coin, 0.0),
+            "value": 0.0
+        }
+        for coin in SUPPORTED_COINS
     }
+
+    snapshot = {
+        "usd_balance": usd_balance,
+        "coins": coins,
+        "timestamp": datetime.utcnow().isoformat(),
+        "total_value": usd_balance
+    }
+
+    save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
+    print(f"✅ Initialized {mode} account for {user_id} with ${usd_balance:.2f} USD and 0.0 in all coins.")
 
     save_portfolio_snapshot(user_id, starting_snapshot, token, mode="paper")
     print("🚀 Initialized paper account with $100,000.")
