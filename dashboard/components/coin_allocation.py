@@ -27,8 +27,8 @@ def save_target_usd(coin, mode, user_id, target_usd):
     return save_coin_state(user_id=user_id, coin=coin, state_data=state, mode=mode, token=st.session_state.token)
 
 def render(mode, user_id, token):
-    if "token" not in st.session_state:
-        st.session_state.token = None
+    if not token and "token" in st.session_state:
+        token = st.session_state.token
 
     st.title("🎯 Coin Allocation")
     if mode is None:
@@ -36,10 +36,10 @@ def render(mode, user_id, token):
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
-    current_snapshot = load_portfolio_snapshot(user_id, token, mode)
+    snapshot = load_portfolio_snapshot(user_id, mode, token)
     prices = get_prices(user_id=user_id)
 
-    usd_balance = current_snapshot.get("usd_balance", 0)
+    usd_balance = snapshot.get("usd_balance", 0)
     total_value = usd_balance
     coins = {}
 
@@ -118,7 +118,7 @@ def render(mode, user_id, token):
                 new_target = round(max(target_usd - sell_usd, 0), 2)
                 save_target_usd(selected_coin, mode, user_id, new_target)
                 st.success("✅ Allocation updated. Rebalancing...")
-                rebalance_hodl(user_id)
+                rebalance_hodl(user_id=user_id, mode=mode, token=token)
                 st.rerun()
 
     # Portfolio Pie Chart
