@@ -23,7 +23,7 @@ def load_balances(mode, user_id, token):
     if mode == "live":
         return get_live_balances(user_id=user_id)
     else:
-        snapshot = load_portfolio_snapshot(user_id, token, mode)
+        snapshot = load_portfolio_snapshot(user_id, mode, token)
         return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
 
 def render(mode, user_id, token):
@@ -33,13 +33,13 @@ def render(mode, user_id, token):
     if mode is None:
         mode = get_mode(user_id)
 
-    strategy_allocs = load_strategy_allocations(user_id, token, mode)
-    balances = load_balances(mode, user_id, token)
+    strategy_allocs = load_strategy_allocations(user_id, mode, token)
+    balances = load_balances(user_id, mode, token)
     prices_data = get_prices_with_change()
 
     for coin, strategies in strategy_allocs.items():
         coin_balance = balances.get(coin, 0)
-        coin_state = load_strategy_state(coin, mode, user_id)
+        coin_state = load_strategy_state(user_id, mode, token)
         price_info = prices_data.get(coin, {})
         price = price_info.get("price", 0)
         change = price_info.get("change", 0)
