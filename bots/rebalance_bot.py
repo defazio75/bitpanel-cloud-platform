@@ -56,37 +56,41 @@ def rebalance_hodl(user_id, mode, token):
 
         print(f"{side.upper()} ${trade_usd} of {coin} at ${current_price:.2f}")
 
-        # === Execute trade ===
+        # === Pre-trade calculations (safe before execution)
+        new_balance = round(target_usd / current_price, 8)
+        usd_diff = round((new_balance - current_balance) * current_price, 2)
+
+
+        # Determine buy/sell action
+        if usd_diff > 0:
+            usd_balance -= usd_diff
+            action = "buy"
+        else:
+            usd_balance += abs(usd_diff)
+            action = "sell"
+            
+        # Execute the trade to align with target allocation
         execute_trade(
             user_id=user_id,
             bot_name="rebalance_hodl",
-            action=side,
-            amount=coin_amount,
+            action=action,
+            amount=abs(new_balance - current_balance),
             price=current_price,
             mode=mode,
             coin=coin
         )
-
-        # === Update snapshot balances
-        if side == "buy":
-            new_balance = current_balance + coin_amount
-            usd_balance -= trade_usd
-        else:
-            new_balance = max(0, current_balance - coin_amount)
-            usd_balance += trade_usd
-
+        
+        # Overwrite the new balance in snapshot
         current_snapshot["coins"][coin] = {
-            "balance": round(new_balance, 8),
+            "balance": new_balance,
             "price": current_price,
             "value": round(new_balance * current_price, 2)
         }
 
-        updated_coins[coin] = new_balance
-
-        # === Update HODL state
+        # Update HODL state
         state.update({
             "status": "Holding",
-            "amount": round(new_balance, 8),
+            "amount": new_balance,
             "buy_price": current_price,
             "timestamp": datetime.utcnow().isoformat()
         })
