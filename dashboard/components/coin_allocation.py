@@ -36,7 +36,7 @@ def render(mode, user_id, token):
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
-    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode, token=st.session_state.token)
+    snapshot = load_portfolio_snapshot(user_id, mode, st.session_state.token)
     prices = get_prices(user_id=user_id)
 
     usd_balance = snapshot.get("usd_balance", 0)
@@ -61,8 +61,9 @@ def render(mode, user_id, token):
     st.metric("💰 Available USD", f"${usd_balance:,.2f}")
 
     if not coins:
-        st.warning("⚠️ No coin holdings to allocate.")
-        return
+        st.warning("⚠️ No current holdings. You can start buying any supported coin.")
+        SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
+        coins = {coin: {"balance": 0.0, "usd": 0.0, "price": prices.get(coin, 0.0)} for coin in SUPPORTED_COINS}
 
     selected_coin = st.selectbox("Choose Coin", list(coins.keys()), key=f"select_coin_{user_id}")
     coin_info = coins[selected_coin]
