@@ -6,8 +6,6 @@ import plotly.express as px
 from utils.kraken_wrapper import get_prices, get_live_balances
 from utils.config import get_mode
 from utils.firebase_db import (
-    load_user_profile,
-    load_strategy_allocations,
     load_coin_state,
     save_coin_state,
     load_portfolio_snapshot
@@ -54,8 +52,6 @@ def render(user_id, token, mode):
     selected_coin = st.selectbox("Choose Coin", list(coins.keys()), key=f"select_coin_{user_id}")
     coin_info = coins[selected_coin]
     coin_price = coin_info["price"]
-
-    target_usd = load_target_usd(selected_coin, mode, user_id)
 
     st.markdown(f"💲 **Current {selected_coin} Value:** ${coin_info['usd']:,.2f} ({coin_info['balance']:.4f} {selected_coin})")
 
