@@ -71,28 +71,34 @@ def simulate_trade(user_id, coin, action, amount, price=None):
         notes="Simulated trade"
     )
 
-    print(f"✅ Simulated {action} of {amount} {coin_key} at ${price:.2f}.")
-
     # === Optional: Update strategy state ===
     state = load_coin_state(user_id=user_id, coin=coin_key, token=token, mode=mode)
-    strategy_key = "HODL" if "HODL" in state else next(iter(state.keys()), None)
-    if strategy_key:
-        strat_block = state.get(strategy_key, {})
-        # Update amount
-        old_amt = strat_block.get("amount", 0)
-        strat_block["amount"] = round(old_amt + amount, 8) if action == "buy" else round(old_amt - amount, 8)
+    strategy_key = "HODL"
+    strat_block = state.get(strategy_key, {
+        "amount": 0,
+        "usd_held": 0,
+        "status": "Inactive",
+        "buy_price": 0,
+        "target_usd": 0
+    })
 
-        # Update USD held
-        old_usd = strat_block.get("usd_held", 0)
-        strat_block["usd_held"] = round(old_usd - usd_value, 2) if action == "buy" else round(old_usd + usd_value, 2)
+    # Update amount
+    old_amt = strat_block.get("amount", 0)
+    new_amt = round(old_amt + amount, 8) if action == "buy" else round(old_amt - amount, 8)
+    strat_block["amount"] = new_amt
 
-        # ✅ Set strategy status based on holdings
-        if strat_block["amount"] > 0 or strat_block["usd_held"] > 0:
-            strat_block["status"] = "Active"
-        else:
-            strat_block["status"] = "Inactive"
+    # Update USD held
+    old_usd = strat_block.get("usd_held", 0)
+    new_usd = round(old_usd - usd_value, 2) if action == "buy" else round(old_usd + usd_value, 2)
+    strat_block["usd_held"] = new_usd
 
-        state[strategy_key] = strat_block
-        save_coin_state(user_id=user_id, coin=coin_key, state_data=state, token=token, mode=mode)
-        print(f"📦 Updated {coin_key} strategy state for {strategy_key}.")
+    # Set strategy status
+    strat_block["status"] = "Active" if new_amt > 0 or new_usd > 0 else "Inactive"
 
+    # Set/update buy_price ONLY on buy
+    if action == "buy" and amount > 0:
+        strat_block["buy_price"] = price
+
+    state[strategy_key] = strat_block
+    save_coin_state(user_id=user_id, coin=coin_key, state_data=state, token=token, mode=mode)
+    print(f"📦 Updated {coin_key} strategy state for {strategy_key}.")
