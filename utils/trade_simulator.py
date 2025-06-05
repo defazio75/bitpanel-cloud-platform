@@ -49,14 +49,16 @@ def simulate_trade(user_id, coin, action, amount, price=None):
         print("❌ Invalid action. Must be 'buy' or 'sell'.")
         return
 
-    # === Update coin balance in snapshot ===
+    # === Update snapshot ===
     snapshot["coins"][coin_key] = {
         "balance": new_balance,
         "price": price,
         "value": round(new_balance * price, 2)
     }
-
-    # === Save updated snapshot ===
+    snapshot["total_value"] = round(
+        snapshot["usd_balance"] + sum(c["value"] for c in snapshot["coins"].values()), 2
+    )
+    snapshot["timestamp"] = datetime.utcnow().isoformat()
     save_portfolio_snapshot(user_id, snapshot, token, mode)
 
     # === Log trade ===
@@ -71,34 +73,21 @@ def simulate_trade(user_id, coin, action, amount, price=None):
         notes="Simulated trade"
     )
 
-    # === Optional: Update strategy state ===
+    # === Update HODL state ===
     state = load_coin_state(user_id=user_id, coin=coin_key, token=token, mode=mode)
-    strategy_key = "HODL"
-    strat_block = state.get(strategy_key, {
-        "amount": 0,
-        "usd_held": 0,
-        "status": "Inactive",
-        "buy_price": 0,
-        "target_usd": 0
-    })
+    hodl_block = state.get("HODL", {})
 
-    # Update amount
-    old_amt = strat_block.get("amount", 0)
-    new_amt = round(old_amt + amount, 8) if action == "buy" else round(old_amt - amount, 8)
-    strat_block["amount"] = new_amt
+    if action == "buy":
+        hodl_block["amount"] = round(hodl_block.get("amount", 0) + amount, 8)
+        hodl_block["buy_price"] = price
+        hodl_block["status"] = "Active"
+    elif action == "sell":
+        new_amt = round(hodl_block.get("amount", 0) - amount, 8)
+        hodl_block["amount"] = max(new_amt, 0)
+        hodl_block["status"] = "Active" if new_amt > 0 else "Inactive"
 
-    # Update USD held
-    old_usd = strat_block.get("usd_held", 0)
-    new_usd = round(old_usd - usd_value, 2) if action == "buy" else round(old_usd + usd_value, 2)
-    strat_block["usd_held"] = new_usd
-
-    # Set strategy status
-    strat_block["status"] = "Active" if new_amt > 0 or new_usd > 0 else "Inactive"
-
-    # Set/update buy_price ONLY on buy
-    if action == "buy" and amount > 0:
-        strat_block["buy_price"] = price
-
-    state[strategy_key] = strat_block
+    hodl_block["timestamp"] = datetime.utcnow().isoformat()
+    state["HODL"] = hodl_block
     save_coin_state(user_id=user_id, coin=coin_key, state_data=state, token=token, mode=mode)
-    print(f"📦 Updated {coin_key} strategy state for {strategy_key}.")
+
+    print(f"📦 Updated {coin_key} HODL state.")
