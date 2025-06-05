@@ -11,8 +11,8 @@ from utils.firebase_db import (
     load_portfolio_snapshot
 )
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
-from bots.trade_simulator import simulate_trade
-from bots.trade_executor import execute_trade
+from utils.trade_simulator import simulate_trade
+from utils.trade_executor import execute_trade
 
 def render(user_id, token, mode):
     if not token and "token" in st.session_state:
