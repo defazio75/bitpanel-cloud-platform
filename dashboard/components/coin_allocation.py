@@ -10,8 +10,9 @@ from utils.firebase_db import (
     save_coin_state,
     load_portfolio_snapshot
 )
-from bots.rebalance_bot import rebalance_hodl
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
+from bots.trade_simulator import simulate_trade
+from bots.trade_executor import execute_trade
 
 def render(user_id, token, mode):
     if not token and "token" in st.session_state:
@@ -80,11 +81,13 @@ def render(user_id, token, mode):
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
             if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
-                new_target = round(target_usd + usd_amount, 2)
-                save_target_usd(selected_coin, mode, user_id, new_target)
-                st.success("✅ Allocation updated. Rebalancing...")
-                rebalance_hodl(user_id=user_id, mode=mode, token=token)
-                st.rerun()
+                if usd_amount > 0:
+                    if mode == "paper":
+                        simulate_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                    else:
+                        execute_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                    st.success(f"✅ Bought {coin_amt:.6f} {selected_coin}")
+                    st.rerun()
 
         with col2:
             st.subheader("Sell")
@@ -97,11 +100,13 @@ def render(user_id, token, mode):
             st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
             if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
-                new_target = round(max(target_usd - sell_usd, 0), 2)
-                save_target_usd(selected_coin, mode, user_id, new_target)
-                st.success("✅ Allocation updated. Rebalancing...")
-                rebalance_hodl(user_id=user_id, mode=mode, token=token)
-                st.rerun()
+                if sell_amt > 0:
+                    if mode == "paper":
+                        simulate_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                    else:
+                        execute_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                    st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
+                    st.rerun()
 
     # Portfolio Pie Chart
     labels, values = ["USD"], [usd_balance]
