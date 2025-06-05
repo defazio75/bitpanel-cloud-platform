@@ -15,17 +15,6 @@ from utils.firebase_db import (
 from bots.rebalance_bot import rebalance_hodl
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 
-def load_target_usd(coin, mode, user_id):
-    state = load_coin_state(user_id=user_id, coin=coin, mode=mode, token=st.session_state.token)
-    return state.get("HODL", {}).get("target_usd", 0.0)
-
-def save_target_usd(coin, mode, user_id, target_usd):
-    state = load_coin_state(user_id=user_id, coin=coin, mode=mode, token=st.session_state.token)
-    if "HODL" not in state:
-        state["HODL"] = {}
-    state["HODL"]["target_usd"] = round(target_usd, 2)
-    return save_coin_state(user_id=user_id, coin=coin, state_data=state, mode=mode, token=st.session_state.token)
-
 def render(user_id, token, mode):
     if not token and "token" in st.session_state:
         token = st.session_state.token
