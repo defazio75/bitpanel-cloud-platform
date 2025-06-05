@@ -18,8 +18,11 @@ def rebalance_hodl(user_id, mode, token):
     token = st.session_state.user["token"]
     snapshot = load_portfolio_snapshot(user_id, token, mode)
     if not snapshot:
-        print("❌ portfolio_snapshot.json not found.")
+        print("❌ portfolio_snapshot not found.")
         return
+
+    prices = get_prices(user_id=user_id)
+    coins = snapshot.get("coins", {})
 
     for coin, data in coins.items():
         price = prices.get(coin.upper())
