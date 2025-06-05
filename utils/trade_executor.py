@@ -6,8 +6,7 @@ from utils.firebase_db import (
     load_portfolio_snapshot,
     save_portfolio_snapshot,
     load_coin_state,
-    save_coin_state,
-    save_trade_log_csv
+    save_coin_state
 )
 import streamlit as st
 import pandas as pd
