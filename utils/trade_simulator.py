@@ -23,9 +23,8 @@ def simulate_trade(user_id, coin, action, amount, price=None):
     price = price or prices.get(coin.upper(), 0)
     usd_value = round(amount * price, 2)
 
-    # === Adjust balances ===
-    coin_key = coin.upper()
-    current_balance = snapshot.get("coins", {}).get(coin_key, {}).get("balance", 0.0)
+    if "coins" not in snapshot:
+        snapshot["coins"] = {}
 
     # === Adjust balances ===
     coin_key = coin.upper()
