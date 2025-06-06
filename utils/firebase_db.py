@@ -174,12 +174,37 @@ def save_live_snapshot_and_state(user_id, token, balances, prices, mode="live"):
         total_value += usd_value
 
         # === Save HODL Strategy State ===
+        now = datetime.utcnow().isoformat()
         coin_state = {
             "HODL": {
                 "amount": round(amount, 6),
                 "buy_price": round(price, 2),
                 "status": "Active",
                 "timestamp": datetime.utcnow().isoformat()
+            },
+            "Bollinger": {
+                "amount": 0.0,
+                "buy_price": 0.0,
+                "status": "Inactive",
+                "timestamp": None
+            },
+            "RSI_1H": {
+                "amount": 0.0,
+                "buy_price": 0.0,
+                "status": "Inactive",
+                "timestamp": None
+            },
+            "RSI_5M": {
+                "amount": 0.0,
+                "buy_price": 0.0,
+                "status": "Inactive",
+                "timestamp": None
+            },
+            "DCA_Matrix": {
+                "amount": 0.0,
+                "buy_price": 0.0,
+                "status": "Inactive",
+                "timestamp": None
             }
         }
         save_coin_state(user_id=user_id, coin=coin, state_data=coin_state, token=token, mode=mode)
@@ -193,6 +218,6 @@ def save_live_snapshot_and_state(user_id, token, balances, prices, mode="live"):
 
     save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
 
-    except Exception as e:
-        print(f"❌ Failed to list files at {path}: {e}")
+except Exception as e:
+    print(f"❌ Failed to list files at {path}: {e}")
         return []
