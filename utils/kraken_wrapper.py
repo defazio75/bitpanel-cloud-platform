@@ -11,7 +11,6 @@ import os
 import pandas as pd
 import streamlit as st
 from utils.load_keys import load_user_api_keys
-from utils.firebase_db import save_live_snapshot_and_state
 from utils.kraken_auth import rate_limited_query_private
 
 API_URL = "https://api.kraken.com"
