@@ -13,13 +13,9 @@ def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
     # === Load Portfolio ===
-    if mode == "live":
     snapshot = load_portfolio_snapshot(user_id, token, mode)
-    if not snapshot:
-        st.warning(f"No portfolio data found for {mode.upper()} mode.")
-        return
 
-    coins = list(snapshot.get("coins", {}).keys())
+    coins = list(snapshot.get("current", {}).keys())
     prices = get_prices(user_id=user_id)
     
     # === Portfolio Header ===
