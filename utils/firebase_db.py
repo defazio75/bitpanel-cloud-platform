@@ -3,7 +3,6 @@ from datetime import datetime
 import pytz
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
-from utils.kraken_wrapper import get_live_balances_and_prices
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
