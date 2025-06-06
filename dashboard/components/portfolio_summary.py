@@ -4,8 +4,8 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
-from utils.kraken_wrapper import get_prices
-from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state, save_live_snapshot
+from utils.kraken_wrapper import get_live_balances_and_snapshot
+from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
@@ -14,7 +14,6 @@ def render_portfolio_summary(mode, user_id, token):
 
     # === Load Portfolio ===
     if mode == "live":
-        save_live_snapshot(user_id, token, mode)
 
     snapshot = load_portfolio_snapshot(user_id, token, mode)
     if not snapshot:
