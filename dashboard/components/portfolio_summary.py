@@ -43,19 +43,20 @@ def render_portfolio_summary(mode, user_id, token):
 
     for coin, data in snapshot.get("coins", {}).items():
         balance = data.get("balance", 0.0)
-        
-        price_info = prices.get(coin, {})
-        if isinstance(price_info, dict):
-            price = price_info.get("price", 0.0)
-            change_pct = price_info.get("change_pct", 0.0)
-        else:
-            price = price_info
-            change_pct = 0.0
-
         usd_value = data.get("value", 0.0)
 
+        # Get 24H change %
+        price_info = prices.get(coin, {})
+        if isinstance(price_info, dict):
+            change_pct = price_info.get("change_pct", 0.0)
+        else:
+            change_pct = 0.0
+
         if usd_value > 0:
-            allocation_data.append({"coin": coin, "value": float(usd_value)})
+            allocation_data.append({
+                "coin": coin,
+                "value": float(usd_value)
+            })
             table_data.append({
                 "Coin": coin,
                 "Amount": round(balance, 6),
