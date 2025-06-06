@@ -48,9 +48,15 @@ def render_portfolio_summary(mode, user_id, token):
 
     for coin, data in snapshot.get("coins", {}).items():
         balance = data.get("balance", 0.0)
+        
         price_info = prices.get(coin, {})
-        price = price_info["price"] if isinstance(price_info, dict) else price_info
-        change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
+        if isinstance(price_info, dict):
+            price = price_info.get("price", 0.0)
+            change_pct = price_info.get("change_pct", 0.0)
+        else:
+            price = price_info
+            change_pct = 0.0
+
         usd_value = round(balance * price, 2)
 
         if usd_value > 0:
@@ -62,13 +68,15 @@ def render_portfolio_summary(mode, user_id, token):
                 "24H Change": f"{change_pct:+.2f}%"
             })
 
+    # Display in two columns: table + pie
     col1, col2 = st.columns([1.5, 1])
     with col1:
         if table_data:
             st.markdown("### 💡 Coin Holdings")
             st.dataframe(pd.DataFrame(table_data), use_container_width=True)
         else:
-            st.info("No live allocation data to display.")
+            st.warning("No coin holdings found.")
+
     with col2:
         if allocation_data:
             df = pd.DataFrame(allocation_data)
@@ -76,7 +84,7 @@ def render_portfolio_summary(mode, user_id, token):
             fig.update_layout(height=400, margin=dict(t=50, b=50, l=0, r=0))
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.empty()
+            st.warning("No allocation data to plot.")
 
     # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
