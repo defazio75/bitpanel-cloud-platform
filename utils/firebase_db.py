@@ -186,7 +186,7 @@ def save_live_snapshot_and_state(user_id, token, balances, prices, mode="live"):
 
     snapshot = {
         "usd_balance": round(usd_balance, 2),
-        "coins": coins,
+        "current": coins,
         "total_value": round(total_value, 2),
         "timestamp": datetime.utcnow().isoformat()
     }
