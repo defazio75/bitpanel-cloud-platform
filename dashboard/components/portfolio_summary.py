@@ -42,13 +42,6 @@ def render_portfolio_summary(mode, user_id, token):
         usd_value_raw = amount * price  # <-- define it here
         usd_value = round(usd_value_raw, 2)
 
-        # Force float to ensure numeric input for pie
-        usd_value = 0.0
-        if isinstance(usd_value_raw, (int, float)):
-            usd_value = float(usd_value_raw)
-        elif isinstance(usd_value_raw, str) and usd_value_raw.strip().replace('.', '', 1).isdigit():
-            usd_value = float(usd_value_raw)
-
         # Get 24H change %
         price_info = prices.get(coin, {})
         if isinstance(price_info, dict):
