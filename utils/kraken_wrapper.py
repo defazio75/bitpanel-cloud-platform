@@ -234,9 +234,3 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
 
     last_bb = (upper.iloc[-1] - lower.iloc[-1]) / sma.iloc[-1]
     return round(last_bb, 4)
-
-def get_live_balances_and_snapshot(user_id, token, mode="live"):
-    balances = get_live_balances(user_id=user_id, token=token)
-    prices = get_prices(user_id=user_id)
-    return balances
-
