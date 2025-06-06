@@ -26,8 +26,18 @@ def render_portfolio_summary(mode, user_id, token):
     # === Portfolio Header ===
     st.subheader("💰 Total Portfolio Value")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Value", f"${snapshot['total_value']:,.2f}")
-    col2.metric("USD Balance", f"${snapshot['usd_balance']:,.2f}")
+    usd_balance = snapshot.get("usd_balance", 0.0)
+    coins = snapshot.get("coins", {})
+    total_value = usd_balance
+
+    for coin, info in coins.items():
+        balance = info.get("balance", 0.0)
+        price = prices.get(coin, 0.0)
+        usd_equiv = round(balance * price, 2)
+        total_value += usd_equiv
+
+    col1.metric("Total Portfolio Value", f"${total_value:,.2f}")
+    col2.metric("USD Balance", f"${usd_balance:,.2f}")
     col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
 
     # === Pie Chart ===
