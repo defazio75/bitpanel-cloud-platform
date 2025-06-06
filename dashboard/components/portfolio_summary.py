@@ -43,7 +43,13 @@ def render_portfolio_summary(mode, user_id, token):
 
     for coin, data in snapshot.get("coins", {}).items():
         balance = data.get("balance", 0.0)
-        usd_value = data.get("value", 0.0)
+        usd_value = float(data.get("value", 0.0))
+
+        # Force float to ensure numeric input for pie
+        try:
+            usd_value = float(usd_value_raw)
+        except:
+            usd_value = 0.0
 
         # Get 24H change %
         price_info = prices.get(coin, {})
