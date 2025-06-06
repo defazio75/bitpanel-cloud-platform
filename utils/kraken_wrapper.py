@@ -238,6 +238,5 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
 def get_live_balances_and_snapshot(user_id, token, mode="live"):
     balances = get_live_balances(user_id=user_id, token=token)
     prices = get_prices(user_id=user_id)
-    save_portfolio_snapshot(user_id, snapshot, token, mode)
     return balances
 
