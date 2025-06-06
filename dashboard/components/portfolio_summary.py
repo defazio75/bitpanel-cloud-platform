@@ -26,15 +26,9 @@ def render_portfolio_summary(mode, user_id, token):
     # === Portfolio Header ===
     st.subheader("💰 Total Portfolio Value")
     col1, col2, col3 = st.columns(3)
+    
     usd_balance = snapshot.get("usd_balance", 0.0)
-    coins = snapshot.get("coins", {})
-    total_value = usd_balance
-
-    for coin, info in coins.items():
-        balance = info.get("balance", 0.0)
-        price = prices.get(coin, 0.0)
-        usd_equiv = round(balance * price, 2)
-        total_value += usd_equiv
+    total_value = snapshot.get("total_value", usd_balance)
 
     col1.metric("Total Portfolio Value", f"${total_value:,.2f}")
     col2.metric("USD Balance", f"${usd_balance:,.2f}")
