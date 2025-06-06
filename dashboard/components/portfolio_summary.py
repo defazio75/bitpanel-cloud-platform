@@ -45,7 +45,9 @@ def render_portfolio_summary(mode, user_id, token):
     allocation_data = []
     
     for coin, data in snapshot.get("coins", {}).items():
-        usd_value = data.get("usd_value", 0)
+        balance = data.get("balance", 0.0)
+        price = prices.get(coin, 0.0)
+        usd_value = round(balance * price, 2)
         if usd_value > 0:
             allocation_data.append({"coin": coin, "value": usd_value})
             
