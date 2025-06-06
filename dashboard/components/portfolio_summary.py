@@ -20,8 +20,8 @@ def render_portfolio_summary(mode, user_id, token):
     if not snapshot:
         st.warning(f"No portfolio data found for {mode.upper()} mode.")
         return
-        
-    prices = get_prices(user_id=user_id)    
+
+    prices = get_prices(user_id=user_id)
     
     # === Portfolio Header ===
     st.subheader("💰 Total Portfolio Value")
@@ -40,49 +40,45 @@ def render_portfolio_summary(mode, user_id, token):
     col2.metric("USD Balance", f"${usd_balance:,.2f}")
     col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
 
-    # === Pie Chart ===
-st.subheader("📈 Portfolio Allocation")
+    # === Portfolio Allocation Section ===
+    st.subheader("📈 Portfolio Allocation")
 
-# Prepare data
-allocation_data = []
-table_data = []
+    allocation_data = []
+    table_data = []
 
-for coin, data in snapshot.get("coins", {}).items():
-    balance = data.get("balance", 0.0)
-    price_info = prices.get(coin, {})
-    price = price_info["price"] if isinstance(price_info, dict) else price_info
-    change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
-    usd_value = round(balance * price, 2)
+    for coin, data in snapshot.get("coins", {}).items():
+        balance = data.get("balance", 0.0)
+        price_info = prices.get(coin, {})
+        price = price_info["price"] if isinstance(price_info, dict) else price_info
+        change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
+        usd_value = round(balance * price, 2)
 
-    if usd_value > 0:
-        allocation_data.append({"coin": coin, "value": usd_value})
-        table_data.append({
-            "Coin": coin,
-            "Amount": round(balance, 6),
-            "USD Value": f"${usd_value:,.2f}",
-            "24H Change": f"{change_pct:+.2f}%"
-        })
+        if usd_value > 0:
+            allocation_data.append({"coin": coin, "value": usd_value})
+            table_data.append({
+                "Coin": coin,
+                "Amount": round(balance, 6),
+                "USD Value": f"${usd_value:,.2f}",
+                "24H Change": f"{change_pct:+.2f}%"
+            })
 
-# Split view into two columns
-col1, col2 = st.columns([1.5, 1])
+    col1, col2 = st.columns([1.5, 1])
+    with col1:
+        if table_data:
+            st.markdown("### 💡 Coin Holdings")
+            st.dataframe(pd.DataFrame(table_data), use_container_width=True)
+        else:
+            st.info("No live allocation data to display.")
+    with col2:
+        if allocation_data:
+            df = pd.DataFrame(allocation_data)
+            fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
+            fig.update_layout(height=400, margin=dict(t=50, b=50, l=0, r=0))
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.empty()
 
-with col1:
-    if table_data:
-        st.markdown("### 💡 Coin Holdings")
-        st.dataframe(pd.DataFrame(table_data), use_container_width=True)
-    else:
-        st.info("No live allocation data to display.")
-
-with col2:
-    if allocation_data:
-        df = pd.DataFrame(allocation_data)
-        fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
-        fig.update_layout(height=400, margin=dict(t=50, b=50, l=0, r=0))
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.empty()
-
-    # === Performance ===
+    # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
     performance_data = load_performance_snapshot(user_id, token, mode)
     if not performance_data:
@@ -99,7 +95,7 @@ with col2:
     # === Strategy Breakdown ===
     st.subheader("🧠 Current Strategies")
     strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLL"]
-    for coin, data in snapshot.get("coins", {}).items():
+    for coin in coins:
         state = load_coin_state(user_id, coin, token, mode)
         if not state:
             continue
@@ -117,3 +113,4 @@ with col2:
                 st.write(
                     f"**{strategy}** | Status: `{status}` | Value: `${total_usd:,.2f}` | Profit: `${profit:,.2f}`"
                 )
+
