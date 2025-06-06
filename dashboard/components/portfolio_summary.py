@@ -52,10 +52,10 @@ def render_portfolio_summary(mode, user_id, token):
             price = price_info
             change_pct = 0.0
 
-        usd_value = round(balance * price, 2)
+        usd_value = data.get("value", 0.0)
 
         if usd_value > 0:
-            allocation_data.append({"coin": coin, "value": usd_value})
+            allocation_data.append({"coin": coin, "value": float(usd_value)})
             table_data.append({
                 "Coin": coin,
                 "Amount": round(balance, 6),
@@ -76,7 +76,18 @@ def render_portfolio_summary(mode, user_id, token):
         if allocation_data:
             df = pd.DataFrame(allocation_data)
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
-            fig.update_layout(height=400, margin=dict(t=50, b=50, l=0, r=0))
+
+            fig.update_traces(
+                textinfo='label+percent',
+                textposition='inside',
+                hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
+            )
+
+            fig.update_layout(
+                showlegend=False,
+                height=400,
+                margin=dict(t=50, b=50, l=0, r=0)
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning("No allocation data to plot.")
