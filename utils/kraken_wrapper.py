@@ -237,62 +237,8 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
     last_bb = (upper.iloc[-1] - lower.iloc[-1]) / sma.iloc[-1]
     return round(last_bb, 4)
 
-def update_portfolio_snapshot_from_kraken(user_id, token):
-    mode = "live"
-    keys = load_user_api_keys(user_id, "kraken", token)
-    if not keys:
-        print("⚠️ No API keys found.")
-        return
-
-    balances = get_live_balances(user_id=user_id, token=token) 
-
-    snapshot = {
-        "usd_balance": float(balances.get("USD", 0)),
-    }
-
-    for coin, amount in balances.items():
-        if coin != "USD":
-            snapshot[coin] = {
-                "amount": float(amount)
-            }
-
-    save_portfolio_snapshot(user_id, snapshot, token, mode)
-
-    # Optional: auto-rebalance
-    if mode == "live":
-        try:
-            from bots.rebalance_bot import rebalance_hodl
-            rebalance_hodl(user_id=user_id)
-        except Exception as e:
-            print(f"❌ Failed to auto-rebalance: {e}")
-
-def get_live_balances_and_snapshot(user_id, token):
-    balances = get_live_balances(user_id=user_id, token=token)
+def get_live_balances_and_prices(user_id):
+    balances = get_live_balances(user_id=user_id)
     prices = get_prices(user_id=user_id)
-
-    usd_balance = float(balances.get("USD", 0))
-    total_value = usd_balance
-
-    snapshot = {
-        "usd_balance": usd_balance,
-        "coins": {}
-    }
-
-    for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
-        amount = float(balances.get(coin, 0))
-        price = prices.get(coin, 0)
-        usd_equiv = round(amount * price, 2)
-        
-        # ✅ Use expected keys: 'balance' and 'value'
-        snapshot["coins"][coin] = {
-            "balance": round(amount, 6),
-            "value": usd_equiv
-        }
-
-        total_value += usd_equiv
-
-    snapshot["total_value"] = round(total_value, 2)
-
-    save_portfolio_snapshot(user_id=user_id, token=token, snapshot=snapshot, mode="live")
-    return balances
+    return balances, prices
 
