@@ -147,6 +147,49 @@ def list_firebase_files(path, mode, user_id):
         if data.each():
             return [item.key() for item in data.each()]
         return []
+
+def save_live_snapshot_and_state(user_id, token, balances, prices, mode="live"):
+    from datetime import datetime
+
+    usd_balance = float(balances.get("USD", 0.0))
+    coins = {}
+    total_value = usd_balance
+
+    for coin, amount in balances.items():
+        if coin == "USD" or amount == 0:
+            continue
+
+        price = prices.get(coin, 0.0)
+        usd_value = round(amount * price, 2)
+
+        # === Save to coins block ===
+        coins[coin] = {
+            "balance": round(amount, 6),
+            "value": usd_value
+        }
+
+        total_value += usd_value
+
+        # === Save HODL Strategy State ===
+        coin_state = {
+            "HODL": {
+                "amount": round(amount, 6),
+                "buy_price": round(price, 2),
+                "status": "Active",
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        }
+        save_coin_state(user_id=user_id, coin=coin, state_data=coin_state, token=token, mode=mode)
+
+    snapshot = {
+        "usd_balance": round(usd_balance, 2),
+        "coins": coins,
+        "total_value": round(total_value, 2),
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+    save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
+
     except Exception as e:
         print(f"❌ Failed to list files at {path}: {e}")
         return []
