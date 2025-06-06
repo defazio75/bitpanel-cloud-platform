@@ -11,8 +11,8 @@ import os
 import pandas as pd
 import streamlit as st
 from utils.load_keys import load_user_api_keys
-from utils.kraken_auth import rate_limited_query_private
 from utils.firebase_db import save_live_snapshot_and_state
+from utils.kraken_auth import rate_limited_query_private
 
 API_URL = "https://api.kraken.com"
 
@@ -98,8 +98,6 @@ def get_prices(user_id=None):
 
 # === Live Balances (Private API) ===
 def get_live_balances(user_id, token=None):
-    from utils.kraken_auth import rate_limited_query_private
-
     result = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
 
     raw_balances = result.get("result", {})
@@ -238,7 +236,7 @@ def get_bollinger_bandwidth(coin, interval='1h', length=20):
     return round(last_bb, 4)
 
 def get_live_balances_and_snapshot(user_id, token, mode="live"):
-    balances = get_live_balances(user_id=user_id)
+    balances = get_live_balances(user_id=user_id, token=token)
     prices = get_prices(user_id=user_id)
     save_live_snapshot_and_state(user_id=user_id, token=token, balances=balances, prices=prices, mode=mode)
     return balances
