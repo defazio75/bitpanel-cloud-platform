@@ -54,61 +54,60 @@ def render(user_id, token, mode):
                 "price": prices.get(coin, 0.0)
             }
 
-    for coin, coin_info in coins.items():
+    with st.expander("💱 Buy or Sell Any Coin", expanded=False):
+        selected_coin = st.selectbox("Select a Coin", list(coins.keys()), key=f"select_coin_{user_id}")
+        coin_info = coins[selected_coin]
         coin_price = coin_info["price"]
-        st.markdown(f"### {coin} — ${coin_info['usd']:,.2f} ({coin_info['balance']:.4f})")
 
-        with st.expander("Buy/Sell", expanded=False):
-            col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)
+        max_buy_usd = float(max(usd_balance, 0.0))
+        max_sell_usd = float(max(coin_info["usd"], 0.0))
 
-            max_buy_usd = float(max(usd_balance, 0.0))
-            max_sell_usd = float(max(coin_info["usd"], 0.0))
+        buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
+        sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
 
-            buy_key = f"buy_usd_input_{coin}_{mode}_{user_id}"
-            sell_key = f"sell_usd_input_{coin}_{mode}_{user_id}"
+        if buy_key not in st.session_state:
+            st.session_state[buy_key] = 0.0
+        if sell_key not in st.session_state:
+            st.session_state[sell_key] = 0.0
 
-            if buy_key not in st.session_state:
-                st.session_state[buy_key] = 0.0
-            if sell_key not in st.session_state:
-                st.session_state[sell_key] = 0.0
+        with col1:
+            st.subheader("Buy")
+            if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
+                st.session_state[buy_key] = round(max_buy_usd, 2)
 
-            with col1:
-                st.subheader("Buy")
-                if st.button("Max (Buy)", key=f"buy_max_btn_{coin}"):
-                    st.session_state[buy_key] = round(max_buy_usd, 2)
+            st.number_input("Amount (USD)", 0.0, max_buy_usd, step=0.01, format="%.2f", key=buy_key)
+            usd_amount = st.session_state[buy_key]
+            coin_amt = usd_amount / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
-                st.number_input("Amount (USD)", 0.0, max_buy_usd, step=0.01, format="%.2f", key=buy_key)
-                usd_amount = st.session_state[buy_key]
-                coin_amt = usd_amount / coin_price if coin_price > 0 else 0.0
-                st.write(f"Equivalent: **{coin_amt:.6f} {coin}**")
+            if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
+                if usd_amount > 0:
+                    if mode == "paper":
+                        simulate_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                    else:
+                        execute_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                    st.success(f"✅ Bought {coin_amt:.6f} {selected_coin}")
+                    st.rerun()
 
-                if st.button(f"Buy {coin}", key=f"buy_btn_{coin}"):
-                    if usd_amount > 0:
-                        if mode == "paper":
-                            simulate_trade(user_id, coin, "buy", coin_amt, coin_price)
-                        else:
-                            execute_trade(user_id, coin, "buy", coin_amt, coin_price)
-                        st.success(f"✅ Bought {coin_amt:.6f} {coin}")
-                        st.rerun()
+        with col2:
+            st.subheader("Sell")
+            if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
+                st.session_state[sell_key] = round(max_sell_usd, 2)
 
-            with col2:
-                st.subheader("Sell")
-                if st.button("Max (Sell)", key=f"sell_max_btn_{coin}"):
-                    st.session_state[sell_key] = round(max_sell_usd, 2)
+            st.number_input("Amount (USD)", 0.0, max_sell_usd, step=0.01, format="%.2f", key=sell_key)
+            sell_usd = st.session_state[sell_key]
+            sell_amt = sell_usd / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
-                st.number_input("Amount (USD)", 0.0, max_sell_usd, step=0.01, format="%.2f", key=sell_key)
-                sell_usd = st.session_state[sell_key]
-                sell_amt = sell_usd / coin_price if coin_price > 0 else 0.0
-                st.write(f"Equivalent: **{sell_amt:.6f} {coin}**")
-
-                if st.button(f"Sell {coin}", key=f"sell_btn_{coin}"):
-                    if sell_amt > 0:
-                        if mode == "paper":
-                            simulate_trade(user_id, coin, "sell", sell_amt, coin_price)
-                        else:
-                            execute_trade(user_id, coin, "sell", sell_amt, coin_price)
-                        st.success(f"✅ Sold {sell_amt:.6f} {coin}")
-                        st.rerun()
+            if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
+                if sell_amt > 0:
+                    if mode == "paper":
+                        simulate_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                    else:
+                        execute_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                    st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
+                    st.rerun()
 
     # Portfolio Pie Chart
     labels, values = ["USD"], [usd_balance]
