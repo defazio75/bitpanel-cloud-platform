@@ -54,7 +54,7 @@ def render(user_id, token, mode):
                 "price": prices.get(coin, 0.0)
             }
 
-    with st.expander("💱 Buy or Sell Any Coin", expanded=False):
+    with st.expander("Trade", expanded=False):
         selected_coin = st.selectbox("Select a Coin", list(coins.keys()), key=f"select_coin_{user_id}")
         coin_info = coins[selected_coin]
         coin_price = coin_info["price"]
