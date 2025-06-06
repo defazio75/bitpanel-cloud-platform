@@ -41,23 +41,46 @@ def render_portfolio_summary(mode, user_id, token):
     col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
 
     # === Pie Chart ===
-    st.subheader("📈 Portfolio Allocation")
-    allocation_data = []
-    
-    for coin, data in snapshot.get("coins", {}).items():
-        balance = data.get("balance", 0.0)
-        price = prices.get(coin, 0.0)
-        usd_value = round(balance * price, 2)
-        if usd_value > 0:
-            allocation_data.append({"coin": coin, "value": usd_value})
-            
+st.subheader("📈 Portfolio Allocation")
+
+# Prepare data
+allocation_data = []
+table_data = []
+
+for coin, data in snapshot.get("coins", {}).items():
+    balance = data.get("balance", 0.0)
+    price_info = prices.get(coin, {})
+    price = price_info["price"] if isinstance(price_info, dict) else price_info
+    change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
+    usd_value = round(balance * price, 2)
+
+    if usd_value > 0:
+        allocation_data.append({"coin": coin, "value": usd_value})
+        table_data.append({
+            "Coin": coin,
+            "Amount": round(balance, 6),
+            "USD Value": f"${usd_value:,.2f}",
+            "24H Change": f"{change_pct:+.2f}%"
+        })
+
+# Split view into two columns
+col1, col2 = st.columns([1.5, 1])
+
+with col1:
+    if table_data:
+        st.markdown("### 💡 Coin Holdings")
+        st.dataframe(pd.DataFrame(table_data), use_container_width=True)
+    else:
+        st.info("No live allocation data to display.")
+
+with col2:
     if allocation_data:
         df = pd.DataFrame(allocation_data)
         fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
+        fig.update_layout(height=400, margin=dict(t=50, b=50, l=0, r=0))
         st.plotly_chart(fig, use_container_width=True)
-
     else:
-        st.info("No live allocation data to display.")
+        st.empty()
 
     # === Performance ===
     st.subheader("📊 Portfolio Performance")
