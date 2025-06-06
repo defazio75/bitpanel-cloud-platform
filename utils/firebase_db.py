@@ -147,6 +147,9 @@ def list_firebase_files(path, mode, user_id):
         if data.each():
             return [item.key() for item in data.each()]
         return []
+    except Exception as e:
+        print(f"❌ Failed to list files at {path}: {e}")
+        return []
 
 def save_live_snapshot_and_state(user_id, token, balances, prices, mode="live"):
     from datetime import datetime
