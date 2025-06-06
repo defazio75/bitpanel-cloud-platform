@@ -151,32 +151,3 @@ def list_firebase_files(path, mode, user_id):
         print(f"❌ Failed to list files at {path}: {e}")
         return []
 
-def save_live_snapshot(user_id, token, mode="live"):
-    balances, prices = get_live_balances_and_prices(user_id, token)
-
-    usd_balance = float(balances.get("USD", 0.0))
-    coins = {}
-    total_value = usd_balance
-
-    for coin, amount in balances.items():
-        if coin == "USD" or amount == 0:
-            continue
-
-        price = prices.get(coin, 0.0)
-        usd_value = round(amount * price, 2)
-
-        coins[coin] = {
-            "balance": round(amount, 6),
-            "value": usd_value
-        }
-
-        total_value += usd_value
-
-    snapshot = {
-        "usd_balance": round(usd_balance, 2),
-        "current": coins,
-        "total_value": round(total_value, 2),
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-    save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
