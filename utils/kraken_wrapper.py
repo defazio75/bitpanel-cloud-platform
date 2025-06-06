@@ -281,15 +281,18 @@ def get_live_balances_and_snapshot(user_id, token):
     for coin in ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]:
         amount = float(balances.get(coin, 0))
         price = prices.get(coin, 0)
-        usd_value = round(amount * price, 2)
+        usd_equiv = round(amount * price, 2)
+        
+        # ✅ Use expected keys: 'balance' and 'value'
         snapshot["coins"][coin] = {
-            "amount": amount,
-            "usd_value": usd_value
+            "balance": round(amount, 6),
+            "value": usd_equiv
         }
-        total_value += usd_value
+
+        total_value += usd_equiv
 
     snapshot["total_value"] = round(total_value, 2)
 
-    save_portfolio_snapshot(user_id, snapshot, token, mode="live")
+    save_portfolio_snapshot(user_id=user_id, token=token, snapshot=snapshot, mode="live")
     return balances
 
