@@ -3,6 +3,7 @@ from datetime import datetime
 import pytz
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
+from utils.kraken_wrapper import get_live_balances, get_prices
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
@@ -150,4 +151,33 @@ def list_firebase_files(path, mode, user_id):
     except Exception as e:
         print(f"❌ Failed to list files at {path}: {e}")
         return []
+
+def save_live_snapshot_from_kraken(user_id, token, mode="live"):
+    """Pull live balances from Kraken and save as a portfolio snapshot."""
+    balances = get_live_balances(user_id=user_id, token=token)
+    prices = get_prices(user_id=user_id)
+
+    usd_balance = balances.get("USD", 0.0)
+    coins = {}
+    total_value = usd_balance
+
+    for coin in ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]:
+        amount = balances.get(coin, 0.0)
+        coins[coin] = {"balance": amount}
+        total_value += amount * prices.get(coin, 0.0)
+
+    snapshot = {
+        "usd_balance": round(usd_balance, 2),
+        "coins": coins,
+        "timestamp": datetime.utcnow().isoformat(),
+        "total_value": round(total_value, 2)
+    }
+
+    save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
+    print(f"✅ Live snapshot saved for {user_id} in {mode} mode.")
+
+
+def load_latest_snapshot(user_id, token, mode="live"):
+    """Retrieve the saved snapshot from Firebase for the dashboard display."""
+    return load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
