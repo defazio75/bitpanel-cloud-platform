@@ -12,7 +12,6 @@ import pandas as pd
 import streamlit as st
 from utils.load_keys import load_user_api_keys
 from utils.kraken_auth import rate_limited_query_private
-from utils.firebase_db import save_portfolio_snapshot
 
 API_URL = "https://api.kraken.com"
 
