@@ -221,4 +221,4 @@ elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange, token=token)
 
 elif current_page == "🧪 Debug":
-    render_debug(mode=mode, user_id=user_id, token=token)
+    render_debug(user_id=user_id, token=token)
