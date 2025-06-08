@@ -38,10 +38,9 @@ def render_portfolio_summary(mode, user_id, token):
     table_data = []
 
     for coin, data in snapshot.get("coins", {}).items():
-        balance_info = snapshot.get("current", {}).get(coin, {})
-        amount = balance_info.get("balance", 0.0)
+        amount = data.get("balance", 0.0)
         price = prices.get(coin, 0.0)
-        usd_value_raw = amount * price  # <-- define it here
+        usd_value_raw = amount * price
         usd_value = round(usd_value_raw, 2)
 
         # Get 24H change %
