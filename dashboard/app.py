@@ -18,6 +18,7 @@ from components.signup import signup
 from components.reset_password import reset_password
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
+from utils.debug import render_debug
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -187,7 +188,8 @@ with st.sidebar:
         "🧠 Strategies",
         "📜 Positions",
         "📈 Performance",
-        "⚙️ Settings"
+        "⚙️ Settings",
+        "🧪 Debug"
     ]
 
     for page in pages:
@@ -217,3 +219,6 @@ elif current_page == "📈 Performance":
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange, token=token)
+
+elif current_page == "🧪 Debug":
+    render_debug(mode=mode, user_id=user_id, token=token)
