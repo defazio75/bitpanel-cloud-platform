@@ -13,9 +13,11 @@ def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
     # === Load Portfolio ===
-    if mode == "live":
-        save_live_snapshot_from_kraken(user_id, token, mode)
-    snapshot = save_live_snapshot_from_kraken(user_id, token, mode="live")
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+
+    if not snapshot:
+        st.warning(f"No portfolio data found for {mode.upper()} mode.")
+        return
 
     coins = list(snapshot.get("coins", {}).keys())
     prices = get_prices(user_id=user_id)
