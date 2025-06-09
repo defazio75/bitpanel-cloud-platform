@@ -12,6 +12,10 @@ st_autorefresh(interval=10_000, key="auto_refresh_summary")
 def render_portfolio_summary(mode, user_id, token):
     st.title("📊 Portfolio Summary")
 
+    # === Sync live balances before loading (LIVE MODE ONLY) ===
+    if mode == "live":
+        save_live_snapshot_from_kraken(user_id, token, mode)
+
     # === Load Portfolio ===
     snapshot = load_portfolio_snapshot(user_id, token, mode)
 
