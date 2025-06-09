@@ -199,7 +199,7 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
             .child("balances") \
             .child("portfolio_snapshot") \
             .set(snapshot, token)
-
-        print(f"✅ Snapshot saved to Firebase for user {user_id} in {mode} mode.")
+        st.success(f"✅ Snapshot saved to Firebase for {user_id} in {mode} mode.")
     except Exception as e:
-        print(f"❌ Failed to save snapshot to Firebase: {e}")
+        st.error("❌ Failed to save snapshot to Firebase.")
+        st.exception(e)
