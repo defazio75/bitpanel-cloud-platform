@@ -17,7 +17,7 @@ def render_portfolio_summary(mode, user_id, token):
         save_live_snapshot_from_kraken(user_id, token, mode)
     snapshot = save_live_snapshot_from_kraken(user_id, token, mode="live")
 
-    coins = list(snapshot.get("current", {}).keys())
+    coins = list(snapshot.get("coins", {}).keys())
     prices = get_prices(user_id=user_id)
     
     # === Portfolio Header ===
