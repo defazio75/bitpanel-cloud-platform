@@ -155,6 +155,7 @@ def list_firebase_files(path, mode, user_id):
 def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     """Pull live balances from Kraken and save as a portfolio snapshot in Firebase."""
     print(f"[DEBUG] Pulling balances from Kraken for {user_id} in {mode} mode...")
+    
     balances = get_live_balances(user_id=user_id, token=token)
     prices = get_prices(user_id=user_id)
 
@@ -162,22 +163,38 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
         print("❌ No balances returned from Kraken.")
         return
 
-    usd_balance = float(balances.get("USD", 0.0))
-    total_value = usd_balance
-    coins = {}
+    # === Symbol Map: Kraken → Common Ticker ===
+    symbol_map = {
+        "XXBT": "BTC",
+        "XETH": "ETH",
+        "XXRP": "XRP",
+        "ZUSD": "USD",
+        "DOT": "DOT",
+        "LINK": "LINK",
+        "SOL": "SOL"
+    }
 
-    for coin in ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]:
-        raw_amount = balances.get(coin, 0.0)
+    coins = {}
+    usd_balance = float(balances.get("ZUSD", 0.0))
+    total_value = usd_balance
+
+    for kraken_key, app_key in symbol_map.items():
+        if app_key == "USD":
+            continue
+
+        raw_amount = balances.get(kraken_key, 0.0)
         try:
             amount = float(raw_amount)
         except Exception:
             amount = 0.0
 
-        usd_value = round(amount * prices.get(coin, 0.0), 2)
-        coins[coin] = {
+        usd_value = round(amount * prices.get(app_key, 0.0), 2)
+
+        coins[app_key] = {
             "balance": round(amount, 8),
             "usd_value": usd_value
         }
+
         total_value += usd_value
 
     snapshot = {
@@ -189,18 +206,16 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
 
     print("[DEBUG] Final Snapshot to be saved:", snapshot)
 
-    firebase.database() \
-        .child("users") \
-        .child(user_id) \
-        .child(mode) \
-        .child("balances") \
-        .child("portfolio_snapshot") \
-        .set(snapshot, token)
+    # === Save to Firebase ===
+    try:
+        firebase.database() \
+            .child("users") \
+            .child(user_id) \
+            .child(mode) \
+            .child("balances") \
+            .child("portfolio_snapshot") \
+            .set(snapshot, token)
 
-    print(f"✅ Snapshot saved to Firebase for user {user_id} in {mode} mode.")
-
-
-def load_latest_snapshot(user_id, token, mode="live"):
-    """Retrieve the saved snapshot from Firebase for the dashboard display."""
-    return load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
-
+        print(f"✅ Snapshot saved to Firebase for user {user_id} in {mode} mode.")
+    except Exception as e:
+        print(f"❌ Failed to save snapshot to Firebase: {e}")
