@@ -155,7 +155,7 @@ def list_firebase_files(path, mode, user_id):
 def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     """Pull live balances from Kraken and save as a portfolio snapshot in Firebase."""
     print(f"[DEBUG] Pulling balances from Kraken for {user_id} in {mode} mode...")
-    
+
     balances = get_live_balances(user_id=user_id, token=token)
     prices = get_prices(user_id=user_id)
 
@@ -163,34 +163,18 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
         print("❌ No balances returned from Kraken.")
         return
 
-    # === Symbol Map: Kraken → Common Ticker ===
-    symbol_map = {
-        "XXBT": "BTC",
-        "XETH": "ETH",
-        "XXRP": "XRP",
-        "ZUSD": "USD",
-        "DOT": "DOT",
-        "LINK": "LINK",
-        "SOL": "SOL"
-    }
-
     coins = {}
-    usd_balance = float(balances.get("ZUSD", 0.0))
+    usd_balance = float(balances.get("USD", 0.0))
     total_value = usd_balance
 
-    for kraken_key, app_key in symbol_map.items():
-        if app_key == "USD":
-            continue
+    tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
 
-        raw_amount = balances.get(kraken_key, 0.0)
-        try:
-            amount = float(raw_amount)
-        except Exception:
-            amount = 0.0
+    for symbol in tracked_symbols:
+        amount = float(balances.get(symbol, 0.0))
+        price = prices.get(symbol, 0.0)
+        usd_value = round(amount * price, 2)
 
-        usd_value = round(amount * prices.get(app_key, 0.0), 2)
-
-        coins[app_key] = {
+        coins[symbol] = {
             "balance": round(amount, 8),
             "usd_value": usd_value
         }
