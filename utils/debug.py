@@ -1,11 +1,17 @@
 import streamlit as st
+from datetime import datetime
+
 from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import save_portfolio_snapshot
-from datetime import datetime
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
+from utils.kraken_auth import rate_limited_query_private
+
 
 def render_debug():
+    st.title("🚀 BitPanel")
+
+    # === Get user info from session ===
     user = st.session_state.get("user", {})
     user_id = user.get("localId")
     token = user.get("token")
@@ -17,24 +23,37 @@ def render_debug():
     mode = get_mode(user_id)
     st.markdown(f"**Current Mode:** `{mode}`")
 
+    # === Load API Keys ===
     exchange = "kraken"
     keys = load_user_api_keys(user_id, exchange, token=token)
 
-    if not keys:
-        st.error("❌ No API keys found for Kraken. Please add them in Settings.")
+    st.subheader("🔐 Loaded API Keys")
+    if keys:
+        st.json(keys)
+    else:
+        st.error("❌ No Kraken API keys found for this user.")
         return
 
-    # === Get Kraken balances and prices
-    balances = get_live_balances(user_id=user_id, token=token)
-    prices = get_prices(user_id=user_id)
+    # === Test direct Kraken balance call ===
+    st.subheader("📡 Raw Kraken Balance API Test")
+    try:
+        raw_result = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
+        st.success("✅ Kraken API balance call successful!")
+        st.json(raw_result)
+    except Exception as e:
+        st.error(f"❌ Error calling Kraken Balance API directly: {e}")
+        return
 
-    st.subheader("🔁 Live Kraken Balances")
+    # === Get balances and prices using wrapper ===
+    st.subheader("🔁 Live Kraken Balances (via wrapper)")
+    balances = get_live_balances(user_id=user_id, token=token)
     st.write(balances)
 
     st.subheader("💰 Current Prices")
+    prices = get_prices(user_id=user_id)
     st.write(prices)
 
-    # === Build snapshot
+    # === Build snapshot ===
     tracked = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
     usd_balance = float(balances.get("USD", 0.0))
@@ -60,7 +79,7 @@ def render_debug():
     st.subheader("📦 Snapshot Preview")
     st.write(snapshot)
 
-    # === Save button
+    # === Save button ===
     if st.button("🚀 Save Snapshot to Firebase"):
         save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
         st.success("✅ Snapshot saved.")
