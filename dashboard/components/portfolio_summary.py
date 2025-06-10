@@ -39,7 +39,7 @@ def render_portfolio_summary(mode, user_id, token):
     allocation_data = []
     table_data = []
 
-    # Add USD to allocation pie chart
+    # Get USD balance
     usd_balance = snapshot.get("usd_balance", 0.0)
 
     # Add coins to allocation and table data
@@ -47,29 +47,22 @@ def render_portfolio_summary(mode, user_id, token):
         amount = data.get("balance", 0.0)
         price_info = prices.get(coin, {})
         price = price_info["price"] if isinstance(price_info, dict) and "price" in price_info else prices.get(coin, 0.0)
-        usd_value_raw = amount * price
-        usd_value = round(usd_value_raw, 2)
+        usd_value = round(amount * price, 2)
 
         # Get 24H change %
-        price_info = prices.get(coin, {})
-        if isinstance(price_info, dict):
-            change_pct = price_info.get("change_pct", 0.0)
-        else:
-            change_pct = 0.0
-
+        change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
         if usd_value > 0:
             allocation_data.append({
                 "coin": coin,
                 "value": usd_value
             })
             table_data.append({
-                "Coin": coin,
+                "coin": coin,
                 "Amount": round(amount, 6),
                 "USD Value": f"${usd_value:,.2f}",
                 "24H Change": f"{change_pct:+.2f}%"
             })
 
-    # Add USD as a coin in pie chart if positive
     if usd_balance > 0:
         allocation_data.append({
             "coin": "USD",
@@ -108,6 +101,7 @@ def render_portfolio_summary(mode, user_id, token):
     with col2:
         if allocation_data:
             df = pd.DataFrame(allocation_data)
+            st.write("DEBUG: Allocation Data", df)
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
 
             fig.update_traces(
