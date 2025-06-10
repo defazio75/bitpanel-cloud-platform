@@ -97,8 +97,6 @@ def get_prices(user_id=None):
 
 # === Live Balances (Private API) ===
 def get_live_balances(user_id, token=None):
-    from utils.firebase_db import load_user_api_keys
-
     print(f"🔐 [DEBUG] Fetching Kraken balances for user {user_id}...")
 
     if not token:
