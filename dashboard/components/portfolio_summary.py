@@ -24,6 +24,11 @@ def render_portfolio_summary(mode, user_id, token):
 
     coins = list(snapshot.get("coins", {}).keys())
     prices = get_prices(user_id=user_id)
+
+    # === Normalize price format ===
+    for coin, val in prices.items():
+        if not isinstance(val, dict):
+            prices[coin] = {"price": float(val), "change_pct": 0.0}
     
     # === Portfolio Header ===
     col1, col2, col3 = st.columns(3)
@@ -45,17 +50,11 @@ def render_portfolio_summary(mode, user_id, token):
     # Add coins to allocation and table data
     for coin, data in snapshot.get("coins", {}).items():
         amount = data.get("balance", 0.0)
-        price_info = prices.get(coin)
-        if isinstance(price_info, dict):
-            price = price_info.get("price", 0.0)
-            change_pct = price_info.get("change_pct", 0.0)
-        else:
-            price = float(price_info) if price_info else 0.0
-            change_pct = 0.0
+        price_info = prices.get(coin, {})
+        price = price_info.get("price", 0.0)
+        change_pct = price_info.get("change_pct", 0.0)
         usd_value = round(amount * price, 2)
 
-        # Get 24H change %
-        change_pct = price_info.get("change_pct", 0.0) if isinstance(price_info, dict) else 0.0
         if usd_value > 0:
             allocation_data.append({
                 "coin": coin,
