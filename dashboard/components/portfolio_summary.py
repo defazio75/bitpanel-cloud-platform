@@ -86,12 +86,10 @@ def render_portfolio_summary(mode, user_id, token):
             sorted_table = sorted(table_data, key=lambda x: float(x["USD Value"].replace("$", "").replace(",", "")), reverse=True)
 
             for row in sorted_table:
-                st.markdown(f"""
-                **{row['Coin']}**
-                - Amount: `{row['Amount']}`
-                - Value: `{row['USD Value']}`
-                - 24H Change: `{row['24H Change']}`
-                """)
+                st.markdown(
+                    f"&nbsp;&nbsp;&nbsp;&nbsp;**{row['Coin']}** – (`{row['Amount']}`) | {row['USD Value']} ({row['24H Change']})",
+                    unsafe_allow_html=True
+                )
         else:
             st.warning("No coin holdings found.")
 
