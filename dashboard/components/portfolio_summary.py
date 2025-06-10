@@ -26,7 +26,6 @@ def render_portfolio_summary(mode, user_id, token):
     prices = get_prices(user_id=user_id)
     
     # === Portfolio Header ===
-    st.subheader("💰 Total Portfolio Value")
     col1, col2, col3 = st.columns(3)
     
     usd_balance = snapshot.get("usd_balance", 0.0)
@@ -37,8 +36,6 @@ def render_portfolio_summary(mode, user_id, token):
     col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
 
     # === Portfolio Allocation Section ===
-    st.subheader("📈 Portfolio Allocation")
-
     allocation_data = []
     table_data = []
 
