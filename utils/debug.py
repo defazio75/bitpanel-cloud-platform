@@ -6,7 +6,7 @@ from utils.config import get_mode
 
 def render_debug():
     user = st.session_state.get("user", {})
-    user_id = user.get("id")
+    user_id = user.get("localId")
     token = user.get("token")
 
     if not user_id or not token:
