@@ -15,3 +15,6 @@ def render_debug(user_id, token):
     if st.button("2️⃣ Load Snapshot from Firebase"):
         snapshot = load_portfolio_snapshot(user_id, token, mode)
         st.write("🧾 Snapshot from Firebase:", snapshot)
+
+    st.write("✅ Token Present:", bool(token))
+    st.write("🔐 Token Preview:", token[:8] + "..." if token else "None")
