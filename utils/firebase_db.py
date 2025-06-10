@@ -156,7 +156,7 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     """Pull live balances from Kraken and save as a portfolio snapshot in Firebase."""
     print(f"[DEBUG] Pulling balances from Kraken for {user_id} in {mode} mode...")
 
-    balances = get_live_balances(user_id=user_id, token=token)
+    balances = get_live_balances(user_id=user_id)
     prices = get_prices(user_id=user_id)
 
     if not balances:
