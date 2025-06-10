@@ -49,7 +49,8 @@ def render_portfolio_summary(mode, user_id, token):
     # Add coins to allocation and table data
     for coin, data in snapshot.get("coins", {}).items():
         amount = data.get("balance", 0.0)
-        price = prices.get(coin, 0.0)
+        price_info = prices.get(coin, {})
+        price = price_info["price"] if isinstance(price_info, dict) and "price" in price_info else prices.get(coin, 0.0)
         usd_value_raw = amount * price
         usd_value = round(usd_value_raw, 2)
 
