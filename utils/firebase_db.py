@@ -183,9 +183,19 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     usd_balance = float(balances.get(kraken_symbol_map["USD"], 0.0))
     total_value = usd_balance
 
+    # === Check for missing or zero prices ===
+    missing_prices = [s for s in tracked_symbols if prices.get(s) in [None, 0.0]]
+    if missing_prices:
+        print(f"⚠️ [WARNING] Missing or zero prices for: {missing_prices}")
+
     for symbol in tracked_symbols:
         kraken_key = kraken_symbol_map.get(symbol, symbol)
         raw_amt = balances.get(kraken_key, 0.0)
+
+        if raw_amt is None:
+            print(f"⚠️ [WARNING] {symbol} returned None as balance, defaulting to 0.0")
+            raw_amt = 0.0
+
         price = prices.get(symbol, 0.0)
 
         try:
@@ -196,7 +206,7 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
 
         usd_value = round(amount * price, 2)
 
-        print(f"🔍 Symbol: {symbol}, Amount: {raw_amt}, Price: {price}, USD Value: {usd_value}")
+        print(f"🔍 Symbol: {symbol}, Amount: {amount}, Price: {price}, USD Value: {usd_value}")
 
         coins[symbol] = {
             "balance": round(amount, 8),
