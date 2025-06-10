@@ -45,12 +45,8 @@ def render_portfolio_summary(mode, user_id, token):
 
     # Add USD to allocation pie chart
     usd_balance = snapshot.get("usd_balance", 0.0)
-    if usd_balance > 0:
-        allocation_data.append({
-            "coin": "USD",
-            "value": float(usd_balance)
-        })
 
+    # Add coins to allocation and table data
     for coin, data in snapshot.get("coins", {}).items():
         amount = data.get("balance", 0.0)
         price = prices.get(coin, 0.0)
@@ -67,7 +63,7 @@ def render_portfolio_summary(mode, user_id, token):
         if usd_value > 0:
             allocation_data.append({
                 "coin": coin,
-                "value": float(usd_value)
+                "value": usd_value
             })
             table_data.append({
                 "Coin": coin,
@@ -75,6 +71,13 @@ def render_portfolio_summary(mode, user_id, token):
                 "USD Value": f"${usd_value:,.2f}",
                 "24H Change": f"{change_pct:+.2f}%"
             })
+
+    # Add USD as a coin in pie chart if positive
+    if usd_balance > 0:
+        allocation_data.append({
+            "coin": "USD",
+            "value": round(usd_balance, 2)
+        })
 
     # Display in two columns: table + pie
     col1, col2 = st.columns([1.5, 1])
