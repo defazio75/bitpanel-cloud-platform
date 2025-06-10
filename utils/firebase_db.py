@@ -166,23 +166,43 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
         print("❌ No balances returned from Kraken.")
         return
 
-    # === Track only desired coins ===
+    # === Symbol mapping for Kraken API ===
+    kraken_symbol_map = {
+        "BTC": "XXBT",
+        "ETH": "XETH",
+        "XRP": "XXRP",
+        "DOT": "DOT",
+        "LINK": "LINK",
+        "SOL": "SOL",
+        "USD": "ZUSD"
+    }
+
     tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
-    usd_balance = float(balances.get("ZUSD", 0.0))
+
+    usd_balance = float(balances.get(kraken_symbol_map["USD"], 0.0))
     total_value = usd_balance
 
     for symbol in tracked_symbols:
-        raw_amt = balances.get(symbol, 0.0)
+        kraken_key = kraken_symbol_map.get(symbol, symbol)
+        raw_amt = balances.get(kraken_key, 0.0)
         price = prices.get(symbol, 0.0)
-        usd_value = round(float(raw_amt) * price, 2)
+
+        try:
+            amount = float(raw_amt)
+        except Exception as e:
+            print(f"⚠️ [ERROR] Failed to parse {symbol} amount: {raw_amt} — {e}")
+            amount = 0.0
+
+        usd_value = round(amount * price, 2)
 
         print(f"🔍 Symbol: {symbol}, Amount: {raw_amt}, Price: {price}, USD Value: {usd_value}")
 
         coins[symbol] = {
-            "balance": round(float(raw_amt), 8),
+            "balance": round(amount, 8),
             "usd_value": usd_value
         }
+
         total_value += usd_value
 
     snapshot = {
