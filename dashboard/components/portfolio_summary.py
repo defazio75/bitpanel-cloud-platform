@@ -57,7 +57,7 @@ def render_portfolio_summary(mode, user_id, token):
                 "value": usd_value
             })
             table_data.append({
-                "coin": coin,
+                "Coin": coin,
                 "Amount": round(amount, 6),
                 "USD Value": f"${usd_value:,.2f}",
                 "24H Change": f"{change_pct:+.2f}%"
