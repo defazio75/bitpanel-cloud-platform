@@ -116,22 +116,23 @@ def get_live_balances(user_id, token=None):
         "XETH": "ETH",
         "ZUSD": "USD",
         "XXRP": "XRP",
-        "DOT": "DOT",
+        "POL": "DOT", 
         "LINK": "LINK",
         "SOL": "SOL"
     }
 
     balances = {}
     for k_code, amount in raw_balances.items():
-        symbol = kraken_symbol_map.get(k_code, k_code)
         try:
-            balances[symbol] = float(amount)
-        except Exception as e:
-            print(f"⚠️ Error parsing balance for {symbol}: {e}")
-            balances[symbol] = 0.0
+            float_amt = float(amount)
+            if float_amt == 0:
+                continue
+            symbol = kraken_symbol_map.get(k_code, k_code)  # fallback is still safe
+            balances[symbol] = float_amt
+        except:
+            continue
+   return balances
 
-    print("✅ Final Parsed Balances:", balances)
-    return balances
 
 def get_prices_with_change():
     pairs = {
