@@ -154,31 +154,35 @@ def list_firebase_files(path, mode, user_id):
 
 def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     """Pull live balances from Kraken and save as a portfolio snapshot in Firebase."""
-    print(f"[DEBUG] Pulling balances from Kraken for {user_id} in {mode} mode...")
+    print(f"\n🟢 [DEBUG] Starting live snapshot save for user {user_id} in {mode} mode...")
 
     balances = get_live_balances(user_id=user_id, token=token)
+    print("✅ [DEBUG] Raw balances returned into snapshot function:", balances)
+
     prices = get_prices(user_id=user_id)
+    print("📈 [DEBUG] Current prices:", prices)
 
     if not balances:
         print("❌ No balances returned from Kraken.")
         return
 
+    # === Track only desired coins ===
+    tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
     usd_balance = float(balances.get("USD", 0.0))
     total_value = usd_balance
 
-    tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
-
     for symbol in tracked_symbols:
-        amount = float(balances.get(symbol, 0.0))
+        raw_amt = balances.get(symbol, 0.0)
         price = prices.get(symbol, 0.0)
-        usd_value = round(amount * price, 2)
+        usd_value = round(float(raw_amt) * price, 2)
+
+        print(f"🔍 Symbol: {symbol}, Amount: {raw_amt}, Price: {price}, USD Value: {usd_value}")
 
         coins[symbol] = {
-            "balance": round(amount, 8),
+            "balance": round(float(raw_amt), 8),
             "usd_value": usd_value
         }
-
         total_value += usd_value
 
     snapshot = {
@@ -188,7 +192,7 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
         "total_value": round(total_value, 2)
     }
 
-    print("[DEBUG] Final Snapshot to be saved:", snapshot)
+    print("📦 [DEBUG] Final Snapshot to be saved:", snapshot)
 
     # === Save to Firebase ===
     try:
@@ -199,6 +203,20 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
             .child("balances") \
             .child("portfolio_snapshot") \
             .set(snapshot, token)
+
+        print("✅ Snapshot saved successfully to Firebase.")
+
+        # === Immediately re-fetch to verify ===
+        refetch = firebase.database() \
+            .child("users") \
+            .child(user_id) \
+            .child(mode) \
+            .child("balances") \
+            .child("portfolio_snapshot") \
+            .get(token).val()
+
+        print("🧾 [DEBUG] Snapshot re-fetched from Firebase:", refetch)
+
         st.success(f"✅ Snapshot saved to Firebase for {user_id} in {mode} mode.")
     except Exception as e:
         st.error("❌ Failed to save snapshot to Firebase.")
