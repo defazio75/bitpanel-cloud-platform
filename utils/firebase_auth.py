@@ -1,5 +1,6 @@
 import requests
 from utils.firebase_config import firebase_api_key
+from utils.firebase_config import firebase
 
 FIREBASE_AUTH_URL = "https://identitytoolkit.googleapis.com/v1/accounts"
 
@@ -51,6 +52,8 @@ def send_password_reset(email):
         "email": email
     }
     response = requests.post(url, json=payload)
+
+auth = firebase.auth()
     response.raise_for_status()
     return response.json()
 
