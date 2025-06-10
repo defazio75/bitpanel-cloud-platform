@@ -48,7 +48,7 @@ def render_portfolio_summary(mode, user_id, token):
         price_info = prices.get(coin)
         if isinstance(price_info, dict):
             price = price_info.get("price", 0.0)
-           change_pct = price_info.get("change_pct", 0.0)
+            change_pct = price_info.get("change_pct", 0.0)
         else:
             price = float(price_info) if price_info else 0.0
             change_pct = 0.0
