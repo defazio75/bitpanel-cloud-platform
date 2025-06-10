@@ -152,21 +152,22 @@ def list_firebase_files(path, mode, user_id):
         print(f"❌ Failed to list files at {path}: {e}")
         return []
 
-def save_live_snapshot_from_kraken(user_id, token, mode="live"):
-    """Pull live balances from Kraken and save as a portfolio snapshot in Firebase."""
-    print(f"\n🟢 [DEBUG] Starting live snapshot save for user {user_id} in {mode} mode...")
+def save_live_snapshot_from_kraken(user_id, token, mode="live", debug=False):
+    if debug:
+        st.write(f"🟢 [DEBUG] Starting live snapshot save for user `{user_id}` in `{mode}` mode...")
 
     balances = get_live_balances(user_id=user_id, token=token)
-    print("✅ [DEBUG] Raw balances returned into snapshot function:", balances)
-
     prices = get_prices(user_id=user_id)
-    print("📈 [DEBUG] Current prices:", prices)
+
+    if debug:
+        st.write("✅ [DEBUG] Raw balances returned:", balances)
+        st.write("📈 [DEBUG] Current prices:", prices)
 
     if not balances:
-        print("❌ No balances returned from Kraken.")
+        if debug:
+            st.error("❌ No balances returned from Kraken.")
         return
 
-    # === Symbol mapping for Kraken API ===
     kraken_symbol_map = {
         "BTC": "XXBT",
         "ETH": "XETH",
@@ -179,41 +180,35 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
 
     tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
-
     usd_balance = float(balances.get(kraken_symbol_map["USD"], 0.0))
     total_value = usd_balance
 
-    # === Check for missing or zero prices ===
-    missing_prices = [s for s in tracked_symbols if prices.get(s) in [None, 0.0]]
-    if missing_prices:
-        print(f"⚠️ [WARNING] Missing or zero prices for: {missing_prices}")
-
     for symbol in tracked_symbols:
-        kraken_key = kraken_symbol_map.get(symbol, symbol)
-        raw_amt = balances.get(kraken_key, 0.0)
+        kkey = kraken_symbol_map[symbol]
+        raw_amt = balances.get(kkey, 0.0)
+        price = prices.get(symbol, 0.0)
 
         if raw_amt is None:
-            print(f"⚠️ [WARNING] {symbol} returned None as balance, defaulting to 0.0")
+            if debug:
+                st.warning(f"⚠️ [{symbol}] balance was None — defaulted to 0")
             raw_amt = 0.0
-
-        price = prices.get(symbol, 0.0)
 
         try:
             amount = float(raw_amt)
         except Exception as e:
-            print(f"⚠️ [ERROR] Failed to parse {symbol} amount: {raw_amt} — {e}")
             amount = 0.0
+            if debug:
+                st.error(f"❌ Failed to parse amount for {symbol}: {e}")
 
         usd_value = round(amount * price, 2)
-
-        print(f"🔍 Symbol: {symbol}, Amount: {amount}, Price: {price}, USD Value: {usd_value}")
-
         coins[symbol] = {
             "balance": round(amount, 8),
             "usd_value": usd_value
         }
-
         total_value += usd_value
+
+        if debug:
+            st.write(f"🔍 {symbol}: {amount} × ${price} = ${usd_value}")
 
     snapshot = {
         "usd_balance": round(usd_balance, 2),
@@ -222,9 +217,9 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
         "total_value": round(total_value, 2)
     }
 
-    print("📦 [DEBUG] Final Snapshot to be saved:", snapshot)
+    if debug:
+        st.write("📦 [DEBUG] Final snapshot payload:", snapshot)
 
-    # === Save to Firebase ===
     try:
         firebase.database() \
             .child("users") \
@@ -234,20 +229,10 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
             .child("portfolio_snapshot") \
             .set(snapshot, token)
 
-        print("✅ Snapshot saved successfully to Firebase.")
-
-        # === Immediately re-fetch to verify ===
-        refetch = firebase.database() \
-            .child("users") \
-            .child(user_id) \
-            .child(mode) \
-            .child("balances") \
-            .child("portfolio_snapshot") \
-            .get(token).val()
-
-        print("🧾 [DEBUG] Snapshot re-fetched from Firebase:", refetch)
-
-        st.success(f"✅ Snapshot saved to Firebase for {user_id} in {mode} mode.")
+        if debug:
+            st.success("✅ Snapshot successfully written to Firebase.")
     except Exception as e:
-        st.error("❌ Failed to save snapshot to Firebase.")
-        st.exception(e)
+        if debug:
+            st.error("❌ Failed to write snapshot to Firebase.")
+            st.exception(e)
+
