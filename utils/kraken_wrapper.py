@@ -99,9 +99,18 @@ def get_prices(user_id=None):
 def get_live_balances(user_id, token=None):
     result = rate_limited_query_private("/0/private/Balance", {}, user_id, token=token)
 
+    print("[DEBUG] Raw Kraken Balance API Response:", result)
+
+    if not result or "error" not in result:
+        print("❌ Unexpected Kraken response format.")
+        return {}
+
+    if result["error"]:
+        print(f"❌ Kraken API returned error: {result['error']}")
+        return {}
+
     raw_balances = result.get("result", {})
-    
-    # Map Kraken's internal codes to readable symbols
+
     kraken_symbol_map = {
         "XXBT": "BTC",
         "XETH": "ETH",
@@ -109,14 +118,19 @@ def get_live_balances(user_id, token=None):
         "XXRP": "XRP",
         "DOT": "DOT",
         "LINK": "LINK",
-        "SOL": "SOL"   
+        "SOL": "SOL"
     }
 
     balances = {}
     for k_code, amount in raw_balances.items():
-        symbol = kraken_symbol_map.get(k_code, k_code)  # fallback to raw code if not mapped
-        balances[symbol] = float(amount)
+        symbol = kraken_symbol_map.get(k_code, k_code)
+        try:
+            balances[symbol] = float(amount)
+        except Exception as e:
+            print(f"⚠️ Error parsing balance for {symbol}: {e}")
+            balances[symbol] = 0.0
 
+    print("✅ Final Parsed Balances:", balances)
     return balances
 
 def get_prices_with_change():
