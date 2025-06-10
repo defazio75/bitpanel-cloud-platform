@@ -97,7 +97,30 @@ def get_prices(user_id=None):
 
 # === Live Balances (Private API) ===
 def get_live_balances(user_id, token=None):
-    result = rate_limited_query_private("/0/private/Balance", {}, user_id, token=token)
+    # === Ensure token is present
+    if not token:
+        print("❌ No token provided to get_live_balances().")
+        return {}
+
+    # === Load API keys from Firebase
+    try:
+        keys = load_user_api_keys(user_id, exchange="kraken", token=token)
+        public_key = keys.get("key")
+        private_key = keys.get("secret")
+    except Exception as e:
+        print(f"❌ Failed to load API keys for user {user_id}: {e}")
+        return {}
+
+    if not public_key or not private_key:
+        print("❌ API keys are missing or incomplete.")
+        return {}
+
+    # === Query Kraken API for balances
+    try:
+        result = rate_limited_query_private("/0/private/Balance", {}, user_id=user_id, token=token)
+    except Exception as e:
+        print(f"❌ Kraken balance query failed: {e}")
+        return {}
 
     print("[DEBUG] Raw Kraken Balance API Response:", result)
 
@@ -111,12 +134,13 @@ def get_live_balances(user_id, token=None):
 
     raw_balances = result.get("result", {})
 
+    # === Map Kraken internal codes to standard symbols
     kraken_symbol_map = {
         "XXBT": "BTC",
         "XETH": "ETH",
         "ZUSD": "USD",
         "XXRP": "XRP",
-        "POL": "DOT", 
+        "DOT": "DOT",  # corrected from "POL"
         "LINK": "LINK",
         "SOL": "SOL"
     }
@@ -129,11 +153,11 @@ def get_live_balances(user_id, token=None):
                 continue
             symbol = kraken_symbol_map.get(k_code, k_code)
             balances[symbol] = float_amt
-        except:
+        except Exception as e:
+            print(f"⚠️ Failed to parse {k_code}: {amount} — {e}")
             continue
 
     return balances
-
 
 def get_prices_with_change():
     pairs = {
