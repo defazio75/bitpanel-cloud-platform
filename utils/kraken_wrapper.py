@@ -127,11 +127,12 @@ def get_live_balances(user_id, token=None):
             float_amt = float(amount)
             if float_amt == 0:
                 continue
-            symbol = kraken_symbol_map.get(k_code, k_code)  # fallback is still safe
+            symbol = kraken_symbol_map.get(k_code, k_code)
             balances[symbol] = float_amt
         except:
             continue
-   return balances
+
+    return balances
 
 
 def get_prices_with_change():
