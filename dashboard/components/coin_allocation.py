@@ -108,17 +108,3 @@ def render(user_id, token, mode):
                         execute_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
                     st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
                     st.rerun()
-
-    # Portfolio Pie Chart
-    labels, values = ["USD"], [usd_balance]
-    for coin, info in coins.items():
-        if info["usd"] > 0:
-            labels.append(coin)
-            values.append(info["usd"])
-
-    if len(labels) > 1:
-        fig = px.pie(names=labels, values=values, title="Current Portfolio Breakdown", hole=0.4)
-        fig.update_layout(height=400, width=400)
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("No valid data to display pie chart.")
