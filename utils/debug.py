@@ -4,8 +4,14 @@ from utils.firebase_db import save_portfolio_snapshot
 from datetime import datetime
 from utils.config import get_mode
 
-def render_debug(user_id, token):
-    st.title("🧪 Kraken → Firebase Debug")
+def render_debug():
+    user = st.session_state.get("user", {})
+    user_id = user.get("id")
+    token = user.get("token")
+
+    if not user_id or not token:
+        st.error("❌ Missing user_id or token. Please log in.")
+        return
 
     mode = get_mode(user_id)
     st.markdown(f"**Current Mode:** `{mode}`")
