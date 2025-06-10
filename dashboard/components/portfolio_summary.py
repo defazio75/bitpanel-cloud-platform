@@ -73,7 +73,17 @@ def render_portfolio_summary(mode, user_id, token):
     with col1:
         if table_data:
             st.markdown("### 💡 Coin Holdings")
-            st.dataframe(pd.DataFrame(table_data), use_container_width=True)
+
+            # Sort by USD Value descending
+            sorted_table = sorted(table_data, key=lambda x: float(x["USD Value"].replace("$", "").replace(",", "")), reverse=True)
+
+            for row in sorted_table:
+                st.markdown(f"""
+                **{row['Coin']}**
+                - Amount: `{row['Amount']}`
+                - Value: `{row['USD Value']}`
+                - 24H Change: `{row['24H Change']}`
+                """)
         else:
             st.warning("No coin holdings found.")
 
