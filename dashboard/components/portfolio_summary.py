@@ -43,6 +43,14 @@ def render_portfolio_summary(mode, user_id, token):
     allocation_data = []
     table_data = []
 
+    # Add USD to allocation pie chart
+    usd_balance = snapshot.get("usd_balance", 0.0)
+    if usd_balance > 0:
+        allocation_data.append({
+            "coin": "USD",
+            "value": float(usd_balance)
+        })
+
     for coin, data in snapshot.get("coins", {}).items():
         amount = data.get("balance", 0.0)
         price = prices.get(coin, 0.0)
