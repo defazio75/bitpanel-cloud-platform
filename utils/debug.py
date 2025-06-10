@@ -3,6 +3,7 @@ from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import save_portfolio_snapshot
 from datetime import datetime
 from utils.config import get_mode
+from utils.load_keys import load_user_api_keys
 
 def render_debug():
     user = st.session_state.get("user", {})
@@ -15,6 +16,13 @@ def render_debug():
 
     mode = get_mode(user_id)
     st.markdown(f"**Current Mode:** `{mode}`")
+
+    exchange = "kraken"
+    keys = load_user_api_keys(user_id, exchange, token=token)
+
+    if not keys:
+        st.error("❌ No API keys found for Kraken. Please add them in Settings.")
+        return
 
     # === Get Kraken balances and prices
     balances = get_live_balances(user_id=user_id, token=token)
