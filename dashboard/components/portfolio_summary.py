@@ -107,6 +107,7 @@ def render_portfolio_summary(mode, user_id, token):
             st.write("🚨 Sanity Check: Raw allocation_data", allocation_data)
             df = pd.DataFrame(allocation_data)
             df["value"] = pd.to_numeric(df["value"], errors="coerce")
+            st.write("✅ DataFrame Going Into Pie Chart", df)
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
 
             fig.update_traces(
