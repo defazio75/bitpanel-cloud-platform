@@ -104,6 +104,7 @@ def render_portfolio_summary(mode, user_id, token):
 
     with col2:
         if allocation_data:
+            st.write("🚨 Sanity Check: Raw allocation_data", allocation_data)
             df = pd.DataFrame(allocation_data)
             df["value"] = pd.to_numeric(df["value"], errors="coerce")
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
