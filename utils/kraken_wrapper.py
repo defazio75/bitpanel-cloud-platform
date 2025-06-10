@@ -32,9 +32,6 @@ def rate_limited_query_private(endpoint, data=None, user_id=None, token=None):
     api_key = keys["key"]
     api_secret = keys["secret"]
 
-    print("🔑 API KEY (first 6 chars):", api_key[:6], "…")
-    print("🔑 API SECRET (first 6 chars):", api_secret[:6], "…")
-
     if not api_key or not api_secret:
         raise ValueError("❌ Missing Kraken API keys.")
 
@@ -97,40 +94,39 @@ def get_prices(user_id=None):
 
 # === Live Balances (Private API) ===
 def get_live_balances(user_id, token=None):
-    print(f"🔐 [DEBUG] Fetching Kraken balances for user {user_id}...")
-
     if not token:
         print("❌ No token provided to get_live_balances().")
         return {}
 
+    # === Load API keys securely from Firebase
     try:
-        keys = load_user_api_keys(user_id, exchange="kraken", token=token)
-        print(f"🔑 [DEBUG] Loaded API keys: {bool(keys)}")
+        keys = load_user_api_keys(user_id, "kraken", token=token)
+        api_key = keys.get("key")
+        api_secret = keys.get("secret")
     except Exception as e:
         print(f"❌ Failed to load API keys: {e}")
         return {}
 
-    public_key = keys.get("key")
-    private_key = keys.get("secret")
-
-    if not public_key or not private_key:
-        print("❌ API keys missing.")
+    if not api_key or not api_secret:
+        print("❌ Missing Kraken API keys.")
         return {}
 
+    # === Call Kraken API
     try:
         result = rate_limited_query_private("/0/private/Balance", {}, user_id=user_id, token=token)
-        print(f"📦 [DEBUG] Raw Kraken balance response: {result}")
     except Exception as e:
         print(f"❌ Kraken API call failed: {e}")
         return {}
 
-    if "error" not in result or result["error"]:
+    print("[DEBUG] Raw Kraken Balance API Response:", result)
+
+    if not result or "error" not in result or result["error"]:
         print(f"❌ Kraken returned error: {result.get('error')}")
         return {}
 
     raw_balances = result.get("result", {})
-    print(f"💰 [DEBUG] Raw balances from Kraken: {raw_balances}")
 
+    # === Parse and map Kraken internal symbols
     kraken_symbol_map = {
         "XXBT": "BTC", "XETH": "ETH", "ZUSD": "USD",
         "XXRP": "XRP", "DOT": "DOT", "LINK": "LINK", "SOL": "SOL"
@@ -148,8 +144,8 @@ def get_live_balances(user_id, token=None):
             print(f"⚠️ Failed to parse {k_code}: {amount} — {e}")
             continue
 
-    print(f"✅ [DEBUG] Final balances dict: {balances}")
     return balances
+
 
 def get_prices_with_change():
     pairs = {
