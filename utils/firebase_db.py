@@ -168,24 +168,14 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live", debug=False):
             st.error("❌ No balances returned from Kraken.")
         return
 
-    kraken_symbol_map = {
-        "BTC": "XXBT",
-        "ETH": "XETH",
-        "XRP": "XXRP",
-        "DOT": "DOT",
-        "LINK": "LINK",
-        "SOL": "SOL",
-        "USD": "ZUSD"
-    }
-
     tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
-    usd_balance = float(balances.get(kraken_symbol_map["USD"], 0.0))
+
+    usd_balance = float(balances.get("USD", 0.0))
     total_value = usd_balance
 
     for symbol in tracked_symbols:
-        kkey = kraken_symbol_map[symbol]
-        raw_amt = balances.get(kkey, 0.0)
+        raw_amt = balances.get(symbol, 0.0)
         price = prices.get(symbol, 0.0)
 
         if raw_amt is None:
@@ -235,4 +225,3 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live", debug=False):
         if debug:
             st.error("❌ Failed to write snapshot to Firebase.")
             st.exception(e)
-
