@@ -98,48 +98,54 @@ def get_live_balances(user_id, token=None):
         print("❌ No token provided to get_live_balances().")
         return {}
 
-    # === Load Kraken API Keys
     try:
         keys = load_user_api_keys(user_id, "kraken", token=token)
-        if not keys:
-            print("❌ No Kraken API keys found.")
-            return {}
+        api_key = keys.get("key")
+        api_secret = keys.get("secret")
     except Exception as e:
         print(f"❌ Failed to load API keys: {e}")
         return {}
 
-    # === Call Kraken API directly
-    try:
-        response = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
-        if not response or "error" not in response or response["error"]:
-            print(f"❌ Kraken API returned error: {response.get('error')}")
-            return {}
-    except Exception as e:
-        print(f"❌ API call failed: {e}")
+    if not api_key or not api_secret:
+        print("❌ Missing Kraken API keys.")
         return {}
 
-    # === Parse result
-    raw = response.get("result", {})
-    balances = {}
+    try:
+        result = rate_limited_query_private("/0/private/Balance", {}, user_id=user_id, token=token)
+    except Exception as e:
+        print(f"❌ Kraken API call failed: {e}")
+        return {}
 
-    symbol_map = {
+    if not result or result.get("error"):
+        print(f"❌ Kraken returned error: {result.get('error')}")
+        return {}
+
+    raw_balances = result.get("result", {})
+    if not raw_balances:
+        print("❌ No balances returned.")
+        return {}
+
+    # === SYMBOL MAPPING ===
+    kraken_symbol_map = {
         "XXBT": "BTC", "XETH": "ETH", "ZUSD": "USD",
         "XXRP": "XRP", "DOT": "DOT", "LINK": "LINK", "SOL": "SOL"
     }
 
-    for kraken_code, amount in raw.items():
+    parsed = {}
+    for k_code, amt in raw_balances.items():
         try:
-            amount_f = float(amount)
-            if amount_f == 0:
+            amt_f = float(amt)
+            if amt_f == 0:
                 continue
-            symbol = symbol_map.get(kraken_code, kraken_code)
-            balances[symbol] = amount_f
+            symbol = kraken_symbol_map.get(k_code, k_code)
+            parsed[symbol] = amt_f
         except Exception as e:
-            print(f"⚠️ Error parsing {kraken_code}: {e}")
+            print(f"⚠️ Error parsing {k_code}: {amt} — {e}")
             continue
 
-    return balances
-
+    print("✅ Final Parsed Balances:", parsed)
+    return parsed
+    
 def get_prices_with_change():
     pairs = {
         "BTC": "XXBTZUSD",
