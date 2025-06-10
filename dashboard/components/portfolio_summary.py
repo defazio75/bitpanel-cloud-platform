@@ -119,8 +119,7 @@ def render_portfolio_summary(mode, user_id, token):
             st.write("📈 Values list:", df['value'].tolist())
             st.write("🪙 Coins list:", df['coin'].tolist())
 
-            if df["value"].sum() == 0 or df["value"].nunique() == 1:
-                st.warning("⚠️ All values are identical or zero. Pie chart may render evenly.")
+            df["value"] = df["value"].astype(float)
 
             fig = px.pie(
                 df,
