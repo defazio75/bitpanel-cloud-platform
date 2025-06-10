@@ -52,8 +52,7 @@ def send_password_reset(email):
         "email": email
     }
     response = requests.post(url, json=payload)
-
-auth = firebase.auth()
     response.raise_for_status()
     return response.json()
 
+auth = firebase.auth()
