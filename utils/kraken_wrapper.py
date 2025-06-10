@@ -111,7 +111,7 @@ def get_live_balances(user_id, token=None):
         return {}
 
     try:
-        result = rate_limited_query_private("/0/private/Balance", {}, user_id=user_id, token=token)
+        result = rate_limited_query_private("Balance", {}, user_id=user_id, token=token)
     except Exception as e:
         print(f"❌ Kraken API call failed: {e}")
         return {}
