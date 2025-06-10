@@ -96,8 +96,8 @@ def get_prices(user_id=None):
     return prices
 
 # === Live Balances (Private API) ===
-def get_live_balances(user_id):
-    result = rate_limited_query_private("/0/private/Balance", {}, user_id)
+def get_live_balances(user_id, token=None):
+    result = rate_limited_query_private("/0/private/Balance", {}, user_id, token=token)
 
     raw_balances = result.get("result", {})
     
