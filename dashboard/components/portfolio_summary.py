@@ -89,8 +89,20 @@ def render_portfolio_summary(mode, user_id, token):
             sorted_table = sorted(table_data, key=lambda x: float(x["USD Value"].replace("$", "").replace(",", "")), reverse=True)
 
             for row in sorted_table:
+                change = row['24H Change']
+                if change.startswith('+'):
+                    change_color = "#2ecc71"  # Light green
+                elif change.startswith('-'):
+                    change_color = "#e74c3c"  # Light red
+                else:
+                    change_color = "#000000"  # Default black
+
                 st.markdown(
-                    f"&nbsp;&nbsp;&nbsp;&nbsp;**{row['Coin']}** – (`{row['Amount']}`) | {row['USD Value']} ({row['24H Change']})",
+                    f"""&nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>{row['Coin']}</strong> – ({row['Amount']}) | 
+                    <strong>{row['USD Value']}</strong> 
+                    (<span style="color:{change_color};">{change}</span>)
+                    """,
                     unsafe_allow_html=True
                 )
         else:
