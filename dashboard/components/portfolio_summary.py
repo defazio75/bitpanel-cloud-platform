@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from streamlit_autorefresh import st_autorefresh
+#from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state, save_live_snapshot_from_kraken
 
-st_autorefresh(interval=10_000, key="auto_refresh_summary")
+#st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 def render_portfolio_summary(mode, user_id, token):
 
@@ -21,6 +21,10 @@ def render_portfolio_summary(mode, user_id, token):
     if not snapshot:
         st.warning(f"No portfolio data found for {mode.upper()} mode.")
         return
+
+    # ✅ Add this right here
+    if st.button("🔄 Refresh Chart"):
+        st.rerun()
 
     coins = list(snapshot.get("coins", {}).keys())
     prices = get_prices(user_id=user_id)
