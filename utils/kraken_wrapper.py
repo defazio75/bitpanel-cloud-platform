@@ -116,35 +116,33 @@ def get_live_balances(user_id, token=None):
         print(f"❌ Kraken API call failed: {e}")
         return {}
 
-    if not result or result.get("error"):
+    print("[DEBUG] Raw Kraken Balance API Response:", result)
+
+    if not result or "error" not in result or result["error"]:
         print(f"❌ Kraken returned error: {result.get('error')}")
         return {}
 
     raw_balances = result.get("result", {})
-    if not raw_balances:
-        print("❌ No balances returned.")
-        return {}
 
-    # === SYMBOL MAPPING ===
     kraken_symbol_map = {
         "XXBT": "BTC", "XETH": "ETH", "ZUSD": "USD",
         "XXRP": "XRP", "DOT": "DOT", "LINK": "LINK", "SOL": "SOL"
     }
 
-    parsed = {}
-    for k_code, amt in raw_balances.items():
+    balances = {}
+    for k_code, amount in raw_balances.items():
         try:
-            amt_f = float(amt)
-            if amt_f == 0:
-                continue
-            symbol = kraken_symbol_map.get(k_code, k_code)
-            parsed[symbol] = amt_f
+            float_amt = float(amount)
+            symbol = kraken_symbol_map.get(k_code, None)
+            if not symbol:
+                continue  # skip untracked coins
+            balances[symbol] = float_amt
         except Exception as e:
-            print(f"⚠️ Error parsing {k_code}: {amt} — {e}")
+            print(f"⚠️ Failed to parse {k_code}: {amount} — {e}")
             continue
 
-    print("✅ Final Parsed Balances:", parsed)
-    return parsed
+    print("[DEBUG] Final parsed balances:", balances)
+    return balances
     
 def get_prices_with_change():
     pairs = {
