@@ -10,7 +10,7 @@ def render_debug(user_id, token):
     st.write("🔄 Mode:", mode)
 
     if st.button("1️⃣ Save Live Snapshot to Firebase"):
-        save_live_snapshot_from_kraken(user_id=user_id, token=token, mode=mode)
+        save_live_snapshot_from_kraken(user_id=user_id, token=token, mode=mode, debug=True)
 
     if st.button("2️⃣ Load Snapshot from Firebase"):
         snapshot = load_portfolio_snapshot(user_id, token, mode)
