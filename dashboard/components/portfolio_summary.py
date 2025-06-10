@@ -10,7 +10,6 @@ from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 def render_portfolio_summary(mode, user_id, token):
-    st.title("📊 Portfolio Summary")
 
     # === Sync live balances before loading (LIVE MODE ONLY) ===
     if mode == "live":
