@@ -101,7 +101,7 @@ def render_portfolio_summary(mode, user_id, token):
     with col2:
         if allocation_data:
             df = pd.DataFrame(allocation_data)
-            st.write("DEBUG: Allocation Data", df)
+            df["value"] = pd.to_numeric(df["value"], errors="coerce")
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
 
             fig.update_traces(
