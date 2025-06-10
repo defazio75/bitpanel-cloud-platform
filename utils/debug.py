@@ -1,20 +1,52 @@
 import streamlit as st
-from utils.firebase_db import save_live_snapshot_from_kraken, load_portfolio_snapshot
+from utils.kraken_wrapper import get_live_balances, get_prices
+from utils.firebase_db import save_portfolio_snapshot
+from datetime import datetime
 from utils.config import get_mode
 
 def render_debug(user_id, token):
+    st.title("🧪 Kraken → Firebase Debug")
+
     mode = get_mode(user_id)
+    st.markdown(f"**Current Mode:** `{mode}`")
 
-    st.title("🧪 Firebase Live Balance Test")
-    st.write("📛 User ID:", user_id)
-    st.write("🔄 Mode:", mode)
+    # === Get Kraken balances and prices
+    balances = get_live_balances(user_id=user_id, token=token)
+    prices = get_prices(user_id=user_id)
 
-    if st.button("1️⃣ Save Live Snapshot to Firebase"):
-        save_live_snapshot_from_kraken(user_id=user_id, token=token, mode=mode, debug=True)
+    st.subheader("🔁 Live Kraken Balances")
+    st.write(balances)
 
-    if st.button("2️⃣ Load Snapshot from Firebase"):
-        snapshot = load_portfolio_snapshot(user_id, token, mode)
-        st.write("🧾 Snapshot from Firebase:", snapshot)
+    st.subheader("💰 Current Prices")
+    st.write(prices)
 
-    st.write("✅ Token Present:", bool(token))
-    st.write("🔐 Token Preview:", token[:8] + "..." if token else "None")
+    # === Build snapshot
+    tracked = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
+    coins = {}
+    usd_balance = float(balances.get("USD", 0.0))
+    total_value = usd_balance
+
+    for coin in tracked:
+        amt = float(balances.get(coin, 0.0))
+        price = float(prices.get(coin, 0.0))
+        usd_val = round(amt * price, 2)
+        coins[coin] = {
+            "balance": round(amt, 8),
+            "usd_value": usd_val
+        }
+        total_value += usd_val
+
+    snapshot = {
+        "usd_balance": round(usd_balance, 2),
+        "coins": coins,
+        "timestamp": datetime.utcnow().isoformat(),
+        "total_value": round(total_value, 2)
+    }
+
+    st.subheader("📦 Snapshot Preview")
+    st.write(snapshot)
+
+    # === Save button
+    if st.button("🚀 Save Snapshot to Firebase"):
+        save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
+        st.success("✅ Snapshot saved.")
