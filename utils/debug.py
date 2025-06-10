@@ -2,6 +2,8 @@ import streamlit as st
 from utils.load_keys import load_user_api_keys
 from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.config import get_mode
+from utils.firebase_db import save_live_snapshot_from_kraken
+from utils.firebase_config import firebase
 
 def render_debug(user_id, token):
     st.title("🧪 Kraken Live Snapshot Debug")
