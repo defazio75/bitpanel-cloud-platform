@@ -169,7 +169,7 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live"):
     # === Track only desired coins ===
     tracked_symbols = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
     coins = {}
-    usd_balance = float(balances.get("USD", 0.0))
+    usd_balance = float(balances.get("ZUSD", 0.0))
     total_value = usd_balance
 
     for symbol in tracked_symbols:
