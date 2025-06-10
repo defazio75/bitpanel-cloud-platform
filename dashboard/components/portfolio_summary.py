@@ -102,31 +102,54 @@ def render_portfolio_summary(mode, user_id, token):
         else:
             st.warning("No coin holdings found.")
 
-    with col2:
-        if allocation_data:
-            df = pd.DataFrame(allocation_data)
-            df["value"] = pd.to_numeric(df["value"], errors="coerce")
-            df.dropna(subset=["value"], inplace=True)
+with col2:
+    if allocation_data:
+        # Convert to DataFrame
+        df = pd.DataFrame(allocation_data)
 
-            st.write("Final DF to Chart", df)
-            st.write("Dtypes:", df.dtypes)
-            
-            fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
+        # Debug: Raw allocation data
+        st.write("🚨 Raw Allocation Data:", allocation_data)
 
-            fig.update_traces(
-                textinfo='label+percent',
-                textposition='inside',
-                hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
-            )
+        # Convert 'value' column to numeric and drop bad rows
+        df["value"] = pd.to_numeric(df["value"], errors="coerce")
+        df.dropna(subset=["value"], inplace=True)
 
-            fig.update_layout(
-                showlegend=False,
-                height=400,
-                margin=dict(t=50, b=50, l=0, r=0)
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("No allocation data to plot.")
+        # Debug: Final DataFrame and types
+        st.write("✅ Final DataFrame Before Pie Chart:")
+        st.dataframe(df)
+
+        st.write("📊 Column dtypes:", df.dtypes)
+        st.write("💰 Sum of 'value':", df["value"].sum())
+        st.write("📈 Values list:", df["value"].tolist())
+        st.write("🪙 Coins list:", df["coin"].tolist())
+
+        # Safety check
+        if df["value"].sum() == 0 or df["value"].nunique() == 1:
+            st.warning("⚠️ All values are identical or zero. Pie chart may render evenly.")
+        
+        # Build pie chart
+        fig = px.pie(
+            df,
+            names="coin",
+            values="value",
+            title="Asset Allocation"
+        )
+
+        fig.update_traces(
+            textinfo='label+percent',
+            textposition='inside',
+            hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
+        )
+
+        fig.update_layout(
+            showlegend=False,
+            height=400,
+            margin=dict(t=50, b=50, l=0, r=0)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("No allocation data to plot.")
 
     # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
