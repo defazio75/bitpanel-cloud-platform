@@ -38,7 +38,7 @@ def render_portfolio_summary(mode, user_id, token):
 
     col1.metric("Total Portfolio Value", f"${total_value:,.2f}")
     col2.metric("USD Balance", f"${usd_balance:,.2f}")
-    col3.metric("BTC Price", f"${prices.get('BTC', 0):,.2f}")
+    col3.metric("BTC Price", f"${prices.get('BTC', {}).get('price', 0):,.2f}")
 
     # === Portfolio Allocation Section ===
     allocation_data = []
