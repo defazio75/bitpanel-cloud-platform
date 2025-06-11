@@ -1,10 +1,14 @@
 import streamlit as st
-from utils.firebase_db import load_strategy_allocations, save_strategy_allocations
+from utils.firebase_db import load_strategy_allocations, save_strategy_allocations, load_portfolio_snapshot
 from utils.config import get_mode
 
 # === Constants ===
 MARKET_ASSUMPTIONS = ["Bullish", "Neutral", "Bearish", "Custom"]
-COINS = ["BTC", "ETH", "SOL", "XRP", "DOT", "LINK"]
+snapshot = load_portfolio_snapshot(user_id, token, mode)
+portfolio_coins = snapshot.get("coins", {})
+
+# Filter coins where balance > 0
+coins = [coin for coin, data in portfolio_coins.items() if data.get("balance", 0) > 0]
 STRATEGIES = ["HODL", "5min RSI", "1hr RSI", "DCA Matrix", "Bollinger"]
 
 # === Render Strategy Allocation ===
