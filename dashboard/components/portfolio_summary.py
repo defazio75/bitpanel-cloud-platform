@@ -109,28 +109,18 @@ def render_portfolio_summary(mode, user_id, token):
     with col2:
         if allocation_data:
             df = pd.DataFrame(allocation_data)
-
-            # Debug: Allocation data
-            st.write("🚨 Raw Allocation Data:", allocation_data)
-
             df["value"] = pd.to_numeric(df["value"], errors="coerce")
             df.dropna(subset=["value"], inplace=True)
+            df.reset_index(drop=True, inplace=True)
 
             st.write("✅ Final DataFrame Before Pie Chart:")
             st.dataframe(df)
             st.write("📊 Column dtypes:", df.dtypes)
             st.write("💰 Sum of 'value':", df["value"].sum())
-            st.write("📈 Values list:", df['value'].tolist())
-            st.write("🪙 Coins list:", df['coin'].tolist())
 
             df["value"] = df["value"].astype(float)
 
-            fig = px.pie(
-                df,
-                names="coin",
-                values="value",
-                title="Asset Allocation"
-            )
+            fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
 
             fig.update_traces(
                 textinfo='label+percent',
@@ -142,9 +132,15 @@ def render_portfolio_summary(mode, user_id, token):
                 showlegend=False,
                 height=400,
                 margin=dict(t=50, b=50, l=0, r=0)
+                title_x=0.5,
+                uniformtext_minsize=12,
+                uniformtext_mode='hide'
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+
+
+            # Force fresh render with unique key
+            st.plotly_chart(fig, use_container_width=True, key=f"pie_chart_{df['value'].sum()}")
         else:
             st.warning("No allocation data to plot.")
 
