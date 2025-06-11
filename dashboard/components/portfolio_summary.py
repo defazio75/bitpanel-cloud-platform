@@ -23,7 +23,7 @@ def render_portfolio_summary(mode, user_id, token):
         return
 
     coins = list(snapshot.get("coins", {}).keys())
-    prices = get_prices(user_id=user_id)
+    prices = get_prices()
 
     # === Normalize price format ===
     for coin, val in prices.items():
