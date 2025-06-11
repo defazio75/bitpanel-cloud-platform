@@ -89,14 +89,33 @@ def render_strategy_controls(mode, user_id, token):
             if total_alloc != 100:
                 st.warning(f"⚠️ {coin}: Strategy allocation must total 100% (Current: {total_alloc}%)")
 
-        # Save button
-        if st.button(f"💾 Save {coin} Strategy", key=f"save_{coin}"):
-            if assumption == "Custom" and total_alloc != 100:
-                st.error("❌ Allocation must total 100% before saving.")
-            else:
-                updated = {"assumption": assumption}
-                updated.update(sliders)
-                save_strategy_allocations(user_id, coin, updated, mode, token)
-                st.success("✅ Strategy saved.")
+        # === Action Buttons ===
+        col1, col2 = st.columns([1, 1])
+
+        with col1:
+            if st.button(f"💾 Save {coin} Strategy", key=f"save_{coin}"):
+                if assumption == "Custom" and total_alloc != 100:
+                    st.error("❌ Allocation must total 100% before saving.")
+                else:
+                    updated = {"assumption": assumption}
+                    if assumption == "Custom":
+                        updated.update(sliders)
+                    save_strategy_allocations(user_id, coin, updated, mode, token)
+                    st.success("✅ Strategy saved.")
+
+        with col2:
+            if st.button(f"🛑 Stop {coin} Strategy", key=f"stop_{coin}"):
+                confirm = st.checkbox(f"Confirm stop {coin}", key=f"confirm_stop_{coin}")
+                if confirm:
+                    hodl_reset = {
+                        "assumption": "Custom",
+                        "HODL": 100,
+                        "5min RSI": 0,
+                        "1hr RSI": 0,
+                        "DCA Matrix": 0,
+                        "Bollinger": 0
+                    }
+                    save_strategy_allocations(user_id, coin, hodl_reset, mode, token)
+                    st.success(f"🛑 {coin} reverted to 100% HODL.")
 
         st.divider()
