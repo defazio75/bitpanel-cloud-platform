@@ -97,11 +97,16 @@ def render_strategy_controls(mode, user_id, token):
                 if assumption == "Custom" and total_alloc != 100:
                     st.error("❌ Allocation must total 100% before saving.")
                 else:
-                    updated = {"assumption": assumption}
-                    if assumption == "Custom":
-                        updated.update(sliders)
-                    save_strategy_allocations(user_id, coin, updated, mode, token)
-                    st.success("✅ Strategy saved.")
+                    confirm = st.checkbox(
+                        f"✅ Confirm starting {coin} strategy",
+                        key=f"confirm_{coin}"
+                    )
+                    if confirm:
+                        updated = {"assumption": assumption}
+                        if assumption == "Custom":
+                            updated.update(sliders)
+                        save_strategy_allocations(user_id, coin, updated, mode, token)
+                        st.success("✅ Strategy saved and activated.")
 
         with col2:
             if st.button(f"🛑 Stop {coin} Strategy", key=f"stop_{coin}"):
