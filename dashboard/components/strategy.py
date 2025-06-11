@@ -68,7 +68,6 @@ def render_strategy_controls(mode, user_id, token):
         sliders = {}
 
         if assumption in PRESET_ALLOCATIONS:
-            st.markdown(f"**💡 Preset Strategy Mix for {assumption} Market**")
             st.info(PRESET_ALLOCATIONS[assumption]["rationale"])
             preset = PRESET_ALLOCATIONS[assumption]["allocations"]
             for strat, value in preset.items():
