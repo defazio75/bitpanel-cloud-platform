@@ -18,4 +18,4 @@ def reset_password():
 
     if st.button("⬅️ Back to Login"):
         st.session_state.page = "login"
-        st.experimental_rerun()
+        st.rerun()
