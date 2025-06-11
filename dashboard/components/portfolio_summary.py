@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-#from streamlit_autorefresh import st_autorefresh
+import plotly.graph_objects as go
+from streamlit_autorefresh import st_autorefresh
 
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot, load_coin_state, save_live_snapshot_from_kraken
 
-#st_autorefresh(interval=10_000, key="auto_refresh_summary")
+st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 def render_portfolio_summary(mode, user_id, token):
 
@@ -118,40 +118,33 @@ def render_portfolio_summary(mode, user_id, token):
             st.write("📊 Column dtypes:", df.dtypes)
             st.write("💰 Sum of 'value':", df["value"].sum())
 
-            df["value"] = df["value"].apply(lambda x: float(x) if pd.notnull(x) else 0.0)
+            st.write("🧪 Manual Check: Coin → Value Mapping")
+            for i in range(len(df)):
+                st.write(f"{df['coin'][i]}: {df['value'][i]}")
 
-            st.write("🧪 Values Sent to Plotly:", df['value'].tolist())
-            st.write("🧪 Coins Sent to Plotly:", df['coin'].tolist())
-            st.write("🧪 Final DataFrame:", df)
-
-            fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
-
-            fig.update_traces(
-                textinfo='label+percent',
-                textposition='inside',
-                hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
-            )
+            # Build pie chart using go.Pie
+            fig = go.Figure(data=[
+                go.Pie(
+                    labels=df["coin"],
+                    values=df["value"],
+                    hole=0.3,
+                    textinfo='label+percent',
+                    hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})',
+                    marker=dict(line=dict(color='#000000', width=1))
+                )
+            ])
 
             fig.update_layout(
-                showlegend=False,
-                height=400,
-                margin=dict(t=50, b=50, l=0, r=0),
+                title_text="Asset Allocation",
                 title_x=0.5,
-                uniformtext_minsize=12,
-                uniformtext_mode='hide'
+                height=400,
+                showlegend=False,
+                margin=dict(t=50, b=50, l=0, r=0)
             )
 
-
-
-            # Force fresh render with unique key
-            st.plotly_chart(fig, use_container_width=True, key=f"pie_chart_{df['value'].sum()}")
+            st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning("No allocation data to plot.")
-
-    st.write("🧪 Manual Check: Coin → Value Mapping")
-    for i in range(len(df)):
-        st.write(f"{df['coin'][i]}: {df['value'][i]}")
-        st.stop()
 
     # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
