@@ -76,7 +76,7 @@ def render_portfolio_summary(mode, user_id, token):
     col1, col2 = st.columns([1.5, 1])
     with col1:
         if table_data:
-            st.markdown("### 💡 Coin Holdings")
+            st.markdown("### 💡 Coin Holdings", unsafe_allow_html=True)
 
             # Sort by USD Value descending
             sorted_table = sorted(table_data, key=lambda x: float(x["USD Value"].replace("$", "").replace(",", "")), reverse=True)
@@ -85,7 +85,7 @@ def render_portfolio_summary(mode, user_id, token):
                 coin = row['Coin']
                 usd_value = row['USD Value']
                 amount = row['Amount']
-                change = row['24H Change']
+                change = str(row['24H Change']).strip()
                 price = prices.get(coin, {}).get("price", 0)
                 
                 # Simple color logic
@@ -97,8 +97,8 @@ def render_portfolio_summary(mode, user_id, token):
                     change_color = "#000000"  # neutral
 
                 st.markdown(
-                    f"{coin} – {usd_value} "
-                    f"<span style='color:{change_color};'>({change})</span> | "
+                    f"<strong>{coin} – {usd_value} "
+                    f"<span style='color:{change_color};'>({change})</span></strong> | "
                     f"({amount}) @ ${price:,.2f}",
                     unsafe_allow_html=True
                 )
