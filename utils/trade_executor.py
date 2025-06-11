@@ -118,6 +118,13 @@ def send_live_order(order, token):
             print("❌ Kraken returned error:", result["error"])
             return
 
+        txids = result.get("result", {}).get("txid")
+        if not txids:
+            print("❌ Trade failed — no txid returned.")
+            return
+
+print(f"✅ Trade successful — Kraken TXID: {txids}")
+
         # Log to live portfolio
         log_trade_multi(
             user_id=user_id,
