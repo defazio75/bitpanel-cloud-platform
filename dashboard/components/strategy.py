@@ -6,6 +6,39 @@ from utils.config import get_mode
 MARKET_ASSUMPTIONS = ["Bullish", "Neutral", "Bearish", "Custom"]
 STRATEGIES = ["HODL", "5min RSI", "1hr RSI", "DCA Matrix", "Bollinger"]
 
+PRESET_ALLOCATIONS = {
+    "Bullish": {
+        "rationale": "Focus on high-momentum strategies with quick entry/exit logic to capitalize on upward trends.",
+        "allocations": {
+            "HODL": 40,
+            "5min RSI": 20,
+            "1hr RSI": 10,
+            "DCA Matrix": 10,
+            "Bollinger": 20
+        }
+    },
+    "Neutral": {
+        "rationale": "A balanced mix of all strategies to handle sideways markets and short-term reversals.",
+        "allocations": {
+            "HODL": 30,
+            "5min RSI": 10,
+            "1hr RSI": 10,
+            "DCA Matrix": 40,
+            "Bollinger": 10
+        }
+    },
+    "Bearish": {
+        "rationale": "Favor defensive and time-based accumulation strategies to reduce downside exposure.",
+        "allocations": {
+            "HODL": 20,
+            "5min RSI": 10,
+            "1hr RSI": 20,
+            "DCA Matrix": 40,
+            "Bollinger": 10
+        }
+    }
+}
+
 # === Render Strategy Allocation ===
 def render_strategy_controls(mode, user_id, token):
     st.title("🧠 Strategy Controls")
@@ -33,8 +66,16 @@ def render_strategy_controls(mode, user_id, token):
         )
 
         sliders = {}
-        if assumption == "Custom":
-            st.markdown("**Custom Allocation**")
+
+        if assumption in PRESET_ALLOCATIONS:
+            st.markdown(f"**💡 Preset Strategy Mix for {assumption} Market**")
+            st.info(PRESET_ALLOCATIONS[assumption]["rationale"])
+            preset = PRESET_ALLOCATIONS[assumption]["allocations"]
+            for strat, value in preset.items():
+                st.write(f"{strat}: **{value}%**")
+                sliders[strat] = value
+        elif assumption == "Custom":
+            st.markdown("**✏️ Custom Allocation**")
             total_alloc = 0
             for strat in STRATEGIES:
                 val = st.slider(
@@ -55,8 +96,7 @@ def render_strategy_controls(mode, user_id, token):
                 st.error("❌ Allocation must total 100% before saving.")
             else:
                 updated = {"assumption": assumption}
-                if assumption == "Custom":
-                    updated.update(sliders)
+                updated.update(sliders)
                 save_strategy_allocations(user_id, coin, updated, mode, token)
                 st.success("✅ Strategy saved.")
 
