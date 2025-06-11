@@ -97,18 +97,32 @@ def render_strategy_controls(mode, user_id, token):
                 if assumption == "Custom" and total_alloc != 100:
                     st.error("❌ Allocation must total 100% before saving.")
                 else:
-                    confirm = st.checkbox(
-                        f"✅ Confirm starting {coin} strategy",
-                        key=f"confirm_{coin}"
-                    )
-                    if confirm:
-                        updated = {"assumption": assumption}
-                        if assumption == "Custom":
-                            updated.update(sliders)
-                        else:
-                            updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
-                        save_strategy_allocations(user_id, coin, updated, mode, token)
-                        st.success("✅ Strategy saved and activated.")
+                    st.session_state[f"confirm_strategy_{coin}"] = True
+
+            # Confirmation prompt
+            if st.session_state.get(f"confirm_strategy_{coin}", False):
+                with st.container():
+                    st.markdown("### 🧠 Confirm Strategy Activation")
+                    st.write("BitPanel will begin running this strategy algorithm in your account.")
+                    st.write("Press Confirm to proceed.")
+
+                    confirm_col, cancel_col = st.columns([1, 1])
+                    with confirm_col:
+                        if st.button("✅ Confirm", key=f"confirm_button_{coin}"):
+                            updated = {"assumption": assumption}
+                            if assumption == "Custom":
+                                updated.update(sliders)
+                            else:
+                                updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
+
+                            save_strategy_allocations(user_id, coin, updated, mode, token)
+                            st.success("✅ Strategy saved and activated.")
+                            st.session_state[f"confirm_strategy_{coin}"] = False
+
+                    with cancel_col:
+                        if st.button("❌ Cancel", key=f"cancel_button_{coin}"):
+                            st.info("Strategy save cancelled.")
+                            st.session_state[f"confirm_strategy_{coin}"] = False
 
         with col2:
             if st.button(f"🛑 Stop {coin} Strategy", key=f"stop_{coin}"):
