@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from components.portfolio_summary import render_portfolio_summary
 from components.coin_allocation import render_coin_allocation
-from components.strategy_controls import render_strategy_controls
+from components.strategy import render_strategy_controls
 from components.performance import render as render_performance
 from components.current_positions import render as render_current_positions
 from components.settings_panel import render_settings_panel
