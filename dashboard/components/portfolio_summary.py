@@ -83,8 +83,11 @@ def render_portfolio_summary(mode, user_id, token):
 
             for row in sorted_table:
                 coin = row['Coin']
-                price = prices.get(coin, {}).get("price", 0)
+                usd_value = row['USD Value']
+                amount = row['Amount']
                 change = row['24H Change']
+                price = prices.get(coin, {}).get("price", 0)
+                
                 if change.startswith('+'):
                     change_color = "#2ecc71"  # Light green
                 elif change.startswith('-'):
@@ -94,10 +97,9 @@ def render_portfolio_summary(mode, user_id, token):
 
                 st.markdown(
                     f"""&nbsp;&nbsp;&nbsp;&nbsp;
-                    <strong>{row['Coin']}</strong> – ({row['Amount']}) | 
-                    <strong>{row['USD Value']}</strong> 
-                    @ ${price:,.2f}
-                    (<span style="color:{change_color};">{change}</span>)
+                    <strong>{coin}</strong> – <strong>{usd_value}</strong>
+                    (<span style="color:{change_color};">{change}</span>) | 
+                    ({amount}) @ ${price:,.2f}
                     """,
                     unsafe_allow_html=True
                 )
