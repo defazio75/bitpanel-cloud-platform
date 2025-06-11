@@ -123,7 +123,7 @@ def send_live_order(order, token):
             print("❌ Trade failed — no txid returned.")
             return
 
-print(f"✅ Trade successful — Kraken TXID: {txids}")
+        print(f"✅ Trade successful — Kraken TXID: {txids}")
 
         # Log to live portfolio
         log_trade_multi(
