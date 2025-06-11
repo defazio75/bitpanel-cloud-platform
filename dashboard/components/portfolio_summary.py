@@ -88,7 +88,7 @@ def render_portfolio_summary(mode, user_id, token):
                 change = row['24H Change']
                 price = prices.get(coin, {}).get("price", 0)
 
-                st.write(f"{coin} – ${usd_value} ({change})  |  ({amount}) @ ${price:,.2f}")
+                st.write(f"{coin} – {usd_value} ({change})  |  ({amount}) @ ${price:,.2f}")
         else:
             st.warning("No coin holdings found.")
 
