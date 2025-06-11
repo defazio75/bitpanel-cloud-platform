@@ -105,6 +105,8 @@ def render_strategy_controls(mode, user_id, token):
                         updated = {"assumption": assumption}
                         if assumption == "Custom":
                             updated.update(sliders)
+                        else:
+                            updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
                         save_strategy_allocations(user_id, coin, updated, mode, token)
                         st.success("✅ Strategy saved and activated.")
 
