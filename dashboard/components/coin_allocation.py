@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 from utils.trade_simulator import simulate_trade
 from utils.trade_executor import execute_trade
 
-def render(user_id, token, mode):
+def render_coin_allocation(mode, user_id, token):
     if not token and "token" in st.session_state:
         token = st.session_state.token
 
