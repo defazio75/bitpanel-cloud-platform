@@ -97,9 +97,9 @@ def render_portfolio_summary(mode, user_id, token):
 
                 st.markdown(
                     f"""&nbsp;&nbsp;&nbsp;&nbsp;
-                    <strong>{coin}</strong> – <strong>{usd_value}</strong>
-                    (<span style="color:{change_color};">{change}</span>) | 
-                    ({amount}) @ ${price:,.2f}
+                    <strong>{coin} – {usd_value} 
+                    <span style="color:{change_color};">{change}</span></strong>
+                    &emsp;|&emsp; ({amount}) @ ${price:,.2f}
                     """,
                     unsafe_allow_html=True
                 )
