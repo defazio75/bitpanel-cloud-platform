@@ -111,7 +111,7 @@ def send_live_order(order, token):
             "volume": round(volume, 6)
         }
 
-        result = rate_limited_query_private("AddOrder", params)
+        result = rate_limited_query_private("AddOrder", params, user_id=user_id, token=token)
         print("✅ Kraken order response:", result)
 
         if result.get("error"):
