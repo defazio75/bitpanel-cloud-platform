@@ -13,8 +13,14 @@ from utils.firebase_db import (
 )
 
 
-def simulate_trade(user_id, coin, action, amount, price=None):
-    mode = get_mode(user_id)
+def simulate_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None):
+    if not user_id:
+        print("❌ simulate_trade: user_id is required.")
+        return
+
+    if not mode:
+        mode = get_mode(user_id)
+
     token = st.session_state.get("token")
 
     # === Load current snapshot ===
