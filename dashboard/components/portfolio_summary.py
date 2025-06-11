@@ -63,7 +63,7 @@ def render_portfolio_summary(mode, user_id, token):
                 "Coin": coin,
                 "Amount": round(amount, 6),
                 "USD Value": f"${usd_value:,.2f}",
-                "24H Change": f"${change_pct:+.2f}%"
+                "24H Change": f"{change_pct:+.2f}%"
             })
 
     if usd_balance > 0:
@@ -97,9 +97,13 @@ def render_portfolio_summary(mode, user_id, token):
                     change_color = "#000000"  # neutral
 
                 st.markdown(
-                    f"<div style='font-weight:bold;'>{coin} – {usd_value} "
-                    f"<span style='color:{change_color};'>({change})</span> | "
-                    f"({amount}) @ {price:,.2f}</div>",
+                    f"""
+                    <p style='font-weight:bold; margin-bottom:0;'>
+                        {coin} – {usd_value}
+                        <span style="{change_style}">({change})</span> |
+                        ({amount}) @ {price:,.2f}
+                    </p>
+                    """,
                     unsafe_allow_html=True
                 )
         else:
