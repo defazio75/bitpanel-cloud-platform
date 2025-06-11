@@ -131,7 +131,7 @@ def render_portfolio_summary(mode, user_id, token):
             fig.update_layout(
                 showlegend=False,
                 height=400,
-                margin=dict(t=50, b=50, l=0, r=0)
+                margin=dict(t=50, b=50, l=0, r=0),
                 title_x=0.5,
                 uniformtext_minsize=12,
                 uniformtext_mode='hide'
