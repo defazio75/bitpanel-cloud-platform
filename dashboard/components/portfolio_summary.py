@@ -31,14 +31,13 @@ def render_portfolio_summary(mode, user_id, token):
             prices[coin] = {"price": float(val), "change_pct": 0.0}
     
     # === Portfolio Header ===
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     usd_balance = snapshot.get("usd_balance", 0.0)
     total_value = snapshot.get("total_value", usd_balance)
 
     col1.metric("Total Portfolio Value", f"${total_value:,.2f}")
     col2.metric("USD Balance", f"${usd_balance:,.2f}")
-    col3.metric("BTC Price", f"${prices.get('BTC', {}).get('price', 0):,.2f}")
 
     # === Portfolio Allocation Section ===
     allocation_data = []
@@ -83,6 +82,8 @@ def render_portfolio_summary(mode, user_id, token):
             sorted_table = sorted(table_data, key=lambda x: float(x["USD Value"].replace("$", "").replace(",", "")), reverse=True)
 
             for row in sorted_table:
+                coin = row['Coin']
+                price = prices.get(coin, {}).get("price", 0)
                 change = row['24H Change']
                 if change.startswith('+'):
                     change_color = "#2ecc71"  # Light green
@@ -95,6 +96,7 @@ def render_portfolio_summary(mode, user_id, token):
                     f"""&nbsp;&nbsp;&nbsp;&nbsp;
                     <strong>{row['Coin']}</strong> – ({row['Amount']}) | 
                     <strong>{row['USD Value']}</strong> 
+                    @ ${price:,.2f}
                     (<span style="color:{change_color};">{change}</span>)
                     """,
                     unsafe_allow_html=True
