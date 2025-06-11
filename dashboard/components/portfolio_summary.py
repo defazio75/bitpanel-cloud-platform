@@ -52,7 +52,7 @@ def render_portfolio_summary(mode, user_id, token):
         amount = data.get("balance", 0.0)
         price_info = prices.get(coin, {})
         price = price_info.get("price", 0.0)
-        change_pct = price_info.get("change_pct", 0.0)
+        change_pct = price_info.get("pct_change", 0.0) if isinstance(price_info, dict) else 0.0
         usd_value = round(amount * price, 2)
 
         if usd_value > 0:
