@@ -126,7 +126,7 @@ def send_live_order(order, token):
             action=action,
             amount=amount,
             price=price,
-            mode=mode
+            mode=mode,
             notes="Executed via live Kraken order"
         )
 
