@@ -47,7 +47,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
         st.success("✅ API keys already saved.")
         if st.button("✏️ Edit API Keys"):
             st.session_state.api_keys_saved = False
-            st.experimental_rerun()
+            st.rerun()
         return
     
     key_status = "✅ Keys saved" if current_keys else "❌ No keys saved"
@@ -64,7 +64,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 save_user_api_keys(user_id, selected_exchange, new_key, new_secret, token=token)
                 st.success("✅ API keys saved successfully.")
                 st.session_state.api_keys_saved = True
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Please enter both API key and secret.")
 
