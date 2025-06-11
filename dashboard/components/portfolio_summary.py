@@ -109,8 +109,8 @@ def render_portfolio_summary(mode, user_id, token):
     with col2:
         st.title("Test Pie Chart")
 
-        labels = ["BTC", "ETH", "XRP", "USD"]
-        values = [254.07, 131.33, 17.83, 112.64]
+        labels = [entry["coin"] for entry in allocation_data]
+        values = [entry["value"] for entry in allocation_data]
 
         fig = go.Figure(data=[go.Pie(
             labels=labels,
