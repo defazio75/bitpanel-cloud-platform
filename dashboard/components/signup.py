@@ -44,11 +44,11 @@ def signup():
 
                 st.success("✅ Account created successfully!")
                 st.session_state.page = "login"
-                st.experimental_rerun()
+                st.rerun()
                 
             except Exception as e:
                 st.error("❌ Account creation failed. Email may already be in use.")
 
     if st.button("← Back to Login"):
         st.session_state.page = "login"
-        st.experimental_rerun()
+        st.rerun()
