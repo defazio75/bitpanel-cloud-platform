@@ -13,7 +13,7 @@ def render_strategy_controls(mode, user_id, token):
     st.caption(f"Mode: `{mode.upper()}`")
 
     # Initialize strategy data
-    strategy_data = load_strategy_allocations(user_id, token, mode)
+    strategy_data = load_strategy_allocations(user_id, token, mode) or {}
 
     for coin in COINS:
         st.subheader(f"{coin} Strategy")
