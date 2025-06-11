@@ -96,7 +96,12 @@ def render_portfolio_summary(mode, user_id, token):
                 else:
                     change_color = "#000000"  # neutral
 
-                st.write(f"{coin} – {usd_value} ({change}) | ({amount}) @ {price:,.2f}")
+                st.markdown(
+                    f"{coin} – {usd_value} "
+                    f"<span style='color:{change_color};'>({change})</span> | "
+                    f"({amount}) @ {price:,.2f}",
+                    unsafe_allow_html=True
+                )
         else:
             st.warning("No coin holdings found.")
 
