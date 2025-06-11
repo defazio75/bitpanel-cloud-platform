@@ -43,22 +43,28 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
     }, token)
 
 # === STRATEGY CONFIGURATION ===
-def save_strategy_allocations(user_id, config, token, mode):
+def save_strategy_allocations(user_id, coin, config, mode, token):
     firebase.database() \
         .child("users") \
         .child(user_id) \
         .child(mode) \
         .child("strategy_allocations") \
+        .child(coin) \
         .set(config, token)
 
-def load_strategy_allocations(user_id, token, mode):
-    data = firebase.database() \
+def load_strategy_allocations(user_id, token, mode, coin=None):
+    ref = firebase.database() \
         .child("users") \
         .child(user_id) \
         .child(mode) \
-        .child("strategy_allocations") \
-        .get(token) \
-        .val()
+        .child("strategy_allocations")
+    
+    if coin:
+        data = ref.child(coin).get(token).val()
+    else:
+        data = ref.get(token).val()
+
+    return data if data else {}
 
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token, mode):
