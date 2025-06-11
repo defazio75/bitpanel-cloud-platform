@@ -44,10 +44,10 @@ def login():
     with col2:
         if st.button("Create Account"):
             st.session_state.page = "signup"
-            st.experimental_rerun()
+            st.rerun()
 
         # Forgot Password button
         if st.button("🔑 Forgot Password?"):
             st.session_state.reset_email = email  # pre-fill on next page
             st.session_state.page = "reset_password"
-            st.experimental_rerun()    
+            st.rerun()   
