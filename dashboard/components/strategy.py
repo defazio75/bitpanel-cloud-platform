@@ -19,7 +19,7 @@ def render_strategy_controls(mode, user_id, token):
     # Initialize strategy data
     strategy_data = load_strategy_allocations(user_id, token, mode) or {}
 
-    for coin in COINS:
+    for coin in coins:
         st.subheader(f"{coin} Strategy")
 
         # Market assumption selector
