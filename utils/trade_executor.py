@@ -84,9 +84,16 @@ def send_live_order(order, token):
     print(order)
 
     try:
+        user_id = order["user_id"]
         coin = order["coin"]
-        side = order["action"]
-        volume = order["amount"]
+        bot_name = order.get("bot_name", "Unknown")
+        action = order["action"]
+        amount = order["amount"]
+        price = order["price"]
+        mode = order["mode"]
+        
+        side = action
+        volume = amount
         pair_map = {
             "BTC": "XXBTZUSD", "ETH": "XETHZUSD", "SOL": "SOLUSD",
             "XRP": "XXRPZUSD", "DOT": "DOTUSD", "LINK": "LINKUSD"
@@ -115,12 +122,12 @@ def send_live_order(order, token):
         log_trade_multi(
             user_id=user_id,
             coin=coin,
-            strategy=bot_name,
+            strategy="Manual Trade",
             action=action,
             amount=amount,
             price=price,
-            mode=mode,
-            notes="Manual Trade Executed"
+            mode=mode
+            notes="Executed via live Kraken order"
         )
 
     except Exception as e:
