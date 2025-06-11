@@ -121,7 +121,7 @@ def render_portfolio_summary(mode, user_id, token):
         )])
 
         fig.update_layout(
-            title=dict(text="💰 Portfolio Breakdown", x=0.5, font=dict(size=20)),
+            title=dict(text="💰 Portfolio Breakdown", x=0.0, xanchor="left", font=dict(size=20)),
             showlegend=False,
             height=400,
             margin=dict(t=50, b=50, l=0, r=0),
