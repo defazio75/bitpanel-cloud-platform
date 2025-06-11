@@ -87,13 +87,6 @@ def render_portfolio_summary(mode, user_id, token):
                 amount = row['Amount']
                 change = row['24H Change']
                 price = prices.get(coin, {}).get("price", 0)
-                
-                if change.startswith('+'):
-                    change_color = "#2ecc71"  # Light green
-                elif change.startswith('-'):
-                    change_color = "#e74c3c"  # Light red
-                else:
-                    change_color = "#000000"  # Default black
 
                 st.write(f"{coin} – {usd_value} ({change})  |  ({amount}) @ ${price:,.2f}")
         else:
