@@ -72,7 +72,7 @@ def render_portfolio_summary(mode, user_id, token):
             "value": round(usd_balance, 2)
         })
 
-    # Display in two columns: table + pie
+    #Section 2
     col1, col2 = st.columns([1.5, 1])
     with col1:
         if table_data:
@@ -88,7 +88,20 @@ def render_portfolio_summary(mode, user_id, token):
                 change = row['24H Change']
                 price = prices.get(coin, {}).get("price", 0)
 
-                st.write(f"{coin} – {usd_value} ({change})  |  ({amount}) @ ${price:,.2f}")
+                # Simple color logic
+                if change.startswith('+'):
+                    change_color = "#2ecc71"  # green
+                elif change.startswith('-'):
+                    change_color = "#e74c3c"  # red
+                else:
+                    change_color = "#000000"  # neutral
+
+                st.markdown(
+                    f"{coin} – <strong>{usd_value}</strong> "
+                    f"<span style='color:{change_color};'>({change})</span>  |  "
+                    f"({amount}) @ ${price:,.2f}",
+                    unsafe_allow_html=True
+                )
         else:
             st.warning("No coin holdings found.")
 
