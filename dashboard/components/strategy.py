@@ -4,17 +4,17 @@ from utils.config import get_mode
 
 # === Constants ===
 MARKET_ASSUMPTIONS = ["Bullish", "Neutral", "Bearish", "Custom"]
-snapshot = load_portfolio_snapshot(user_id, token, mode)
-portfolio_coins = snapshot.get("coins", {})
-
-# Filter coins where balance > 0
-coins = [coin for coin, data in portfolio_coins.items() if data.get("balance", 0) > 0]
 STRATEGIES = ["HODL", "5min RSI", "1hr RSI", "DCA Matrix", "Bollinger"]
 
 # === Render Strategy Allocation ===
 def render_strategy_controls(mode, user_id, token):
     st.title("🧠 Strategy Controls")
     st.caption(f"Mode: `{mode.upper()}`")
+
+    # Load user portfolio and filter coins with non-zero balances
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    portfolio_coins = snapshot.get("coins", {})
+    coins = [coin for coin, data in portfolio_coins.items() if data.get("balance", 0) > 0]
 
     # Initialize strategy data
     strategy_data = load_strategy_allocations(user_id, token, mode) or {}
