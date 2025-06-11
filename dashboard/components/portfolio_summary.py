@@ -107,44 +107,21 @@ def render_portfolio_summary(mode, user_id, token):
             st.warning("No coin holdings found.")
 
     with col2:
-        if allocation_data:
-            df = pd.DataFrame(allocation_data)
-            df["value"] = pd.to_numeric(df["value"], errors="coerce")
-            df.dropna(subset=["value"], inplace=True)
-            df.reset_index(drop=True, inplace=True)
+        st.title("Test Pie Chart")
 
-            st.write("✅ Final DataFrame Before Pie Chart:")
-            st.dataframe(df)
-            st.write("📊 Column dtypes:", df.dtypes)
-            st.write("💰 Sum of 'value':", df["value"].sum())
+        labels = ["BTC", "ETH", "XRP", "USD"]
+        values = [254.07, 131.33, 17.83, 112.64]
 
-            st.write("🧪 Manual Check: Coin → Value Mapping")
-            for i in range(len(df)):
-                st.write(f"{df['coin'][i]}: {df['value'][i]}")
+        fig = go.Figure(data=[go.Pie(
+            labels=labels,
+            values=values,
+            hole=0.3,
+            textinfo="label+percent",
+            hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
+        )])
 
-            # Build pie chart using go.Pie
-            fig = go.Figure(data=[
-                go.Pie(
-                    labels=df["coin"],
-                    values=df["value"],
-                    hole=0.3,
-                    textinfo='label+percent',
-                    hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})',
-                    marker=dict(line=dict(color='#000000', width=1))
-                )
-            ])
-
-            fig.update_layout(
-                title_text="Asset Allocation",
-                title_x=0.5,
-                height=400,
-                showlegend=False,
-                margin=dict(t=50, b=50, l=0, r=0)
-            )
-
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("No allocation data to plot.")
+        fig.update_layout(title="Working Pie Test", title_x=0.5)
+        st.plotly_chart(fig, use_container_width=True)
 
     # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
