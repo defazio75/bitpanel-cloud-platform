@@ -107,7 +107,6 @@ def render_portfolio_summary(mode, user_id, token):
             st.warning("No coin holdings found.")
 
     with col2:
-        st.title("Test Pie Chart")
 
         labels = [entry["coin"] for entry in allocation_data]
         values = [entry["value"] for entry in allocation_data]
@@ -117,10 +116,16 @@ def render_portfolio_summary(mode, user_id, token):
             values=values,
             hole=0.3,
             textinfo="label+percent",
+            textfont=dict(size=14),
             hovertemplate='%{label}: $%{value:,.2f}<br>(%{percent})'
         )])
 
-        fig.update_layout(title="Working Pie Test", title_x=0.5)
+        fig.update_layout(
+            title=dict(text="💰 Portfolio Breakdown", x=0.5, font=dict(size=20)),
+            showlegend=False,
+            height=400,
+            margin=dict(t=50, b=50, l=0, r=0),
+        )
         st.plotly_chart(fig, use_container_width=True)
 
     # === Portfolio Performance ===
