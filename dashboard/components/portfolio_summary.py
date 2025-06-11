@@ -118,7 +118,11 @@ def render_portfolio_summary(mode, user_id, token):
             st.write("📊 Column dtypes:", df.dtypes)
             st.write("💰 Sum of 'value':", df["value"].sum())
 
-            df["value"] = df["value"].astype(float)
+            df["value"] = df["value"].apply(lambda x: float(x) if pd.notnull(x) else 0.0)
+
+            st.write("🧪 Values Sent to Plotly:", df['value'].tolist())
+            st.write("🧪 Coins Sent to Plotly:", df['coin'].tolist())
+            st.write("🧪 Final DataFrame:", df)
 
             fig = px.pie(df, names="coin", values="value", title="Asset Allocation")
 
@@ -143,6 +147,11 @@ def render_portfolio_summary(mode, user_id, token):
             st.plotly_chart(fig, use_container_width=True, key=f"pie_chart_{df['value'].sum()}")
         else:
             st.warning("No allocation data to plot.")
+
+    st.write("🧪 Manual Check: Coin → Value Mapping")
+    for i in range(len(df)):
+        st.write(f"{df['coin'][i]}: {df['value'][i]}")
+        st.stop()
 
     # === Portfolio Performance ===
     st.subheader("📊 Portfolio Performance")
