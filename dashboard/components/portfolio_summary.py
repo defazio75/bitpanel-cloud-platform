@@ -22,10 +22,6 @@ def render_portfolio_summary(mode, user_id, token):
         st.warning(f"No portfolio data found for {mode.upper()} mode.")
         return
 
-    # ✅ Add this right here
-    if st.button("🔄 Refresh Chart"):
-        st.rerun()
-
     coins = list(snapshot.get("coins", {}).keys())
     prices = get_prices(user_id=user_id)
 
