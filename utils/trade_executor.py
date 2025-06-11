@@ -18,19 +18,7 @@ def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_i
     if not user_id:
         raise ValueError("❌ user_id is required for execute_trade.")
 
-    token = st.session_state.user["token"]
-
-    # Log internal audit
-    log_execution_event(
-        bot_name=bot_name,
-        action=action,
-        coin=coin,
-        amount=amount,
-        price=price,
-        mode=mode,
-        user_id=user_id,
-        message="Executed via execute_trade()"
-    )
+    token = st.session_state.get("token")
 
     order = {
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
@@ -125,14 +113,14 @@ def send_live_order(order, token):
 
         # Log to live portfolio
         log_trade_multi(
-            user_id=order["user_id"],
-            coin=order["coin"],
-            strategy=order.get("bot_name", "Unknown"),
-            action=order["action"],
-            amount=order["amount"],
-            price=order["price"],
-            mode=order["mode"],
-            notes="Executed via send_live_order()"
+            user_id=user_id,
+            coin=coin,
+            strategy=bot_name,
+            action=action,
+            amount=amount,
+            price=price,
+            mode=mode,
+            notes="Manual Trade Executed"
         )
 
     except Exception as e:
