@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.firebase_db import load_strategy_allocations, save_strategy_allocations, load_portfolio_snapshot
+from utils.firebase_db import load_strategy_allocations, save_strategy_allocations, load_portfolio_snapshot, initialize_strategy_state
 from utils.config import get_mode
 
 # === Constants ===
@@ -116,6 +116,7 @@ def render_strategy_controls(mode, user_id, token):
                                 updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
 
                             save_strategy_allocations(user_id, coin, updated, mode, token)
+                            initialize_strategy_state(user_id, coin="BTC", strategy="RSI_5MIN", mode=mode, token=token)
                             st.success("✅ Strategy saved and activated.")
                             st.session_state[f"confirm_strategy_{coin}"] = False
 
@@ -137,6 +138,7 @@ def render_strategy_controls(mode, user_id, token):
                         "Bollinger": 0
                     }
                     save_strategy_allocations(user_id, coin, hodl_reset, mode, token)
+                    initialize_strategy_state(user_id, coin="BTC", strategy="RSI_5MIN", mode=mode, token=token)
                     st.success(f"🛑 {coin} reverted to 100% HODL.")
 
         st.divider()
