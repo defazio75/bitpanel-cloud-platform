@@ -18,7 +18,7 @@ if mode == "live":
 else:
     from utils.trade_simulator import execute_trade
 
-STRATEGY = "BOLLINGER"
+STRATEGY = "Bollinger"
 
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
     data = load_strategy_allocations(user_id, token, mode) or {}
