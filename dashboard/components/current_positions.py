@@ -64,7 +64,7 @@ def render_current_positions(mode, user_id, token):
     coin_state = load_coin_state(user_id=user_id, coin=coin_upper, token=token, mode=mode)
 
     # Get strategy names
-    strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLLINGER"]
+    strategies = ["HODL", "5min RSI", "1hr RSI", "Bollinger", "DCA Matrix"]
 
     total_coin = 0.0
     total_usd = 0.0
