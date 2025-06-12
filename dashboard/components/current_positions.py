@@ -66,8 +66,8 @@ def render_current_positions(mode, user_id, token):
     # Get strategy names
     strategies = ["HODL", "5min RSI", "1hr RSI", "Bollinger", "DCA Matrix"]
 
-    total_coin = 0.0
-    total_usd = 0.0
+    coin_balance = coin_data.get(coin_upper, {}).get("balance", 0.0)
+    coin_usd_value = round(coin_balance * coin_price, 2)
     active_count = 0
     table_rows = []
 
@@ -104,5 +104,5 @@ def render_current_positions(mode, user_id, token):
 
     df = pd.DataFrame(table_rows)
     df.index = [""] * len(df)  # This hides the row index
-    with st.expander(f"💰 {coin_upper} — ${total_usd:,.2f} | {total_coin:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
+    with st.expander(f"💰 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
         st.table(df)
