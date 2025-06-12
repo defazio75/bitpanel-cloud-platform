@@ -7,6 +7,8 @@ from datetime import datetime
 
 def render_current_positions(mode, user_id, token):
     st.title("📍 Current Positions")
+    st.subheader("🧠 Overview Pulse")
+    st.caption("A real-time snapshot of your portfolio and active strategy activity.")
 
     # === Load Prices and Portfolio ===
     prices = get_prices(user_id=user_id)
