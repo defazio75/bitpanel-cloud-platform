@@ -1,22 +1,49 @@
 import time
+import threading
 import traceback
-from utils.firebase_db import get_all_user_ids, get_api_keys, load_strategy_config
+from utils.firebase_db import get_all_user_ids, get_api_keys, load_strategy_config, save_portfolio_snapshot
 from utils.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
-from config.config import get_mode
+from utils.config import get_mode
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
 
+# === Background Snapshot Thread ===
+def snapshot_loop(user_id, token):
+    mode = get_mode(user_id)
+    while True:
+        print(f"[SNAPSHOT] Saving snapshot for {user_id} in {mode} mode...")
+        save_portfolio_snapshot(user_id, token, mode)
+        time.sleep(60)
+
+# === Main Controller ===
 def run_controller():
+    user_ids = get_all_user_ids()
+
+    # Launch snapshot thread once per user
+    for user_id in user_ids:
+        try:
+            mode = get_mode(user_id)
+            if mode == "live":
+                api_keys = get_api_keys(user_id)
+                token = api_keys.get("token") if api_keys else None
+            else:
+                token = None
+
+            threading.Thread(target=snapshot_loop, args=(user_id, token), daemon=True).start()
+
+        except Exception as e:
+            print(f"❌ Error starting snapshot thread for {user_id}: {e}")
+            traceback.print_exc()
+
+    # Main loop runs bots
     while True:
         print(f"🔁 Running controller loop at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-        user_ids = get_all_user_ids()
 
         for user_id in user_ids:
             try:
                 mode = get_mode(user_id)
-                strategy_config = load_strategy_config(user_id, token=None)  # Public read allowed in paper
+                strategy_config = load_strategy_config(user_id, token=None)
 
                 if mode == "live":
                     api_keys = get_api_keys(user_id)
@@ -48,6 +75,3 @@ def run_controller():
 
         print("⏳ Waiting for next loop...\n")
         time.sleep(LOOP_INTERVAL)
-
-if __name__ == "__main__":
-    run_controller()
