@@ -5,6 +5,17 @@ import pandas as pd
 import os
 from datetime import datetime
 
+def calculate_live_portfolio_value(snapshot, prices):
+    total = snapshot.get("usd_balance", 0.0)
+    coins = snapshot.get("coins", {})
+
+    for coin, info in coins.items():
+        balance = info.get("balance", 0.0)
+        price = prices.get(coin.upper(), 0.0)
+        total += round(balance * price, 2)
+
+    return round(total, 2)
+
 def render_current_positions(mode, user_id, token):
     st.title("📍 Current Positions")
     st.subheader("🧠 Overview Pulse")
@@ -13,7 +24,7 @@ def render_current_positions(mode, user_id, token):
     # === Load Prices and Portfolio ===
     prices = get_prices(user_id=user_id)
     snapshot = load_portfolio_snapshot(user_id, token, mode)
-    total_value = snapshot.get("total_value", 0.0)
+    total_value = calculate_live_portfolio_value(snapshot, prices)
     usd_balance = snapshot.get("usd_balance", 0.0)
     coin_data = snapshot.get("coins", {})
 
