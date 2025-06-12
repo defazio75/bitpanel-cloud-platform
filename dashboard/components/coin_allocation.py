@@ -84,7 +84,15 @@ def render_coin_allocation(mode, user_id, token):
             if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
                 if usd_amount > 0:
                     if mode == "paper":
-                        simulate_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                        simulate_trade(
+                            bot_name="ManualTrade",
+                            action="buy",
+                            amount=coin_amt,
+                            price=coin_price,
+                            mode=mode,
+                            coin=selected_coin,
+                            user_id=user_id
+                        )
                     else:
                         execute_trade(
                             bot_name="ManualTrade",
@@ -111,7 +119,15 @@ def render_coin_allocation(mode, user_id, token):
             if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
                 if sell_amt > 0:
                     if mode == "paper":
-                        simulate_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                        simulate_trade(
+                            bot_name="ManualTrade",
+                            action="sell",
+                            amount=coin_amt,
+                            price=coin_price,
+                            mode=mode,
+                            coin=selected_coin,
+                            user_id=user_id
+                        )
                     else:
                         execute_trade(
                             bot_name="ManualTrade",
