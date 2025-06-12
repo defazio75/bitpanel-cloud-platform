@@ -16,7 +16,7 @@ if mode == "live":
 else:
     from utils.trade_simulator import execute_trade
 
-STRATEGY = "RSI_1HR"
+STRATEGY = "1Hr RSI"
 RSI_PERIOD = 14
 BUY_THRESHOLD = 30
 SELL_THRESHOLD = 70
