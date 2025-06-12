@@ -231,3 +231,36 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live", debug=False):
         if debug:
             st.error("❌ Failed to write snapshot to Firebase.")
             st.exception(e)
+
+def initialize_strategy_state(user_id, coin, strategy, mode="paper", token=None):
+    """Ensure the strategy state exists and is marked Active with default values."""
+    from utils.kraken_wrapper import get_prices
+    prices = get_prices(user_id=user_id)
+    price = prices.get(coin.upper(), 0.0)
+
+    # Load current coin state
+    state = load_coin_state(user_id=user_id, coin=coin, token=token, mode=mode)
+
+    if strategy not in state:
+        state[strategy] = {}
+
+    state[strategy].update({
+        "status": "Active",
+        "amount": 0.0,
+        "usd_held": 0.0,
+        "buy_price": price,
+        "indicator": "—",
+        "target": get_default_target(strategy),
+        "last_action": "Waiting",
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
+    save_coin_state(user_id=user_id, coin=coin, state_data=state, token=token, mode=mode)
+
+def get_default_target(strategy):
+    return {
+        "RSI_5MIN": "RSI < 30",
+        "RSI_1HR": "RSI < 30 / > 70",
+        "BOLLINGER": "Bandwidth breakout",
+        "HODL": "Hold position"
+    }.get(strategy.upper(), "—")
