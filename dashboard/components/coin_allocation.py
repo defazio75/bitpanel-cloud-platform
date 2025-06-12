@@ -122,7 +122,7 @@ def render_coin_allocation(mode, user_id, token):
                         simulate_trade(
                             bot_name="ManualTrade",
                             action="sell",
-                            amount=coin_amt,
+                            amount=sell_amt,
                             price=coin_price,
                             mode=mode,
                             coin=selected_coin,
