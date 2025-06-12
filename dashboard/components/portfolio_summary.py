@@ -11,11 +11,11 @@ st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
 def calculate_live_portfolio_value(snapshot, prices):
     total = snapshot.get("usd_balance", 0.0)
-    coins = snapshot.get("coins", {})
 
-    for coin, info in coins.items():
-        balance = info.get("balance", 0.0)
-        price = prices.get(coin.upper(), 0.0)
+    for coin, data in snapshot.get("coins", {}).items():
+        balance = data.get("balance", 0.0)
+        price_data = prices.get(coin, {})
+        price = price_data.get("price", 0.0)
         total += round(balance * price, 2)
 
     return round(total, 2)
