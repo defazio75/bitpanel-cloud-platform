@@ -7,12 +7,10 @@ from datetime import datetime
 
 def calculate_live_portfolio_value(snapshot, prices):
     total = snapshot.get("usd_balance", 0.0)
-
     for coin, data in snapshot.get("coins", {}).items():
         balance = data.get("balance", 0.0)
-        price = prices.get(coin, 0.0)  # This is already a float
+        price = prices.get(coin, 0.0)
         total += round(balance * price, 2)
-
     return round(total, 2)
 
 def render_current_positions(mode, user_id, token):
@@ -71,10 +69,13 @@ def render_current_positions(mode, user_id, token):
 
         for strat in strategy_list:
             s = coin_state.get(strat, {})
+            status = s.get("status", "Inactive")
+    
+            if status != "Active":
+                continue  # Skip strategies that are not active
+
             amount = s.get("amount", 0.0)
             usd_held = s.get("usd_held", 0.0)
-            status = s.get("status", "Inactive")
-            buy_price = s.get("buy_price", 0.0)
 
             in_market = amount > 0
             position_value = round(amount * coin_price, 2)
