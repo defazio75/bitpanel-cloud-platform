@@ -240,20 +240,28 @@ def initialize_strategy_state(user_id, coin, strategy, mode="paper", token=None)
 
     # Load current coin state
     state = load_coin_state(user_id=user_id, coin=coin, token=token, mode=mode)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    coin_balance = snapshot.get("coins", {}).get(coin.upper(), {}).get("balance", 0.0)
 
+    # Count active strategies (including this one if not already present)
+    existing_active = sum(1 for s in state if state[s].get("status") == "Active")
     if strategy not in state:
-        state[strategy] = {}
+        existing_active += 1  # Count this strategy if new
 
-    state[strategy].update({
+    # Avoid divide-by-zero
+    active_count = existing_active if existing_active > 0 else 1
+    assigned_amount = round(coin_balance / active_count, 8)
+
+    state[strategy] = {
         "status": "Active",
-        "amount": 0.0,
+        "amount": assigned_amount,
         "usd_held": 0.0,
         "buy_price": price,
         "indicator": "—",
         "target": get_default_target(strategy),
         "last_action": "Waiting",
         "timestamp": datetime.utcnow().isoformat()
-    })
+    }
 
     save_coin_state(user_id=user_id, coin=coin, state_data=state, token=token, mode=mode)
 
