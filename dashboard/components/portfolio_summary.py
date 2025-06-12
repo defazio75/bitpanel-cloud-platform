@@ -9,6 +9,17 @@ from utils.firebase_db import load_portfolio_snapshot, load_performance_snapshot
 
 st_autorefresh(interval=10_000, key="auto_refresh_summary")
 
+def calculate_live_portfolio_value(snapshot, prices):
+    total = snapshot.get("usd_balance", 0.0)
+    coins = snapshot.get("coins", {})
+
+    for coin, info in coins.items():
+        balance = info.get("balance", 0.0)
+        price = prices.get(coin.upper(), 0.0)
+        total += round(balance * price, 2)
+
+    return round(total, 2)
+
 def render_portfolio_summary(mode, user_id, token):
 
     # === Sync live balances before loading (LIVE MODE ONLY) ===
@@ -34,7 +45,7 @@ def render_portfolio_summary(mode, user_id, token):
     col1, col2 = st.columns(2)
     
     usd_balance = snapshot.get("usd_balance", 0.0)
-    total_value = snapshot.get("total_value", usd_balance)
+    total_value = calculate_live_portfolio_value(snapshot, prices)
 
     col1.metric("Total Portfolio Value", f"${total_value:,.2f}")
     col2.metric("USD Balance", f"${usd_balance:,.2f}")
