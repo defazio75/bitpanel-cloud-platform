@@ -42,3 +42,54 @@ def render_current_positions(mode, user_id, token):
     col2.metric("💰 USD Balance", f"${usd_balance:,.2f}")
     col3.metric("🤖 Bots Active", f"{strategy_count} strategies")
     col4.metric("⏱️ Last Trigger", last_trade)
+
+    # === Per-Coin Strategy Cards ===
+    st.markdown("---")
+    st.subheader("📦 Per-Coin Strategy Breakdown")
+
+    # We’ll start with BTC
+    coin = "BTC"
+    coin_upper = coin.upper()
+    coin_price = prices.get(coin_upper, 0.0)
+    coin_state = load_coin_state(user_id=user_id, coin=coin_upper, token=token, mode=mode)
+
+    # Get strategy names
+    strategies = ["HODL", "RSI_5MIN", "RSI_1HR", "BOLLINGER"]
+
+    total_coin = 0.0
+    total_usd = 0.0
+    active_count = 0
+    table_rows = []
+
+    for strat in strategies:
+        s = coin_state.get(strat, {})
+        amount = s.get("amount", 0.0)
+        usd_held = s.get("usd_held", 0.0)
+        status = s.get("status", "Inactive")
+        buy_price = s.get("buy_price", 0.0)
+        indicator = s.get("indicator", "—")
+        target = s.get("target", "—")
+        last_action = s.get("last_action", "—")
+
+        total = round((amount * coin_price) + usd_held, 2)
+        pnl = round(total - (amount * buy_price if buy_price else 0), 2) if status == "Active" else 0.0
+
+        if status == "Active":
+            active_count += 1
+
+        table_rows.append({
+            "Strategy": strat,
+            "Status": status,
+            "Amount": f"{amount:.6f}",
+            "USD Value": f"${total:,.2f}",
+            "Indicator": indicator,
+            "Target": target,
+            "P/L": f"${pnl:,.2f}",
+            "Last Action": last_action
+        })
+
+        total_coin += amount
+        total_usd += total
+
+    with st.expander(f"💰 {coin_upper} — ${total_usd:,.2f} | {total_coin:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
+        st.table(pd.DataFrame(table_rows))
