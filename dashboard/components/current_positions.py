@@ -74,7 +74,8 @@ def render_current_positions(mode, user_id, token):
             if status != "Active":
                 continue  # Skip strategies that are not active
 
-            amount = s.get("amount", 0.0)
+            assigned_usd = s.get("usd_held", 0.0) + (s.get("amount", 0.0) * coin_price)
+            assigned_amt = round(assigned_usd / coin_price, 6) if coin_price else 0.0
             usd_held = s.get("usd_held", 0.0)
 
             in_market = amount > 0
