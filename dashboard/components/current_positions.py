@@ -1,110 +1,42 @@
-from streamlit_autorefresh import st_autorefresh
 import streamlit as st
+from utils.kraken_wrapper import get_prices
+from utils.firebase_db import load_portfolio_snapshot
 import pandas as pd
+import os
+from datetime import datetime
 
-from utils.kraken_wrapper import get_prices_with_change, get_rsi, get_bollinger_bandwidth, get_live_balances
-from utils.config import get_mode
-from utils.firebase_db import (
-    load_user_profile,
-    load_strategy_allocations,
-    load_portfolio_snapshot,
-    load_coin_state,
-    load_performance_snapshot
-)
-
-@st.cache_data(ttl=10)
-def get_live_price_data():
-    return get_prices_with_change()
-
-def load_strategy_state(coin, mode, user_id, token):
-    return load_coin_state(user_id, coin, token, mode)
-
-def load_balances(mode, user_id, token):
-    if mode == "live":
-        return get_live_balances(user_id=user_id)
-    else:
-        snapshot = load_portfolio_snapshot(user_id, token, mode)
-        return {coin: data["balance"] for coin, data in snapshot.get("coins", {}).items()} if snapshot else {}
-
-def render(mode, user_id, token):
-    st_autorefresh(interval=10 * 1000, key="price_autorefresh")
+def render_current_positions(mode, user_id, token):
     st.title("📍 Current Positions")
 
-    if mode is None:
-        mode = get_mode(user_id)
+    # === Load Prices and Portfolio ===
+    prices = get_prices(user_id=user_id)
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    total_value = snapshot.get("total_value", 0.0)
+    usd_balance = snapshot.get("usd_balance", 0.0)
+    coin_data = snapshot.get("coins", {})
 
-    strategy_allocs = load_strategy_allocations(user_id, token, mode)
-    balances = load_balances(mode, user_id, token)
-    prices_data = get_prices_with_change()
+    # === Count Active Strategies ===
+    from utils.firebase_db import load_coin_state
+    strategy_count = 0
+    for coin in coin_data:
+        state = load_coin_state(user_id=user_id, coin=coin, token=token, mode=mode)
+        for strat in state:
+            if state[strat].get("status") == "Active":
+                strategy_count += 1
 
-    for coin, strategies in strategy_allocs.items():
-        coin_balance = balances.get(coin, 0)
-        coin_state = load_strategy_state(coin, mode, user_id, token)
-        price_info = prices_data.get(coin, {})
-        price = price_info.get("price", 0)
-        change = price_info.get("change", 0)
-        pct = price_info.get("pct_change", 0)
-        total_value = coin_balance * price 
+    # === Load Recent Trade Log ===
+    trade_log_path = f"data/logs/trade_log_{mode}.csv"
+    last_trade = "—"
+    if os.path.exists(trade_log_path):
+        df = pd.read_csv(trade_log_path)
+        if not df.empty:
+            last_row = df.sort_values("timestamp", ascending=False).iloc[0]
+            ts = pd.to_datetime(last_row["timestamp"]).strftime("%I:%M %p")
+            last_trade = f'{last_row["coin"]} - {last_row["strategy"]} - {last_row["action"].upper()} @ {last_row["price"]:.2f} ({ts})'
 
-        if total_value <= 0:
-            continue
-
-        expander_label = f"💰 Total {coin} Holdings: ${total_value:,.2f}"
-        expander_key = f"{coin}_expander_open"
-        if expander_key not in st.session_state:
-            st.session_state[expander_key] = False
-        with st.expander(expander_label, expanded=st.session_state[expander_key]):
-            st.session_state[expander_key] = True
-
-            direction = "▲" if change > 0 else "▼"
-            change_color = "#4CAF50" if change > 0 else "#F44336"
-
-            st.markdown(f"""
-                <div style="font-size:18px; margin-bottom: 10px;">
-                    💲 <b>{coin} Price:</b> ${price:,.2f} 
-                    <span style="color:{change_color}; font-weight:normal;">
-                        {direction} {abs(change):.2f} ({abs(pct):.2f}%)
-                    </span>
-                </div>
-            """, unsafe_allow_html=True)
-
-            trade_rows = []
-            for strat, alloc in strategies.items():
-                interval = "5m" if "5-min" in strat.lower() else "1h"
-                state = coin_state.get(strat, {})
-                status = state.get("status", "Inactive")
-                amount = float(state.get("amount", 0.0))
-                buy_price = float(state.get("buy_price", 0.0))
-                usd_held = float(state.get("usd_held", 0.0))
-                current_value = (amount * price) + usd_held
-                pl = (price - buy_price) * amount if buy_price else 0.0
-                pct_gain = ((price - buy_price) / buy_price * 100) if buy_price else 0.0
-                rsi_val = get_rsi(coin, interval)
-                bb_val = get_bollinger_bandwidth(coin, interval)
-
-                indicator = "–"
-                if "rsi" in strat.lower():
-                    indicator = f"RSI {rsi_val:.2f}" if rsi_val is not None else "RSI –"
-                elif "bollinger" in strat.lower():
-                    indicator = f"BB {bb_val:.4f}" if bb_val is not None else "BB –"
-
-                if alloc > 0 and status == "Inactive":
-                    status = "Waiting"
-
-                trade_rows.append({
-                    "Strategy": strat,
-                    "Strategy Holdings": f"${current_value:,.2f}",
-                    "Active": "✅" if alloc > 0 else "❌",
-                    "Indicator": indicator,
-                    "Status": status,
-                    "Bought Price": f"${buy_price:,.2f}" if buy_price else "–",
-                    "P/L ($)": f"<span style='color:{'#4CAF50' if pl > 0 else '#F44336' if pl < 0 else '#999'};'>${pl:,.2f}</span>",
-                    "% Gain/Loss": (
-                        f"<span style='color:{'#4CAF50' if pct_gain > 0 else '#F44336' if pct_gain < 0 else '#999'};'>"
-                        f"{pct_gain:.2f}%</span>" if buy_price else "–"
-                    )
-                })
-
-            df = pd.DataFrame(trade_rows)
-            df.index = [''] * len(df)
-            st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
+    # === Layout ===
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("💼 Total Portfolio", f"${total_value:,.2f}")
+    col2.metric("💰 USD Balance", f"${usd_balance:,.2f}")
+    col3.metric("🤖 Bots Active", f"{strategy_count} strategies")
+    col4.metric("⏱️ Last Trigger", last_trade)
