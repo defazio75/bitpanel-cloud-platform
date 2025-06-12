@@ -55,7 +55,7 @@ def render_current_positions(mode, user_id, token):
 
     # === Per-Coin Strategy Cards ===
     st.markdown("---")
-    st.subheader("📦 Per-Coin Strategy Breakdown")
+    st.subheader("📦 Current Strategy Details")
 
     # We’ll start with BTC
     coin = "BTC"
@@ -103,4 +103,15 @@ def render_current_positions(mode, user_id, token):
         total_usd += total
 
     with st.expander(f"💰 {coin_upper} — ${total_usd:,.2f} | {total_coin:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
-        st.table(pd.DataFrame(table_rows))
+        for row in table_rows:
+            st.markdown(
+                f"**🔹 {row['Strategy']}**\n"
+                f"- **Status:** {row['Status']}\n"
+                f"- **Amount:** {row['Amount']}\n"
+                f"- **USD Value:** {row['USD Value']}\n"
+                f"- **Indicator:** {row['Indicator']}\n"
+                f"- **Target:** {row['Target']}\n"
+                f"- **P/L:** {row['P/L']}\n"
+                f"- **Last Action:** {row['Last Action']}\n"
+                "---"
+            )
