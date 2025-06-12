@@ -16,8 +16,7 @@ def calculate_live_portfolio_value(snapshot, prices):
     return round(total, 2)
 
 def render_current_positions(mode, user_id, token):
-    st.title("📍 Current Positions")
-    st.subheader("🧠 Overview Pulse")
+    st.title("Live Overview")
     st.caption("A real-time snapshot of your portfolio and active strategy activity.")
 
     # === Load Prices and Portfolio ===
@@ -55,46 +54,45 @@ def render_current_positions(mode, user_id, token):
 
     # === Per-Coin Strategy Cards ===
     st.markdown("---")
-    st.subheader("📦 Current Strategy Details")
+    st.subheader("📦 Current Position Details")
 
-    # We’ll start with BTC
-    coin = "BTC"
-    coin_upper = coin.upper()
-    coin_price = prices.get(coin_upper, 0.0)
-    coin_state = load_coin_state(user_id=user_id, coin=coin_upper, token=token, mode=mode)
+    supported_coins = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
+    strategy_list = ["HODL", "5min RSI", "1hr RSI", "Bollinger", "DCA Matrix"]
 
-    # Get strategy names
-    strategies = ["HODL", "5min RSI", "1hr RSI", "Bollinger", "DCA Matrix"]
+    for coin in supported_coins:
+        coin_upper = coin.upper()
+        coin_price = prices.get(coin_upper, 0.0)
+        coin_balance = coin_data.get(coin_upper, {}).get("balance", 0.0)
+        coin_usd_value = round(coin_balance * coin_price, 2)
+        coin_state = load_coin_state(user_id=user_id, coin=coin_upper, token=token, mode=mode)
 
-    coin_balance = coin_data.get(coin_upper, {}).get("balance", 0.0)
-    coin_usd_value = round(coin_balance * coin_price, 2)
-    active_count = 0
-    table_rows = []
+        table_rows = []
+        active_count = 0
 
-    for strat in strategies:
-        s = coin_state.get(strat, {})
-        amount = s.get("amount", 0.0)
-        usd_held = s.get("usd_held", 0.0)
-        buy_price = s.get("buy_price", None)
-        target = s.get("target", "—")
+        for strat in strategy_list:
+            s = coin_state.get(strat, {})
+            amount = s.get("amount", 0.0)
+            usd_held = s.get("usd_held", 0.0)
+            status = s.get("status", "Inactive")
+            buy_price = s.get("buy_price", 0.0)
 
-        position_value = round(amount * coin_price, 2)
-        assigned_value = round(position_value + usd_held, 2)
-        pnl = round(position_value - (amount * buy_price), 2) if amount > 0 and buy_price else 0.0
-        position_status = "In Position" if amount > 0 else "Waiting"
+            in_market = amount > 0
+            position_value = round(amount * coin_price, 2)
+            position_status = "In Market" if in_market else "In Cash"
 
-        table_rows.append({
-            "Strategy": strat,
-            "Position": position_status,
-            "Assigned Amount": f"{amount:.6f}",
-            "USD Held": f"${usd_held:,.2f}",
-            "Position Value": f"${position_value:,.2f}",
-            "Buy Price": f"${buy_price:,.2f}" if buy_price else "—",
-            "Target": target,
-            "P/L": f"${pnl:,.2f}"
-        })
+            if status == "Active":
+                active_count += 1
 
-    df = pd.DataFrame(table_rows)
-    df.index = [""] * len(df)
-    with st.expander(f"💰 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
-        st.table(df)
+            table_rows.append({
+                "Strategy": strat,
+                "Status": position_status,
+                "Assigned Amt": f"{amount:.6f}",
+                "USD Held": f"${usd_held:,.2f}",
+                "Position Value": f"${position_value:,.2f}",
+                "Buy Price": f"${buy_price:,.2f}" if buy_price else "—"
+            })
+
+        df = pd.DataFrame(table_rows)
+        df.index = [""] * len(df)  # Hide index
+        with st.expander(f"\U0001F4B0 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
+            st.table(df)
