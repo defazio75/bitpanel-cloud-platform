@@ -75,28 +75,23 @@ def render_current_positions(mode, user_id, token):
         s = coin_state.get(strat, {})
         amount = s.get("amount", 0.0)
         usd_held = s.get("usd_held", 0.0)
-        status = s.get("status", "Inactive")
-        buy_price = s.get("buy_price", 0.0)
-        indicator = s.get("indicator", "—")
+        buy_price = s.get("buy_price", None)
         target = s.get("target", "—")
-        last_action = s.get("last_action", "—")
 
-        total = round((amount * coin_price) + usd_held, 2)
-        initial_value = (amount * buy_price if buy_price else 0) + usd_held
-        pnl = round(total - initial_value, 2) if status == "Active" else 0.0
-
-        if status == "Active":
-            active_count += 1
+        position_value = round(amount * coin_price, 2)
+        assigned_value = round(position_value + usd_held, 2)
+        pnl = round(position_value - (amount * buy_price), 2) if amount > 0 and buy_price else 0.0
+        position_status = "In Position" if amount > 0 else "Waiting"
 
         table_rows.append({
             "Strategy": strat,
-            "Status": status,
-            "Amount": f"{amount:.6f}",
-            "USD Value": f"${total:,.2f}",
-            "Indicator": indicator,
+            "Position": position_status,
+            "Assigned Amount": f"{amount:.6f}",
+            "USD Held": f"${usd_held:,.2f}",
+            "Position Value": f"${position_value:,.2f}",
+            "Buy Price": f"${buy_price:,.2f}" if buy_price else "—",
             "Target": target,
-            "P/L": f"${pnl:,.2f}",
-            "Last Action": last_action
+            "P/L": f"${pnl:,.2f}"
         })
 
     df = pd.DataFrame(table_rows)
