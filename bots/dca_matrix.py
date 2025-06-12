@@ -16,7 +16,7 @@ if mode == "live":
 else:
     from utils.trade_simulator import execute_trade
 
-STRATEGY = "DCA_MATRIX"
+STRATEGY = "DCA Matrix"
 
 # === DCA Matrix Definition ===
 DCA_ZONES = [
