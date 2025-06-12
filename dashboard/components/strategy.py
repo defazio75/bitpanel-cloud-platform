@@ -116,7 +116,9 @@ def render_strategy_controls(mode, user_id, token):
                                 updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
 
                             save_strategy_allocations(user_id, coin, updated, mode, token)
-                            initialize_strategy_state(user_id, coin="BTC", strategy="RSI_5MIN", mode=mode, token=token)
+                            for strat, weight in allocation_dict.items():
+                                if weight > 0:
+                                    initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
                             st.success("✅ Strategy saved and activated.")
                             st.session_state[f"confirm_strategy_{coin}"] = False
 
@@ -138,7 +140,9 @@ def render_strategy_controls(mode, user_id, token):
                         "Bollinger": 0
                     }
                     save_strategy_allocations(user_id, coin, hodl_reset, mode, token)
-                    initialize_strategy_state(user_id, coin="BTC", strategy="RSI_5MIN", mode=mode, token=token)
+                    for strat, weight in allocation_dict.items():
+                        if weight > 0:
+                            initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
                     st.success(f"🛑 {coin} reverted to 100% HODL.")
 
         st.divider()
