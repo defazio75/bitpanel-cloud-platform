@@ -82,7 +82,8 @@ def render_current_positions(mode, user_id, token):
         last_action = s.get("last_action", "—")
 
         total = round((amount * coin_price) + usd_held, 2)
-        pnl = round(total - (amount * buy_price if buy_price else 0), 2) if status == "Active" else 0.0
+        initial_value = (amount * buy_price if buy_price else 0) + usd_held
+        pnl = round(total - initial_value, 2) if status == "Active" else 0.0
 
         if status == "Active":
             active_count += 1
