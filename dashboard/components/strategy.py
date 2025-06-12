@@ -116,9 +116,11 @@ def render_strategy_controls(mode, user_id, token):
                                 updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
 
                             save_strategy_allocations(user_id, coin, updated, mode, token)
-                            for strat, weight in allocation_dict.items():
-                                if weight > 0:
+                            
+                            for strat, alloc in updated.items():
+                                if strat != "assumption" and alloc > 0:
                                     initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
+                                    
                             st.success("✅ Strategy saved and activated.")
                             st.session_state[f"confirm_strategy_{coin}"] = False
 
@@ -139,10 +141,10 @@ def render_strategy_controls(mode, user_id, token):
                         "DCA Matrix": 0,
                         "Bollinger": 0
                     }
+                    
                     save_strategy_allocations(user_id, coin, hodl_reset, mode, token)
-                    for strat, weight in allocation_dict.items():
-                        if weight > 0:
-                            initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
+                    initialize_strategy_state(user_id, coin=coin, strategy="HODL", mode=mode, token=token)
+                            
                     st.success(f"🛑 {coin} reverted to 100% HODL.")
 
         st.divider()
