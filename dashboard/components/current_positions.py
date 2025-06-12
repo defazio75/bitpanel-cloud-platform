@@ -10,8 +10,7 @@ def calculate_live_portfolio_value(snapshot, prices):
 
     for coin, data in snapshot.get("coins", {}).items():
         balance = data.get("balance", 0.0)
-        price_data = prices.get(coin, {})
-        price = price_data.get("price", 0.0)
+        price = prices.get(coin, 0.0)  # This is already a float
         total += round(balance * price, 2)
 
     return round(total, 2)
