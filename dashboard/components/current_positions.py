@@ -99,9 +99,6 @@ def render_current_positions(mode, user_id, token):
             "Last Action": last_action
         })
 
-        total_coin += amount
-        total_usd += total
-
     df = pd.DataFrame(table_rows)
     df.index = [""] * len(df)  # This hides the row index
     with st.expander(f"💰 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
