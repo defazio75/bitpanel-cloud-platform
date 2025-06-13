@@ -8,7 +8,6 @@ from utils.firebase_db import (
     load_coin_state,
     save_coin_state
 )
-import streamlit as st
 import pandas as pd
 
 # === Main Execution Function ===
