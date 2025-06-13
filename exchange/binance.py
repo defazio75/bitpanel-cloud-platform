@@ -1,56 +1,85 @@
+import time
+import hmac
+import hashlib
 import requests
 
-class BinanceAPI:
-    def __init__(self, mode="paper", api_keys=None):
-        self.mode = mode
-        self.api_keys = api_keys
-        self.base_url = "https://api.binance.com"
 
-    def get_price(self, symbol):
-        try:
-            response = requests.get(f"{self.base_url}/api/v3/ticker/price?symbol={symbol}")
-            data = response.json()
-            return float(data["price"])
-        except Exception as e:
-            print(f"❌ Error fetching price for {symbol}: {e}")
-            return 0.0
+class BinanceAPI:
+    BASE_URL = "https://api.binance.com"
+
+    def __init__(self, api_key, api_secret):
+        self.api_key = api_key
+        self.api_secret = api_secret.encode()
+
+    def _get_headers(self):
+        return {
+            "X-MBX-APIKEY": self.api_key
+        }
+
+    def _sign_params(self, params):
+        query_string = "&".join([f"{key}={val}" for key, val in params.items()])
+        signature = hmac.new(self.api_secret, query_string.encode(), hashlib.sha256).hexdigest()
+        params["signature"] = signature
+        return params
 
     def get_balance(self):
-        # Placeholder – add live auth logic here
-        print("⚠️ Binance get_balance() not yet implemented.")
-        return {}
+        """Fetch account balances (authenticated)"""
+        endpoint = "/api/v3/account"
+        url = self.BASE_URL + endpoint
 
-    def place_order(self, symbol, side, amount, price=None, order_type="market"):
-        print(f"⚠️ Simulated {side} order for {amount} {symbol} at {price or 'market'} on Binance.")
-        return {"status": "simulated", "symbol": symbol}
+        timestamp = int(time.time() * 1000)
+        params = {"timestamp": timestamp}
 
-    def cancel_order(self, order_id):
-        print(f"⚠️ Simulated cancel for order {order_id} on Binance.")
-        return True
+        signed_params = self._sign_params(params)
+        response = requests.get(url, headers=self._get_headers(), params=signed_params)
 
-def get_prices():
-    try:
-        symbols = ["BTCUSDT", "ETHUSDT", "XRPUSDT", "DOTUSDT", "LINKUSDT", "SOLUSDT"]
-        prices = {}
-        for symbol in symbols:
-            r = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}")
-            data = r.json()
-            coin = symbol.replace("USDT", "")
-            prices[coin] = float(data["price"])
-        return prices
-    except Exception as e:
-        print("❌ Binance get_prices error:", e)
-        return {}
+        if response.status_code != 200:
+            print(f"❌ Binance Balance Error: {response.status_code} - {response.text}")
+            return {}
 
-def get_balances(api_keys):
-    # Binance uses API Key + Secret with HMAC signature
-    print("⚠️ Binance API balance fetching not implemented yet.")
-    return {}
+        balances = response.json().get("balances", [])
+        return {b["asset"]: float(b["free"]) for b in balances if float(b["free"]) > 0}
 
-def place_order(api_keys, symbol, side, amount, price=None):
-    print(f"⚠️ [Binance] Simulated {side} order for {amount} {symbol} at {price or 'market'} price.")
-    return {"status": "simulated", "id": "test123"}
+    def place_order(self, symbol, side, quantity, order_type="MARKET"):
+        """Place a basic order (market only)"""
+        endpoint = "/api/v3/order"
+        url = self.BASE_URL + endpoint
 
-def cancel_order(api_keys, order_id):
-    print(f"⚠️ [Binance] Simulated cancel for order {order_id}.")
-    return True
+        timestamp = int(time.time() * 1000)
+        params = {
+            "symbol": symbol.upper(),
+            "side": side.upper(),  # BUY or SELL
+            "type": order_type,
+            "quantity": quantity,
+            "timestamp": timestamp
+        }
+
+        signed_params = self._sign_params(params)
+        response = requests.post(url, headers=self._get_headers(), params=signed_params)
+
+        if response.status_code != 200:
+            print(f"❌ Binance Order Error: {response.status_code} - {response.text}")
+            return {}
+
+        return response.json()
+
+    def cancel_order(self, symbol, order_id):
+        """Cancel an order (not used yet, but stubbed)"""
+        endpoint = "/api/v3/order"
+        url = self.BASE_URL + endpoint
+
+        timestamp = int(time.time() * 1000)
+        params = {
+            "symbol": symbol.upper(),
+            "orderId": order_id,
+            "timestamp": timestamp
+        }
+
+        signed_params = self._sign_params(params)
+        response = requests.delete(url, headers=self._get_headers(), params=signed_params)
+
+        if response.status_code != 200:
+            print(f"❌ Binance Cancel Error: {response.status_code} - {response.text}")
+            return {}
+
+        return response.json()
