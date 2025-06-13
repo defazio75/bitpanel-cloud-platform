@@ -46,8 +46,8 @@ def render_current_positions(mode, user_id, token):
     # === Layout ===
     col1, col2, col3 = st.columns(3)
     col1.metric("💼 Total Portfolio", f"${total_value:,.2f}")
-    col3.metric("🤖 Bots Active", f"{strategy_count} strategies")
-    col4.metric("⏱️ Last Trigger", last_trade)
+    col2.metric("🤖 Bots Active", f"{strategy_count} strategies")
+    col3.metric("⏱️ Last Trigger", last_trade)
 
     # === Per-Coin Strategy Cards ===
     st.markdown("---")
