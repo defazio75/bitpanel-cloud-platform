@@ -28,6 +28,7 @@ def load_balances_from_firebase(user_id, token, mode):
     return data if data else {}
 
 def run(price_data, user_id, coin="BTC"):
+    print(f"🟢 [RSI 5MIN] Running for user: {user_id}")
     token = st.session_state.user["token"]
     bot_name = f"{STRATEGY.lower()}_{coin.lower()}"
 
