@@ -56,10 +56,10 @@ def run_controller():
                         print(f"⚠️ Skipping {user_id} (no API keys in live mode)")
                         continue
                     token = api_keys.get("token")
-                    exchange = get_exchange("kraken", mode="live", api_keys=api_keys)
+                    exchange = get_exchange(exchange_name, mode=mode, api_keys=api_keys)
                 else:
                     token = None
-                    exchange = get_exchange("kraken", mode="paper", api_keys=None)
+                    exchange = get_exchange(exchange_name, mode=mode, api_keys=api_keys)
 
                 # === Strategy Bot Triggers ===
                 if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
