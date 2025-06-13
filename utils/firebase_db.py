@@ -8,9 +8,18 @@ from utils.kraken_wrapper import get_live_balances, get_prices
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
 def get_all_user_ids():
-    from utils.firebase_setup import db  # ensure db is initialized
-    users_ref = db.collection("users").stream()
-    return [doc.id for doc in users_ref]
+    """
+    Returns a list of all user IDs from the Realtime Database.
+    """
+    try:
+        users_snapshot = db.child("users").get()
+        if users_snapshot.each():
+            return [user.key() for user in users_snapshot.each()]
+        else:
+            return []
+    except Exception as e:
+        print(f"❌ Error fetching user IDs: {e}")
+        return []
 
 # === USER PROFILE ===
 def save_user_profile(user_id, name, email, signup_date=None, last_login=None):
