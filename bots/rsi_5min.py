@@ -63,7 +63,7 @@ def run(price_data, user_id, coin="BTC"):
             }
 
             log_trade_multi(
-                user_id=user_id
+                user_id=user_id,
                 coin=coin,
                 strategy=STRATEGY,
                 action="buy",
