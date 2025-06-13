@@ -28,6 +28,7 @@ def run_controller():
     for user_id in user_ids:
         try:
             mode = get_mode(user_id)
+            token = None
             if mode == "live":
                 api_keys = load_user_api_keys(user_id, exchange="kraken", token=token)
                 token = api_keys.get("token") if api_keys else None
