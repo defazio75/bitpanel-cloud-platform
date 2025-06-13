@@ -74,12 +74,14 @@ def render_current_positions(mode, user_id, token):
             if status != "Active":
                 continue  # Skip strategies that are not active
 
-            assigned_usd = s.get("usd_held", 0.0) + (s.get("amount", 0.0) * coin_price)
-            assigned_amt = round(assigned_usd / coin_price, 6) if coin_price else 0.0
+            amount = s.get("amount", 0.0)
             usd_held = s.get("usd_held", 0.0)
+            buy_price = s.get("buy_price", 0.0)
 
             in_market = amount > 0
             position_value = round(amount * coin_price, 2)
+            assigned_usd = usd_held + position_value
+            assigned_amt = round(assigned_usd / coin_price, 6) if coin_price else 0.0
             position_status = "In Market" if in_market else "In Cash"
 
             if status == "Active":
