@@ -14,7 +14,7 @@ mode = get_mode()
 if mode == "live":
     from utils.trade_executor import execute_trade
 else:
-    from utils.trade_simulator import execute_trade
+    from utils.trade_simulator import simulate_trade
 
 STRATEGY = "DCA Matrix"
 
