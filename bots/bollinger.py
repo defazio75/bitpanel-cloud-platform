@@ -41,10 +41,9 @@ def update_profit_json(user_id, coin, mode, coin_amount, profit_usd, token):
     save_firebase_json(path, data, user_id, token)
 
 def run(price_data, user_id, coin="BTC", mode=None):
+    print(f"🟢 [BOLLINGER] Running for user: {user_id}")
     if not mode:
         mode = get_mode()
-        print(f"🚨 Running in {mode.upper()} MODE")
-
     token = st.session_state.user["token"]
     bot_name = f"bollinger_breakout_{coin.lower()}"
 
