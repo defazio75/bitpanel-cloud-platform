@@ -180,7 +180,6 @@ def get_btc_price():
     except:
         return 0
 
-@st.cache_data(ttl=60)
 def get_rsi(coin, interval='1h', length=14):
     pair = f"{coin}USD"
     interval_map = {
