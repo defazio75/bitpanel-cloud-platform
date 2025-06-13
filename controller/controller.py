@@ -4,10 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import threading
 import traceback
-from utils.firebase_db import get_all_user_ids, get_api_keys, load_strategy_config, save_portfolio_snapshot
+from utils.firebase_db import get_all_user_ids, load_strategy_config, save_portfolio_snapshot
 from utils.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 from utils.config import get_mode
+from utils.load_keys import load_user_api_keys
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
 
@@ -28,7 +29,7 @@ def run_controller():
         try:
             mode = get_mode(user_id)
             if mode == "live":
-                api_keys = get_api_keys(user_id)
+                api_keys = load_user_api_keys(user_id, exchange="kraken", token=token)
                 token = api_keys.get("token") if api_keys else None
             else:
                 token = None
