@@ -5,7 +5,7 @@ import time
 import threading
 import traceback
 from utils.firebase_db import get_all_user_ids, load_strategy_allocations, save_portfolio_snapshot
-from exchanges.exchange_manager import get_exchange
+from exchange.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
