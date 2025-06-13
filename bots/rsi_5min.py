@@ -1,6 +1,6 @@
 from datetime import datetime
 from utils.config import get_mode
-from utils.kraken_wrapper import get_rsi, get_live_balances
+from utils.kraken_wrapper import get_rsi, get_live_balances, get prices
 from utils.performance_logger import log_trade
 from utils.firebase_db import (
     load_strategy_allocations,
