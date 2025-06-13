@@ -28,10 +28,9 @@ def load_strategy_usd(user_id, coin, strategy_key, mode, token):
 
 # === Main Bot Logic ===
 def run(price_data, user_id, coin="BTC", mode=None):
+    print(f"🟢 [RSI 1HR] Running for user: {user_id}")
     if not mode:
         mode = get_mode()
-    print(f"\n🔁 Running {STRATEGY} for {user_id} in {mode.upper()} mode")
-
     token = st.session_state.user["token"]
     cur_price = price_data.get("price")
     cur_rsi = price_data.get("rsi") or get_rsi(coin, interval="1h", period=RSI_PERIOD)
