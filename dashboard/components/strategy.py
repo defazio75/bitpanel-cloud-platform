@@ -117,8 +117,21 @@ def render_strategy_controls(mode, user_id, token):
 
                             save_strategy_allocations(user_id, coin, updated, mode, token)
                             
+                            coin_balance = portfolio_coins.get(coin, {}).get("balance", 0.0)
+                            
                             for strat, alloc in updated.items():
                                 if strat != "assumption" and alloc > 0:
+                                    allocated_amount = round((alloc / 100) * coin_balance, 6)
+                                    initial_data = {
+                                        "amount": allocated_amount,
+                                        "usd_held": 0.0,
+                                        "buy_price": 0.0,
+                                        "status": "Active",
+                                        "indicator": "—",
+                                        "target": "—",
+                                        "last_action": "Waiting",
+                                        "timestamp": datetime.utcnow().isoformat()
+                                    }
                                     initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
                                     
                             st.success("✅ Strategy saved and activated.")
