@@ -1,6 +1,6 @@
 from datetime import datetime
 from utils.kraken_wrapper import get_live_balances, get_prices
-from utils.performance_logger import import log_trade
+from utils.performance_logger import log_trade
 from utils.firebase_db import (
     load_strategy_allocations,
     load_portfolio_snapshot,
