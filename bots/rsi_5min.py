@@ -27,9 +27,8 @@ def load_balances_from_firebase(user_id, token, mode):
     data = firebase.database().child("users").child(user_id).child(path).get(token).val()
     return data if data else {}
 
-def run(price_data, user_id, coin="BTC"):
+def run(price_data, user_id, token, coin="BTC"):
     print(f"🟢 [RSI 5MIN] Running for user: {user_id}")
-    token = st.session_state.user["token"]
     bot_name = f"{STRATEGY.lower()}_{coin.lower()}"
 
     state = load_coin_state(user_id, coin, token, mode) or {}
@@ -52,7 +51,6 @@ def run(price_data, user_id, coin="BTC"):
 
     # === Auto-initialize if bot is empty but coin held ===
     if not state:
-        token = st.session_state.user["token"]  # Or pass this down from controller
         balances = get_live_balances(user_id) if mode == "live" else load_balances(user_id, token, mode)
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
