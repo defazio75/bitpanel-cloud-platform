@@ -220,7 +220,6 @@ def get_rsi(coin, interval='1h', length=14):
 
     return round(rsi.iloc[-1], 2) if not rsi.empty else None
 
-@st.cache_data(ttl=60)
 def get_bollinger_bandwidth(coin, interval='1h', length=20):
     pair = f"{coin}USD"
     interval_map = {
