@@ -2,7 +2,6 @@ from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances
 from utils.performance_logger import log_dca_trade
-import streamlit as st
 from utils.firebase_db import (
     load_strategy_allocations,
     load_portfolio_snapshot,
