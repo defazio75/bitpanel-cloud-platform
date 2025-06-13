@@ -50,7 +50,7 @@ def run_controller():
                 strategy_config = load_strategy_config(user_id, token=None)
 
                 if mode == "live":
-                    api_keys = get_api_keys(user_id)
+                    api_keys = load_user_api_keys(user_id, exchange="kraken", token=token)
                     if not api_keys:
                         print(f"⚠️ Skipping {user_id} (no API keys in live mode)")
                         continue
