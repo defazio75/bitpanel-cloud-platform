@@ -34,10 +34,9 @@ def load_strategy_usd(user_id, coin, strategy_key, mode, token):
 
 # === Main Bot Logic ===
 def run(price_data, user_id, coin="BTC", mode=None):
+    print(f"🟢 [DCA MATRIX] Running for user: {user_id}")
     if not mode:
         mode = get_mode()
-    print(f"\n🔁 Running {STRATEGY} for {user_id} in {mode.upper()} mode")
-
     token = st.session_state.user["token"]
     cur_price = price_data.get("price")
     bot_name = STRATEGY.lower()
