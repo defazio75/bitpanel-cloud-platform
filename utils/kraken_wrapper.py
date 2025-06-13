@@ -9,7 +9,6 @@ from urllib.parse import urlencode
 import json
 import os
 import pandas as pd
-import streamlit as st
 from utils.load_keys import load_user_api_keys
 from utils.kraken_auth import rate_limited_query_private
 
