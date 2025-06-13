@@ -30,7 +30,7 @@ def run_controller():
             mode = get_mode(user_id)
             token = None
             if mode == "live":
-                api_keys = load_user_api_keys(user_id, exchange="kraken", token=token)
+                api_keys = load_user_api_keys(user_id, token=token)
                 token = api_keys.get("token") if api_keys else None
             else:
                 token = None
@@ -51,15 +51,16 @@ def run_controller():
                 strategy_config = load_strategy_allocations(user_id, token=token, mode=mode)
 
                 if mode == "live":
-                    api_keys = load_user_api_keys(user_id, exchange="kraken", token=token)
+                    api_keys = load_user_api_keys(user_id, token=token)
                     if not api_keys:
                         print(f"⚠️ Skipping {user_id} (no API keys in live mode)")
                         continue
                     token = api_keys.get("token")
-                    exchange = get_exchange(exchange_name, mode=mode, api_keys=api_keys)
+                    user_exchange = api_keys.get("exchange", "kraken")
+                    exchange = get_exchange(user_exchange, mode=mode, api_keys=api_keys)
                 else:
                     token = None
-                    exchange = get_exchange(exchange_name, mode=mode, api_keys=api_keys)
+                    exchange = get_exchange("kraken", mode=mode, api_keys=None)
 
                 # === Strategy Bot Triggers ===
                 if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
