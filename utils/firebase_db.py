@@ -232,29 +232,28 @@ def save_live_snapshot_from_kraken(user_id, token, mode="live", debug=False):
             st.error("❌ Failed to write snapshot to Firebase.")
             st.exception(e)
 
-def initialize_strategy_state(user_id, coin, strategy, mode="paper", token=None):
-    """Ensure the strategy state exists and is marked Active with default values."""
+def initialize_strategy_state(user_id, coin, strategy, mode="paper", token=None, amount=None):
     from utils.kraken_wrapper import get_prices
     prices = get_prices(user_id=user_id)
     price = prices.get(coin.upper(), 0.0)
 
     # Load current coin state
     state = load_coin_state(user_id=user_id, coin=coin, token=token, mode=mode)
-    snapshot = load_portfolio_snapshot(user_id, token, mode)
-    coin_balance = snapshot.get("coins", {}).get(coin.upper(), {}).get("balance", 0.0)
 
-    # Count active strategies (including this one if not already present)
-    existing_active = sum(1 for s in state if state[s].get("status") == "Active")
-    if strategy not in state:
-        existing_active += 1  # Count this strategy if new
+    # Default logic for backward compatibility if amount is not passed
+    if amount is None:
+        snapshot = load_portfolio_snapshot(user_id, token, mode)
+        coin_balance = snapshot.get("coins", {}).get(coin.upper(), {}).get("balance", 0.0)
 
-    # Avoid divide-by-zero
-    active_count = existing_active if existing_active > 0 else 1
-    assigned_amount = round(coin_balance / active_count, 8)
+        existing_active = sum(1 for s in state if state[s].get("status") == "Active")
+        if strategy not in state:
+            existing_active += 1
+        active_count = existing_active if existing_active > 0 else 1
+        amount = round(coin_balance / active_count, 8)
 
     state[strategy] = {
         "status": "Active",
-        "amount": assigned_amount,
+        "amount": amount,
         "usd_held": 0.0,
         "buy_price": price,
         "indicator": "—",
