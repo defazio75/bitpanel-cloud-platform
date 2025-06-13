@@ -4,19 +4,29 @@ class BinanceAPI:
     def __init__(self, mode="paper", api_keys=None):
         self.mode = mode
         self.api_keys = api_keys
-        # Add setup for live/paper mode switching here later
+        self.base_url = "https://api.binance.com"
+
+    def get_price(self, symbol):
+        try:
+            response = requests.get(f"{self.base_url}/api/v3/ticker/price?symbol={symbol}")
+            data = response.json()
+            return float(data["price"])
+        except Exception as e:
+            print(f"❌ Error fetching price for {symbol}: {e}")
+            return 0.0
 
     def get_balance(self):
-        # Placeholder for retrieving balances from Binance
+        # Placeholder – add live auth logic here
+        print("⚠️ Binance get_balance() not yet implemented.")
         return {}
 
     def place_order(self, symbol, side, amount, price=None, order_type="market"):
-        # Placeholder for placing orders
-        return {"status": "success", "message": "Binance order simulated."}
+        print(f"⚠️ Simulated {side} order for {amount} {symbol} at {price or 'market'} on Binance.")
+        return {"status": "simulated", "symbol": symbol}
 
-    def get_price(self, symbol):
-        # Placeholder for price fetching
-        return 0.0
+    def cancel_order(self, order_id):
+        print(f"⚠️ Simulated cancel for order {order_id} on Binance.")
+        return True
 
 def get_prices():
     try:
