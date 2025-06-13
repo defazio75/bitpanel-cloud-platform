@@ -15,7 +15,7 @@ def write_log_row(file_path, headers, row):
         writer.writerow(row)
 
 # === Trade Logger (Daily/Weekly/Monthly/Yearly) ===
-def log_trade_trade(user_id, coin, strategy, action, amount, price, mode=None, profit_usd=0.0, notes=""):
+def log_trade(user_id, coin, strategy, action, amount, price, mode=None, profit_usd=0.0, notes=""):
     if not user_id:
         raise ValueError("❌ user_id is required for logging trades.")
 
