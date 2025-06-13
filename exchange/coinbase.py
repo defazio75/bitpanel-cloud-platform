@@ -1,49 +1,74 @@
 import requests
+import time
 
 class CoinbaseAPI:
     def __init__(self, mode="paper", api_keys=None):
         self.mode = mode
         self.api_keys = api_keys
-        # Add setup for live/paper mode switching here later
 
     def get_balance(self):
-        # Placeholder for retrieving balances from Coinbase
+        # Placeholder: You can expand this with real Coinbase account API access
         return {}
 
-    def place_order(self, symbol, side, amount, price=None, order_type="market"):
-        # Placeholder for placing orders
-        return {"status": "success", "message": "Coinbase order simulated."}
+    def place_order(self, side, symbol, amount, order_type="market", price=None):
+        # Simulate an order placement (expand with real auth later)
+        print(f"[Coinbase] Simulating {order_type.upper()} order: {side.upper()} {amount} {symbol} at {price or 'market price'}")
+        return {
+            "order_id": f"simulated-{int(time.time())}",
+            "status": "filled",
+            "symbol": symbol,
+            "side": side,
+            "amount": amount,
+            "price": price or self.get_price(symbol)
+        }
 
     def get_price(self, symbol):
-        # Placeholder for price fetching
-        return 0.0
+        # Pull current market price using Coinbase public API
+        try:
+            url = f"https://api.coinbase.com/v2/prices/{symbol}-USD/spot"
+            response = requests.get(url)
+            data = response.json()
+            return float(data["data"]["amount"])
+        except Exception as e:
+            print(f"[Coinbase] Error fetching price for {symbol}: {e}")
+            return 0.0
+
+
+# === Public Utility Functions (for compatibility) ===
 
 def get_prices():
-    try:
-        response = requests.get("https://api.coinbase.com/v2/exchange-rates?currency=USD")
-        data = response.json()
-        return {
-            "BTC": 1 / float(data["data"]["rates"]["BTC"]),
-            "ETH": 1 / float(data["data"]["rates"]["ETH"]),
-            "XRP": 1 / float(data["data"]["rates"]["XRP"]),
-            "DOT": 1 / float(data["data"]["rates"]["DOT"]),
-            "LINK": 1 / float(data["data"]["rates"]["LINK"]),
-            "SOL": 1 / float(data["data"]["rates"]["SOL"]),
-        }
-    except Exception as e:
-        print("❌ Coinbase get_prices error:", e)
-        return {}
+    prices = {}
+    supported = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
+    for coin in supported:
+        try:
+            url = f"https://api.coinbase.com/v2/prices/{coin}-USD/spot"
+            response = requests.get(url)
+            data = response.json()
+            prices[coin] = float(data["data"]["amount"])
+        except Exception as e:
+            print(f"[Coinbase] Error fetching price for {coin}: {e}")
+            prices[coin] = 0.0
+    return prices
+
 
 def get_balances(api_keys):
-    # Coinbase Pro uses OAuth or API key/secret with HMAC
-    # Placeholder for Coinbase balance logic
-    print("⚠️ Coinbase API balance fetching not implemented yet.")
-    return {}
+    # Placeholder – real implementation will need Coinbase OAuth or API key logic
+    print("[Coinbase] Simulated get_balances()")
+    return {
+        "USD": 100000,
+        "BTC": 0.5,
+        "ETH": 2.0
+    }
 
-def place_order(api_keys, symbol, side, amount, price=None):
-    print(f"⚠️ [Coinbase] Simulated {side} order for {amount} {symbol} at {price or 'market'} price.")
-    return {"status": "simulated", "id": "test123"}
 
-def cancel_order(api_keys, order_id):
-    print(f"⚠️ [Coinbase] Simulated cancel for order {order_id}.")
+def place_order(side, symbol, amount, price=None):
+    print(f"[Coinbase] Simulated {side.upper()} order for {amount} {symbol} at {price or 'market'}")
+    return {
+        "order_id": f"simulated-{int(time.time())}",
+        "status": "filled"
+    }
+
+
+def cancel_order(order_id):
+    print(f"[Coinbase] Simulated cancel of order {order_id}")
     return True
