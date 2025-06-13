@@ -6,7 +6,8 @@ from utils.firebase_db import (
     load_strategy_allocations,
     load_portfolio_snapshot,
     load_coin_state,
-    save_coin_state
+    save_coin_state, 
+    load_balances
 )
 
 from utils.config import get_mode
