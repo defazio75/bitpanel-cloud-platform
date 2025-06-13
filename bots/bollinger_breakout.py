@@ -9,14 +9,13 @@ from utils.firebase_db import (
     save_coin_state, 
     load_balances
 )
-
 from utils.config import get_mode
 
 mode = get_mode()
 if mode == "live":
     from utils.trade_executor import execute_trade
 else:
-    from utils.trade_simulator import execute_trade
+    from utils.trade_simulator import simulate_trade
 
 STRATEGY = "Bollinger"
 
