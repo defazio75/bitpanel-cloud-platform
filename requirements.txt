@@ -1,0 +1,10 @@
+pandas
+numpy==1.24.4
+requests
+colorama
+watchdog
+pyarrow
+cryptography>=41.0
+pyrebase4
+pandas_ta==0.3.14b0
+schedule
