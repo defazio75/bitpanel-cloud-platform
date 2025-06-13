@@ -88,9 +88,11 @@ def render_current_positions(mode, user_id, token):
             if amount > 0 and buy_price > 0:
                 pl_value = round((coin_price - buy_price) * amount, 2)
                 if pl_value > 0:
-                    pl_display = f":green[+${pl_value:,.2f}]"
+                    change_color = "#2ecc71"  # green
+                    pl_display = f"<span style='color:{change_color};'>+${pl_value:,.2f}</span>"
                 elif pl_value < 0:
-                    pl_display = f":red[-${abs(pl_value):,.2f}]"
+                    change_color = "#e74c3c"  # red
+                    pl_display = f"<span style='color:{change_color};'>-${abs(pl_value):,.2f}</span>"
                 else:
                     pl_display = "—"
             else:
@@ -112,7 +114,7 @@ def render_current_positions(mode, user_id, token):
         df = pd.DataFrame(table_rows)
         df.index = [""] * len(df)  # Hide index
         with st.expander(f"\U0001F4B0 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
-            st.table(df)
+            st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
 
     # === Final Trade Log Section ===
     st.markdown("---")
