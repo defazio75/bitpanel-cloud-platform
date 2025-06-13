@@ -1,6 +1,7 @@
 # bot_runner.py
 import time
 import traceback
+from controller import controller
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 
 def run_all_bots():
