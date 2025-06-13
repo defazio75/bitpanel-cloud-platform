@@ -84,6 +84,22 @@ def render_current_positions(mode, user_id, token):
             assigned_amt = round(assigned_usd / coin_price, 6) if coin_price else 0.0
             position_status = "In Market" if in_market else "In Cash"
 
+            buy_price = s.get("buy_price", 0.0)
+            amount = s.get("amount", 0.0)
+
+            # Calculate P/L
+            if amount > 0 and buy_price > 0:
+                pl_value = round((coin_price - buy_price) * amount, 2)
+                pl_display = f"${pl_value:,.2f}"
+            if pl_value > 0:
+                pl_display = f"🟢 {pl_display}"
+            elif pl_value < 0:
+                pl_display = f"🔴 {pl_display}"
+            else:
+                pl_display = "—"
+            else:
+                pl_display = "—"
+
             if status == "Active":
                 active_count += 1
 
@@ -94,9 +110,28 @@ def render_current_positions(mode, user_id, token):
                 "USD Held": f"${usd_held:,.2f}",
                 "Position Value": f"${position_value:,.2f}",
                 "Buy Price": f"${buy_price:,.2f}" if buy_price else "—"
+                "P/L": pl_display
             })
 
         df = pd.DataFrame(table_rows)
         df.index = [""] * len(df)  # Hide index
         with st.expander(f"\U0001F4B0 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
             st.table(df)
+
+    # === Final Trade Log Section ===
+    st.markdown("---")
+    st.subheader("📈 Recent Trades")
+
+    if os.path.exists(trade_log_path):
+        df = pd.read_csv(trade_log_path)
+        if not df.empty:
+            df["timestamp"] = pd.to_datetime(df["timestamp"])
+            df = df.sort_values("timestamp", ascending=False).head(10)
+            df["timestamp"] = df["timestamp"].dt.strftime("%b %d, %Y %I:%M %p")
+            df_display = df[["timestamp", "coin", "strategy", "action", "price", "size"]]
+            df_display.columns = ["Time", "Coin", "Strategy", "Action", "Price", "Size"]
+            st.table(df_display)
+        else:
+            st.info("No trades found.")
+    else:
+        st.info("No trade log available.")
