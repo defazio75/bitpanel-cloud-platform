@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import traceback
-from controller import controller
+from controller.controller import run_controller
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 
 def run_all_bots():
