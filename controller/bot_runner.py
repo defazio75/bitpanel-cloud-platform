@@ -4,7 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import traceback
-from controller.controller import run_controller
+from controller import run_controller
     
 if __name__ == "__main__":
     print("🚀 Starting BitPanel controller...")
