@@ -1,6 +1,5 @@
 import json
 import os
-import streamlit as st
 
 # Allocation settings
 BTC_HOLDING_PERCENT = 0.25
