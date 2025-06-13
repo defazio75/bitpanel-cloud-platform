@@ -7,6 +7,11 @@ from utils.kraken_wrapper import get_live_balances, get_prices
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
+def get_all_user_ids():
+    from utils.firebase_setup import db  # ensure db is initialized
+    users_ref = db.collection("users").stream()
+    return [doc.id for doc in users_ref]
+
 # === USER PROFILE ===
 def save_user_profile(user_id, name, email, signup_date=None, last_login=None):
     tz = pytz.timezone("America/Chicago")
