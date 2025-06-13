@@ -14,7 +14,7 @@ mode = get_mode()
 if mode == "live":
     from utils.trade_executor import execute_trade
 else:
-    from utils.trade_simulator import execute_trade
+    from utils.trade_simulator import simulate_trade
 
 STRATEGY = "5min RSI"
 
@@ -52,7 +52,7 @@ def run(price_data, user_id, coin="BTC"):
     # === Auto-initialize if bot is empty but coin held ===
     if not state:
         token = st.session_state.user["token"]  # Or pass this down from controller
-        balances = get_live_balances(user_id) if mode == "live" else load_balances_from_firebase(user_id, token, mode)
+        balances = get_live_balances(user_id) if mode == "live" else load_balances(user_id, token, mode)
         held = balances.get(coin.upper(), 0)
         if held > 0 and cur_price > 0:
             print(f"🔄 Initializing {bot_name} as Holding — {held:.6f} {coin} detected in account.")
