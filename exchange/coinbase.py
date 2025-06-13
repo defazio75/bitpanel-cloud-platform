@@ -1,74 +1,85 @@
-import requests
 import time
+import hmac
+import hashlib
+import requests
+import base64
+
 
 class CoinbaseAPI:
-    def __init__(self, mode="paper", api_keys=None):
-        self.mode = mode
-        self.api_keys = api_keys
+    BASE_URL = "https://api.exchange.coinbase.com"
 
-    def get_balance(self):
-        # Placeholder: You can expand this with real Coinbase account API access
-        return {}
+    def __init__(self, api_key, api_secret, passphrase):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.passphrase = passphrase
 
-    def place_order(self, side, symbol, amount, order_type="market", price=None):
-        # Simulate an order placement (expand with real auth later)
-        print(f"[Coinbase] Simulating {order_type.upper()} order: {side.upper()} {amount} {symbol} at {price or 'market price'}")
+    def _get_headers(self, method, request_path, body=""):
+        timestamp = str(time.time())
+        message = f"{timestamp}{method}{request_path}{body}"
+        hmac_key = base64.b64decode(self.api_secret)
+        signature = hmac.new(hmac_key, message.encode("utf-8"), hashlib.sha256)
+        signature_b64 = base64.b64encode(signature.digest()).decode("utf-8")
+
         return {
-            "order_id": f"simulated-{int(time.time())}",
-            "status": "filled",
-            "symbol": symbol,
-            "side": side,
-            "amount": amount,
-            "price": price or self.get_price(symbol)
+            "CB-ACCESS-KEY": self.api_key,
+            "CB-ACCESS-SIGN": signature_b64,
+            "CB-ACCESS-TIMESTAMP": timestamp,
+            "CB-ACCESS-PASSPHRASE": self.passphrase,
+            "Content-Type": "application/json"
         }
 
-    def get_price(self, symbol):
-        # Pull current market price using Coinbase public API
-        try:
-            url = f"https://api.coinbase.com/v2/prices/{symbol}-USD/spot"
-            response = requests.get(url)
-            data = response.json()
-            return float(data["data"]["amount"])
-        except Exception as e:
-            print(f"[Coinbase] Error fetching price for {symbol}: {e}")
-            return 0.0
+    def get_balance(self):
+        """Fetch account balances"""
+        method = "GET"
+        path = "/accounts"
+        url = self.BASE_URL + path
 
+        headers = self._get_headers(method, path)
+        response = requests.get(url, headers=headers)
 
-# === Public Utility Functions (for compatibility) ===
+        if response.status_code != 200:
+            print(f"❌ Coinbase Balance Error: {response.status_code} - {response.text}")
+            return {}
 
-def get_prices():
-    prices = {}
-    supported = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
-    for coin in supported:
-        try:
-            url = f"https://api.coinbase.com/v2/prices/{coin}-USD/spot"
-            response = requests.get(url)
-            data = response.json()
-            prices[coin] = float(data["data"]["amount"])
-        except Exception as e:
-            print(f"[Coinbase] Error fetching price for {coin}: {e}")
-            prices[coin] = 0.0
-    return prices
+        accounts = response.json()
+        return {acc["currency"]: float(acc["available"]) for acc in accounts if float(acc["available"]) > 0}
 
+    def place_order(self, product_id, side, size, order_type="market"):
+        """Place a market order"""
+        method = "POST"
+        path = "/orders"
+        url = self.BASE_URL + path
 
-def get_balances(api_keys):
-    # Placeholder – real implementation will need Coinbase OAuth or API key logic
-    print("[Coinbase] Simulated get_balances()")
-    return {
-        "USD": 100000,
-        "BTC": 0.5,
-        "ETH": 2.0
-    }
+        body = {
+            "type": order_type,
+            "side": side,
+            "product_id": product_id,
+            "size": str(size)
+        }
 
+        import json
+        body_json = json.dumps(body)
+        headers = self._get_headers(method, path, body_json)
 
-def place_order(side, symbol, amount, price=None):
-    print(f"[Coinbase] Simulated {side.upper()} order for {amount} {symbol} at {price or 'market'}")
-    return {
-        "order_id": f"simulated-{int(time.time())}",
-        "status": "filled"
-    }
+        response = requests.post(url, headers=headers, data=body_json)
 
+        if response.status_code != 200:
+            print(f"❌ Coinbase Order Error: {response.status_code} - {response.text}")
+            return {}
 
-def cancel_order(order_id):
-    print(f"[Coinbase] Simulated cancel of order {order_id}")
-    return True
+        return response.json()
+
+    def cancel_order(self, order_id):
+        """Cancel an order"""
+        method = "DELETE"
+        path = f"/orders/{order_id}"
+        url = self.BASE_URL + path
+
+        headers = self._get_headers(method, path)
+        response = requests.delete(url, headers=headers)
+
+        if response.status_code != 200:
+            print(f"❌ Coinbase Cancel Error: {response.status_code} - {response.text}")
+            return {}
+
+        return response.json()
