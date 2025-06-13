@@ -133,6 +133,24 @@ def load_performance_snapshot(user_id, token, mode):
         .val()
     return data if data else {}
 
+def load_balances(user_id, token=None, mode="paper"):
+    """
+    Load all coin balances from Firebase for the given user and mode (live or paper).
+    Returns a dictionary like: {'BTC': {'balance': 0.01, 'usd_value': 300}, ...}
+    """
+    if mode not in ["live", "paper"]:
+        raise ValueError("Mode must be either 'live' or 'paper'.")
+
+    ref = firebase.database() \
+        .child("users") \
+        .child(user_id) \
+        .child(mode) \
+        .child("portfolio_snapshot") \
+        .child("coins")
+
+    data = ref.get(token).val()
+    return data if data else {}
+
 def create_default_snapshot(user_id, token, mode, usd_balance=100000.0):
     coins = {
         coin: {
