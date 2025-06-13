@@ -1,8 +1,9 @@
+from utils.firebase_config import firebase
+
+# Expose db globally
+db = firebase.database()
+
 def initialize_user_structure(user_id, token, name, email, signup_date):
-    from utils.firebase_config import firebase
-
-    db = firebase.database()
-
     # Set up the user's root structure
     db.child("users").child(user_id).set({
         "profile": {
