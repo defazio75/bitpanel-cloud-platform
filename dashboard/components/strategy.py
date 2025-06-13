@@ -132,7 +132,14 @@ def render_strategy_controls(mode, user_id, token):
                                         "last_action": "Waiting",
                                         "timestamp": datetime.utcnow().isoformat()
                                     }
-                                    initialize_strategy_state(user_id, coin=coin, strategy=strat, mode=mode, token=token)
+                                    initialize_strategy_state(
+                                        user_id=user_id,
+                                        coin=coin,
+                                        strategy=strat,
+                                        mode=mode,
+                                        token=token,
+                                        amount=allocated_amount
+                                    )
                                     
                             st.success("✅ Strategy saved and activated.")
                             st.session_state[f"confirm_strategy_{coin}"] = False
