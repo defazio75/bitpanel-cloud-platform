@@ -9,7 +9,7 @@ import controller
 if __name__ == "__main__":
     print("🚀 Starting BitPanel controller...")
     try:
-        run_controller()
+        controller.run_controller()
     except Exception as e:
         print(f"❌ Fatal error in controller: {e}")
         traceback.print_exc()
