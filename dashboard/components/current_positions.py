@@ -114,7 +114,8 @@ def render_current_positions(mode, user_id, token):
         df = pd.DataFrame(table_rows)
         df.index = [""] * len(df)  # Hide index
         with st.expander(f"\U0001F4B0 {coin_upper} — ${coin_usd_value:,.2f} | {coin_balance:.6f} {coin_upper} | {active_count} Bots Active", expanded=False):
-            st.markdown(df.to_html(escape=False, index=False), unsafe_allow_html=True)
+            html_table = df.to_html(escape=False, index=False).replace("<table", "<table style='width:100%; text-align:center;'")
+            st.markdown(f"<div style='width: 100%; overflow-x: auto;'>{html_table}</div>", unsafe_allow_html=True)
 
     # === Final Trade Log Section ===
     st.markdown("---")
