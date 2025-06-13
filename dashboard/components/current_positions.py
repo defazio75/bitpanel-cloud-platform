@@ -89,10 +89,10 @@ def render_current_positions(mode, user_id, token):
                 pl_value = round((coin_price - buy_price) * amount, 2)
                 if pl_value > 0:
                     color = "#2ecc71"  # green
-                    pl_display = f"<span style='color:{change_color};'>+${pl_value:,.2f}</span>"
+                    pl_display = f"<span style='color:{color}'>+${pl_value:,.2f}</span>"
                 elif pl_value < 0:
                     color = "#e74c3c"  # red
-                    pl_display = f"<span style='color:{change_color};'>-${abs(pl_value):,.2f}</span>"
+                    pl_display = f"<span style='color:{color}'>-${abs(pl_value):,.2f}</span>"
                 else:
                     pl_display = "—"
             else:
