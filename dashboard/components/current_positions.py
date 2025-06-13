@@ -84,19 +84,15 @@ def render_current_positions(mode, user_id, token):
             assigned_amt = round(assigned_usd / coin_price, 6) if coin_price else 0.0
             position_status = "In Market" if in_market else "In Cash"
 
-            buy_price = s.get("buy_price", 0.0)
-            amount = s.get("amount", 0.0)
-
             # Calculate P/L
             if amount > 0 and buy_price > 0:
                 pl_value = round((coin_price - buy_price) * amount, 2)
-                pl_display = f"${pl_value:,.2f}"
-            if pl_value > 0:
-                pl_display = f"🟢 {pl_display}"
-            elif pl_value < 0:
-                pl_display = f"🔴 {pl_display}"
-            else:
-                pl_display = "—"
+                if pl_value > 0:
+                    pl_display = f"🟢 ${pl_value:,.2f}"
+                elif pl_value < 0:
+                    pl_display = f"🔴 ${pl_value:,.2f}"
+                else:
+                    pl_display = "—"
             else:
                 pl_display = "—"
 
@@ -109,7 +105,7 @@ def render_current_positions(mode, user_id, token):
                 "Assigned Amt": f"{amount:.6f}",
                 "USD Held": f"${usd_held:,.2f}",
                 "Position Value": f"${position_value:,.2f}",
-                "Buy Price": f"${buy_price:,.2f}" if buy_price else "—"
+                "Buy Price": f"${buy_price:,.2f}" if buy_price else "—",
                 "P/L": pl_display
             })
 
