@@ -30,7 +30,13 @@ MIN_TRADE_USD = 10
 # === Mode Handling ===
 
 def get_mode(user_id=None):
-    return st.session_state.get("mode", "paper")
+    try:
+        import streamlit as st
+        return st.session_state.get("mode", "paper")
+    except:
+        # Fall back to reading from Firebase or default to "paper"
+        # If you have user-specific mode stored, use that here:
+        return "paper"  # or load from firebase if needed
 
 def set_mode(mode):
     st.session_state["mode"] = mode
