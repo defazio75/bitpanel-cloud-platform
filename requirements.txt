@@ -4,6 +4,7 @@ requests
 colorama
 watchdog
 pyarrow
+matplotlib
 cryptography>=41.0
 pyrebase4
 pandas_ta==0.3.14b0
