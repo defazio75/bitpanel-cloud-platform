@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.firebase_db import load_strategy_allocations, save_strategy_allocations, load_portfolio_snapshot, initialize_strategy_state
 from utils.config import get_mode
+from datetime import datetime
 
 # === Constants ===
 MARKET_ASSUMPTIONS = ["Bullish", "Neutral", "Bearish", "Custom"]
