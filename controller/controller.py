@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import time
 import threading
 import traceback
-from utils.firebase_db import get_all_user_ids, load_strategy_config, save_portfolio_snapshot
+from utils.firebase_db import get_all_user_ids, load_strategy_allocations, save_portfolio_snapshot
 from utils.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 from utils.config import get_mode
