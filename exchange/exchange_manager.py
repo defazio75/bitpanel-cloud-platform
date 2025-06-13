@@ -1,4 +1,4 @@
-from exchanges.kraken import KrakenAPI
+from exchange.kraken import KrakenAPI
 # (future: from exchanges.binance import BinanceAPI)
 # (future: from exchanges.coinbase import CoinbaseAPI)
 
