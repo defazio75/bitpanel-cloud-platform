@@ -64,7 +64,7 @@ def run_controller():
 
                 # === Strategy Bot Triggers ===
                 if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
-                    rsi_5min.run(user_id, exchange, strategy_config)
+                    rsi_5min.run(user_id=user_id, token=token, coin="BTC")
 
                 if strategy_config.get("BTC", {}).get("rsi_1hr", {}).get("enabled"):
                     rsi_1hr.run(user_id, exchange, strategy_config)
