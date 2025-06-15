@@ -27,9 +27,18 @@ def load_balances_from_firebase(user_id, token, mode):
     data = firebase.database().child("users").child(user_id).child(path).get(token).val()
     return data if data else {}
 
-def run(price_data, user_id, token, coin="BTC"):
+def run(user_id, token, coin="BTC"):
     print(f"🟢 [RSI 5MIN] Running for user: {user_id}")
     bot_name = f"{STRATEGY.lower()}_{coin.lower()}"
+
+        # === Fetch price and RSI ===
+    prices = get_prices(user_id=user_id)
+    cur_price = prices.get(coin)
+    rsi_value = get_rsi(coin, interval="5min")
+
+    if cur_price is None or rsi_value is None:
+        print(f"❌ Missing price or RSI for {coin}. Aborting run.")
+        return
 
     state = load_coin_state(user_id, coin, token, mode) or {}
     strat_state = state.get(STRATEGY, {})
@@ -45,9 +54,6 @@ def run(price_data, user_id, token, coin="BTC"):
         }
         save_coin_state(user_id, coin, state, token, mode)
         return
-
-    cur_price = price_data.get("price")
-    rsi_value = price_data.get("rsi")
 
     # === Auto-initialize if bot is empty but coin held ===
     if not state:
