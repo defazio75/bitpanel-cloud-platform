@@ -1,25 +1,16 @@
 import streamlit as st
+import stripe
 from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
-from utils.kraken_wrapper import get_live_balances
 
-def test_kraken_balance_fetch(user_id):
-    try:
-        balances = get_live_balances(user_id=user_id, token=token)
-        usd = balances.get("USD", 0)
-        print(f"✅ USD Balance from Kraken for {user_id}: ${usd}")
-        return usd
-    except Exception as e:
-        print(f"❌ Test Fetch Failed: {e}")
-        return None
+stripe.api_key = "your_stripe_secret_key_here"  # Replace with live/test key
 
-def debug_fetch_raw_balance(user_id, token):
-    from utils.kraken_auth import rate_limited_query_private
-    try:
-        result = rate_limited_query_private("/0/private/Balance", {}, user_id, token)
-        return result
-    except Exception as e:
-        raise RuntimeError(f"Kraken balance fetch failed: {e}")
+# Stripe Price IDs (set in Stripe Dashboard)
+PLAN_LOOKUP = {
+    "Starter - $9/mo": "price_123_starter",
+    "Pro - $25/mo": "price_123_pro",
+    "Pro Annual - $149/yr": "price_123_annual"
+}
 
 def render_settings_panel(user_id, token, exchange="kraken"):
     st.header("⚙️ Settings")
@@ -29,6 +20,31 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     user = st.session_state.get("user", {})
     st.write(f"**Email:** {user.get('email', 'N/A')}")
     st.write(f"**User ID:** {user_id}")
+
+    st.markdown("---")
+
+    # === Subscription Section ===
+    st.subheader("💳 Subscription Plan")
+
+    plan = st.selectbox("Choose Your Plan", list(PLAN_LOOKUP.keys()))
+
+    if st.button("Subscribe Now"):
+        try:
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                mode="subscription",
+                line_items=[{
+                    "price": PLAN_LOOKUP[plan],
+                    "quantity": 1,
+                }],
+                success_url="https://yourapp.com/success",
+                cancel_url="https://yourapp.com/cancel",
+                metadata={"user_id": user_id}
+            )
+            st.success("✅ Redirecting to Stripe Checkout...")
+            st.markdown(f"[Click here to complete payment]({session.url})", unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"❌ Error creating Stripe session: {e}")
 
     st.markdown("---")
 
@@ -69,30 +85,3 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 st.error("Please enter both API key and secret.")
 
     st.markdown("---")
-
-    # === Test Kraken Connection Section ===
-    st.subheader("🧪 Test Kraken Connection")
-
-    if st.button("🔍 Test Kraken Balance Fetch"):
-        balances = get_live_balances(user_id=user_id, token=token)
-
-        try:
-            raw_result = debug_fetch_raw_balance(user_id, token)
-            if raw_result:
-                st.subheader("📦 Raw Kraken API Response:")
-                st.json(raw_result)
-            else:
-                st.error("❌ No raw data returned from Kraken API.")
-        except Exception as e:
-            st.error(f"❌ Error calling Kraken Balance API: {e}")
-
-        if balances:
-            st.write("🧾 **Raw Kraken Balances:**")
-            st.json(balances)
-            usd_balance = balances.get("USD", 0)
-            st.success(f"✅ USD Balance: ${usd_balance:.2f}")
-        else:
-            st.error("❌ No balances returned. Check API key validity or Kraken API access.")
-
-    st.markdown("---")
-    st.markdown("Future settings like subscriptions and theme preferences will be added here.")
