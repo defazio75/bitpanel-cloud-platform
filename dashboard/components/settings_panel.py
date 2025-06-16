@@ -55,9 +55,9 @@ def render_settings_panel(user_id, token, exchange="kraken"):
         st.success(f"✅ Current Plan: {plan_name}")
     else:
         st.warning("🚫 Current Plan: Free Version")
-        if st.button("🚀 Upgrade to Pro"):
+        if st.button("🚀 Upgrade to Pro", key="upgrade_button_sidebar"):
             st.session_state.current_page = "checkout"
-            st.experimental_rerun()
+            st.rerun()
 
     st.markdown("---")
     st.subheader("🔐 Exchange API Keys")
