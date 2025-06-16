@@ -113,9 +113,21 @@ with st.sidebar:
     if selected_mode != st.session_state.mode:
         if selected_mode == "live":
             st.session_state.api_keys = load_user_api_keys(user_id, exchange, token=token)
-            if not st.session_state.api_keys or not st.session_state.api_keys.get("key") or not st.session_state.api_keys.get("secret"):
+            
+            # 🚫 Check API keys
+            has_keys = st.session_state.api_keys and st.session_state.api_keys.get("key") and st.session_state.api_keys.get("secret")
+
+            # 🚫 Check subscription status (from session_state or Firebase in future)
+            is_paid_user = st.session_state.user.get("paid", False)  # Default False if not set
+
+            if not has_keys:
                 st.warning("⚠️ Live mode requires saved API keys.")
                 if st.button("🔧 Go to API Settings"):
+                    st.session_state.current_page = "⚙️ Settings"
+                    st.rerun()
+            elif not is_paid_user:
+                st.error("💳 Live mode is only available for Pro users.")
+                if st.button("🚀 Subscribe Now"):
                     st.session_state.current_page = "⚙️ Settings"
                     st.rerun()
             else:
