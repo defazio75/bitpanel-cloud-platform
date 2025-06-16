@@ -55,19 +55,19 @@ def stripe_webhook():
 
     elif event_type == "customer.subscription.deleted":
         customer_id = data.get("customer")
-        docs = db.collection("users").where("stripe_customer_id", "==", customer_id).stream()
+        docs = db.collection("users").where("profile.billing.stripe_customer_id", "==", customer_id).stream()
         for doc in docs:
             db.collection("users").document(doc.id).update({
-                "subscription_status": "canceled"
+                "profile.billing.subscription_status": "canceled"
             })
             print(f"⚠️ Subscription canceled for {doc.id}")
 
     elif event_type == "invoice.payment_failed":
         customer_id = data.get("customer")
-        docs = db.collection("users").where("stripe_customer_id", "==", customer_id).stream()
+        docs = db.collection("users").where("profile.billing.stripe_customer_id", "==", customer_id).stream()
         for doc in docs:
             db.collection("users").document(doc.id).update({
-                "subscription_status": "past_due"
+                "profile.billing.subscription_status": "past_due"
             })
             print(f"⚠️ Payment failed for {doc.id}")
             
