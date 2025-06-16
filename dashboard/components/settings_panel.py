@@ -7,8 +7,8 @@ import streamlit.components.v1 as components
 stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj" 
 
 PLAN_LOOKUP = {
-    "Pro – $24.99/mo": "price_xxx_pro_month",      # Replace with real Stripe ID
-    "Pro Annual – $149.99/yr": "price_xxx_pro_annual"
+    "Pro – $24.99/mo": "price_1Raedr2cME1qYwWKk4onb9Tw",
+    "Pro Annual – $149.99/yr": "price_1RakiW2cME1qYwWKwhyZv8BP"
 }
 
 PLAN_DETAILS = {
