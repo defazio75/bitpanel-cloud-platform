@@ -40,24 +40,32 @@ def stripe_webhook():
             "price_123_pro": "pro",
             "price_123_annual": "pro_annual"
         }.get(plan_id, "unknown")
-                
+
         if plan_name == "unknown":
             print(f"⚠️ Unknown plan ID received: {plan_id}")
 
         trial_end = data.get("subscription", {}).get("trial_end")
         trial_timestamp = firestore.SERVER_TIMESTAMP if not trial_end else firestore.Timestamp.from_seconds(trial_end)
 
-        # Save to Firebase
-        if user_id:
-            db.collection("users").document(user_id).update({
-                "profile.billing": {
-                    "subscription_status": "active",
-                    "stripe_customer_id": customer_id,
-                    "plan": plan_name,
-                    "trial_end_date": trial_timestamp
-                }
-            })
-            print(f"✅ Subscription updated for {user_id}")
+        # === Check for Bypass ===
+        user_ref = db.collection("users").document(user_id)
+        user_doc = user_ref.get()
+        if user_doc.exists:
+            billing_info = user_doc.to_dict().get("profile", {}).get("billing", {})
+            if billing_info.get("bypass"):
+                print(f"🛑 Skipping update for user {user_id} due to bypass flag.")
+                return jsonify(success=True), 200
+
+        # === Save to Firebase if not bypassed
+        user_ref.update({
+            "profile.billing": {
+                "subscription_status": "active",
+                "stripe_customer_id": customer_id,
+                "plan": plan_name,
+                "trial_end_date": trial_timestamp
+            }
+        })
+        print(f"✅ Subscription updated for {user_id}")
 
     elif event_type == "customer.subscription.deleted":
         customer_id = data.get("customer")
@@ -76,5 +84,5 @@ def stripe_webhook():
                 "profile.billing.subscription_status": "past_due"
             })
             print(f"⚠️ Payment failed for {doc.id}")
-            
+
     return jsonify(success=True), 200
