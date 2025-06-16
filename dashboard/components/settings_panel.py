@@ -7,9 +7,9 @@ stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6
 
 # Stripe Price IDs (set in Stripe Dashboard)
 PLAN_LOOKUP = {
-    "Starter - $9/mo": "prod_SVfzzUjlsDIvwU",
-    "Pro - $25/mo": "prod_SVfzXVhlbyzof3",
-    "Pro Annual - $149/yr": "prod_SVg0OppVq8zmLJ"
+    "Starter - $9/mo": "price_1RaedE2cME1qYwWK5gxkgX65",
+    "Pro - $25/mo": "price_1Raedr2cME1qYwWKk4onb9Tw",
+    "Pro Annual - $149/yr": "price_1RaeeP2cME1qYwWKespjzPLy"
 }
 
 def render_settings_panel(user_id, token, exchange="kraken"):
