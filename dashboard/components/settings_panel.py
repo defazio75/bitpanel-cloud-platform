@@ -38,51 +38,18 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.write(f"**User ID:** {user_id}")
     st.markdown("---")
 
-    # === Subscription Plan ===
-    st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
-    st.markdown("✅ No payment for 30 days. Cancel anytime.")
-
-    plans = list(PLAN_LOOKUP.keys())
-
-    if "selected_plan" not in st.session_state:
-        st.session_state.selected_plan = None
-    if "stripe_session_url" not in st.session_state:
-        st.session_state.stripe_session_url = None
-
-    cols = st.columns(len(plans))
-    for i, plan in enumerate(plans):
-        with cols[i]:
-            if st.button(plan):
-                st.session_state.selected_plan = plan
-                st.session_state.stripe_session_url = None
-
-    if st.session_state.selected_plan:
-        st.markdown(f"**Selected Plan:** `{st.session_state.selected_plan}`")
-
-        if st.button("🚀 Sign Up for Free Trial"):
-            try:
-                price_id = PLAN_LOOKUP[st.session_state.selected_plan]
-                session = stripe.checkout.Session.create(
-                    payment_method_types=["card"],
-                    mode="subscription",
-                    line_items=[{"price": price_id, "quantity": 1}],
-                    subscription_data={
-                        "trial_period_days": 30,
-                        "metadata": {"user_id": user_id}
-                    },
-                    success_url="https://yourapp.com/success",
-                    cancel_url="https://yourapp.com/cancel",
-                    metadata={"user_id": user_id}
-                )
-                st.session_state.stripe_session_url = session.url
-            except Exception as e:
-                st.error(f"❌ Error creating Stripe session: {e}")
-
-    if st.session_state.stripe_session_url:
-        st.markdown(
-            f"➡️ [Continue to Stripe to activate your 30-day free trial]({st.session_state.stripe_session_url})",
-            unsafe_allow_html=True
-        )
+    # === Subscription Section ===
+    st.subheader("💳 Subscription Plan")
+    
+    is_paid_user = st.session_state.user.get("paid", False)
+    
+    if is_paid_user:
+        plan_name = st.session_state.user.get("plan_name", "Pro Plan")  # Optional: customize
+        st.success(f"✅ Current Plan: {plan_name}")
+    else:
+        st.warning("🚫 Current Plan: Free Version")
+        if st.button("🚀 Upgrade to Pro"):
+            webbrowser.open_new_tab("/checkout")
 
     st.markdown("---")
     st.subheader("🔐 Exchange API Keys")
