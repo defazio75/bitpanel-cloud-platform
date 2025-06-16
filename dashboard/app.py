@@ -56,6 +56,17 @@ if "mode" not in st.session_state:
 
 mode = st.session_state.mode
 
+if st.session_state.mode == "live":
+    if not api_keys_exist(user_id, token, exchange="kraken"):
+        st.warning("🔐 Live mode requires saved API keys. Switching back to Paper mode.")
+        st.session_state.mode = "paper"
+        st.rerun()
+    elif not st.session_state.user.get("paid", False):
+        st.warning("💳 Pro subscription required for Live mode. Switching back to Paper mode.")
+        st.session_state.mode = "paper"
+        st.session_state.current_page = "⚙️ Settings"
+        st.rerun()
+
 # === GATEKEEP LIVE MODE ACCESS ===
 if mode == "live":
     if not api_keys_exist(user_id, token, exchange="kraken"):
@@ -97,6 +108,15 @@ with st.sidebar:
             del st.session_state[key]
         st.success("You have been logged out.")
         st.rerun()
+
+    if st.session_state.user.get("paid", False):
+        st.success("✅ Pro Plan Active")
+    else:
+        if not st.session_state.user.get("paid", False):
+            st.info("💡 Live trading requires a Pro subscription")
+            if st.button("🚀 Upgrade to Pro"):
+                st.session_state.current_page = "⚙️ Settings"
+                st.rerun()
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
