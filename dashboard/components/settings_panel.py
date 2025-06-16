@@ -23,11 +23,12 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.markdown("---")
 
     # === Subscription Plan ===
-    st.subheader("💳 Subscription Plan")
+    st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
+    st.markdown("✅ No payment for 30 days. Cancel anytime.")
 
     plan = st.selectbox("Choose Your Plan", list(PLAN_LOOKUP.keys()))
 
-    if st.button("Subscribe Now"):
+    if st.button("🚀 Sign Up for Free Trial"):
         try:
             price_id = PLAN_LOOKUP[plan]
             session = stripe.checkout.Session.create(
