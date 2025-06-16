@@ -34,17 +34,22 @@ def stripe_webhook():
             "price_123_pro": "pro",
             "price_123_annual": "pro_annual"
         }.get(plan_id, "unknown")
+                
+        if plan_name == "unknown":
+            print(f"⚠️ Unknown plan ID received: {plan_id}")
 
         trial_end = data.get("subscription", {}).get("trial_end")
+        trial_timestamp = firestore.SERVER_TIMESTAMP if not trial_end else firestore.Timestamp.from_seconds(trial_end)
 
         # Save to Firebase
-        db.collection("users").document(user_id).update({
-            "subscription_status": "active",
-            "stripe_customer_id": customer_id,
-            "plan": plan_name,
-            "trial_end_date": firestore.SERVER_TIMESTAMP if not trial_end else firestore.Timestamp.from_seconds(trial_end)
-        })
-        print(f"✅ Subscription updated for {user_id}")
+        if user_id:
+            db.collection("users").document(user_id).update({
+                "subscription_status": "active",
+                "stripe_customer_id": customer_id,
+                "plan": plan_name,
+                "trial_end_date": trial_timestamp
+            })
+            print(f"✅ Subscription updated for {user_id}")
 
     elif event_type == "customer.subscription.deleted":
         customer_id = data.get("customer")
@@ -63,3 +68,5 @@ def stripe_webhook():
                 "subscription_status": "past_due"
             })
             print(f"⚠️ Payment failed for {doc.id}")
+            
+    return jsonify(success=True), 200
