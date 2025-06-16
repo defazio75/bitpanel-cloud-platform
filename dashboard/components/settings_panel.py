@@ -22,16 +22,36 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.write(f"**Email:** {user.get('email', 'N/A')}")
     st.write(f"**User ID:** {user_id}")
     st.markdown("---")
+    
+# === Subscription Plan ===
+st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
+st.markdown("✅ No payment for 30 days. Cancel anytime.")
 
-    # === Subscription Plan ===
-    st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
-    st.markdown("✅ No payment for 30 days. Cancel anytime.")
+# === Toggle Plan Selection ===
+plans = list(PLAN_LOOKUP.keys())
+selected = None
 
-    plan = st.selectbox("Choose Your Plan", list(PLAN_LOOKUP.keys()))
+# Initialize session state if needed
+if "selected_plan" not in st.session_state:
+    st.session_state.selected_plan = None
+if "stripe_session_url" not in st.session_state:
+    st.session_state.stripe_session_url = None
 
+# Display toggle-style buttons for each plan
+cols = st.columns(len(plans))
+for i, plan in enumerate(plans):
+    with cols[i]:
+        if st.button(plan):
+            st.session_state.selected_plan = plan
+            st.session_state.stripe_session_url = None
+
+# Show confirmation and Stripe session button
+if st.session_state.selected_plan:
+    st.markdown(f"**Selected Plan:** `{st.session_state.selected_plan}`")
+    
     if st.button("🚀 Sign Up for Free Trial"):
         try:
-            price_id = PLAN_LOOKUP[plan]
+            price_id = PLAN_LOOKUP[st.session_state.selected_plan]
             session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 mode="subscription",
@@ -49,14 +69,13 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 cancel_url="https://yourapp.com/cancel",
                 metadata={"user_id": user_id}
             )
-            st.markdown(
-                f"➡️ [Continue to Stripe to activate your 30-day free trial]({session.url})",
-                unsafe_allow_html=True
-            )
+            st.session_state.stripe_session_url = session.url
         except Exception as e:
             st.error(f"❌ Error creating Stripe session: {e}")
 
-    st.markdown("---")
+# Display the Stripe link after session is created
+if st.session_state.stripe_session_url:
+    st.markdown(f"➡️ [Continue to Stripe to activate your 30-day free trial]({st.session_state.stripe_session_url})", unsafe_allow_html=True)
 
     # === API Key Manager ===
     st.subheader("🔐 Exchange API Keys")
