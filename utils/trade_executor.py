@@ -1,6 +1,8 @@
 from datetime import datetime
 from utils.config import get_mode
+from exchange.exchange_manager import get_exchange
 from utils.kraken_wrapper import rate_limited_query_private
+from utils.load_keys import load_user_api_keys
 from utils.logger import log_trade_multi
 from utils.firebase_db import (
     load_portfolio_snapshot,
@@ -10,14 +12,18 @@ from utils.firebase_db import (
 )
 import pandas as pd
 
+def get_exchange_for_user(user_id, token=None):
+    mode = get_mode(user_id)
+    api_keys = load_user_api_keys(user_id, token)
+    user_exchange = api_keys.get("exchange", "kraken")
+    return get_exchange(user_exchange, mode=mode, api_keys=api_keys)
+
 # === Main Execution Function ===
 def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None):
     if not mode:
         mode = get_mode()
     if not user_id:
         raise ValueError("❌ user_id is required for execute_trade.")
-
-    token = st.session_state.get("token")
 
     order = {
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
@@ -110,7 +116,8 @@ def send_live_order(order, token):
             "volume": round(volume, 6)
         }
 
-        result = rate_limited_query_private("AddOrder", params, user_id=user_id, token=token)
+        exchange = get_exchange_for_user(user_id, token)
+        result = exchange.place_market_order(coin=coin, volume=volume, side=side)
         print("✅ Kraken order response:", result)
 
         if result.get("error"):
