@@ -1,3 +1,5 @@
+import streamlit as st
+
 def render_checkout(user_id):
     st.title("💳 Choose Your BitPanel Plan")
 
