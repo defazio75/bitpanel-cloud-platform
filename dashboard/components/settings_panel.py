@@ -20,23 +20,29 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     user = st.session_state.get("user", {})
     st.write(f"**Email:** {user.get('email', 'N/A')}")
     st.write(f"**User ID:** {user_id}")
-
     st.markdown("---")
 
-    # === Subscription Section ===
+    # === Subscription Plan ===
     st.subheader("💳 Subscription Plan")
 
     plan = st.selectbox("Choose Your Plan", list(PLAN_LOOKUP.keys()))
 
     if st.button("Subscribe Now"):
         try:
+            price_id = PLAN_LOOKUP[plan]
             session = stripe.checkout.Session.create(
                 payment_method_types=["card"],
                 mode="subscription",
                 line_items=[{
-                    "price": PLAN_LOOKUP[plan],
+                    "price": price_id,
                     "quantity": 1,
                 }],
+                subscription_data={
+                    "trial_period_days": 30,
+                    "metadata": {
+                        "user_id": user_id
+                    }
+                },
                 success_url="https://yourapp.com/success",
                 cancel_url="https://yourapp.com/cancel",
                 metadata={"user_id": user_id}
