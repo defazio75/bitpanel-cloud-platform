@@ -41,15 +41,23 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     # === Subscription Section ===
     st.subheader("💳 Subscription Plan")
     
-    is_paid_user = st.session_state.user.get("paid", False)
+    user_info = st.session_state.user
+    is_paid_user = user_info.get("paid", False)
+    plan_code = user_info.get("plan", None)
     
-    if is_paid_user:
-        plan_name = st.session_state.user.get("plan_name", "Pro Plan")  # Optional: customize
+    if is_paid_user and plan_code:
+        if plan_code == "pro_month":
+            plan_name = "Pro – $24.99/mo"
+        elif plan_code == "pro_annual":
+            plan_name = "Pro Annual – $149.99/yr"
+        else:
+            plan_name = "Pro Plan"
         st.success(f"✅ Current Plan: {plan_name}")
     else:
         st.warning("🚫 Current Plan: Free Version")
         if st.button("🚀 Upgrade to Pro"):
-            webbrowser.open_new_tab("/checkout")
+            st.session_state.current_page = "checkout"
+            st.experimental_rerun()
 
     st.markdown("---")
     st.subheader("🔐 Exchange API Keys")
