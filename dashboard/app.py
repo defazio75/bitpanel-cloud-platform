@@ -65,7 +65,7 @@ if st.session_state.mode == "live":
     elif not st.session_state.user.get("paid", False):
         st.warning("💳 Pro subscription required for Live mode. Switching back to Paper mode.")
         st.session_state.mode = "paper"
-        st.session_state.current_page = "⚙️ Settings"
+        st.session_state.current_page = "checkout"
         st.rerun()
 
 # === GATEKEEP LIVE MODE ACCESS ===
@@ -116,7 +116,7 @@ with st.sidebar:
         if not st.session_state.user.get("paid", False):
             st.info("💡 Live trading requires a Pro subscription")
             if st.button("🚀 Upgrade to Pro"):
-                st.session_state.current_page = "⚙️ Settings"
+                st.session_state.current_page = "checkout"
                 st.rerun()
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
