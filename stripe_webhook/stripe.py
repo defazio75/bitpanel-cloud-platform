@@ -1,7 +1,12 @@
 import os
 import stripe
 from flask import Flask, request, jsonify
-from firebase_admin import firestore, initialize_app
+import json
+from firebase_admin import credentials
+
+cred_path = os.path.join(os.getcwd(), "firebase_key.json")
+cred = credentials.Certificate(cred_path)
+initialize_app(cred)
 
 app = Flask(__name__)
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
