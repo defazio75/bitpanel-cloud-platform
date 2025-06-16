@@ -5,15 +5,14 @@ import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-import credentials, firestore, initialize_app
-
-# Initialize Firebase only if not already initialized
+# === Initialize Firebase ===
 if not firebase_admin._apps:
     cred = credentials.ApplicationDefault()
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
+# === Initialize Flask + Stripe ===
 app = Flask(__name__)
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 endpoint_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
