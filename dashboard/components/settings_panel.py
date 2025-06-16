@@ -49,8 +49,10 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 cancel_url="https://yourapp.com/cancel",
                 metadata={"user_id": user_id}
             )
-            st.success("✅ Your free trial is almost ready!")
-            st.markdown(f"➡️ [Continue to Stripe to activate your 30-day free trial]({session.url})"
+            st.markdown(
+                f"➡️ [Continue to Stripe to activate your 30-day free trial]({session.url})",
+                unsafe_allow_html=True
+            )
         except Exception as e:
             st.error(f"❌ Error creating Stripe session: {e}")
 
