@@ -4,13 +4,12 @@ from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
 import streamlit.components.v1 as components
 
-stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj"  
+stripe.api_key = "sk_test_..."  # your full key
 
-# Stripe Price IDs (set in Stripe Dashboard)
 PLAN_LOOKUP = {
-    "Starter - $9/mo": "price_1RaedE2cME1qYwWK5gxkgX65",
-    "Pro - $25/mo": "price_1Raedr2cME1qYwWKk4onb9Tw",
-    "Pro Annual - $149/yr": "price_1RaeeP2cME1qYwWKespjzPLy"
+    "Starter - $9/mo": "price_...",
+    "Pro - $25/mo": "price_...",
+    "Pro Annual - $149/yr": "price_..."
 }
 
 def render_settings_panel(user_id, token, exchange="kraken"):
@@ -22,62 +21,54 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.write(f"**Email:** {user.get('email', 'N/A')}")
     st.write(f"**User ID:** {user_id}")
     st.markdown("---")
-    
-# === Subscription Plan ===
-st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
-st.markdown("✅ No payment for 30 days. Cancel anytime.")
 
-# === Toggle Plan Selection ===
-plans = list(PLAN_LOOKUP.keys())
-selected = None
+    # === Subscription Plan ===
+    st.subheader("💳 Subscription Plan (Includes 30-Day Free Trial 🚀)")
+    st.markdown("✅ No payment for 30 days. Cancel anytime.")
 
-# Initialize session state if needed
-if "selected_plan" not in st.session_state:
-    st.session_state.selected_plan = None
-if "stripe_session_url" not in st.session_state:
-    st.session_state.stripe_session_url = None
+    plans = list(PLAN_LOOKUP.keys())
 
-# Display toggle-style buttons for each plan
-cols = st.columns(len(plans))
-for i, plan in enumerate(plans):
-    with cols[i]:
-        if st.button(plan):
-            st.session_state.selected_plan = plan
-            st.session_state.stripe_session_url = None
+    if "selected_plan" not in st.session_state:
+        st.session_state.selected_plan = None
+    if "stripe_session_url" not in st.session_state:
+        st.session_state.stripe_session_url = None
 
-# Show confirmation and Stripe session button
-if st.session_state.selected_plan:
-    st.markdown(f"**Selected Plan:** `{st.session_state.selected_plan}`")
-    
-    if st.button("🚀 Sign Up for Free Trial"):
-        try:
-            price_id = PLAN_LOOKUP[st.session_state.selected_plan]
-            session = stripe.checkout.Session.create(
-                payment_method_types=["card"],
-                mode="subscription",
-                line_items=[{
-                    "price": price_id,
-                    "quantity": 1,
-                }],
-                subscription_data={
-                    "trial_period_days": 30,
-                    "metadata": {
-                        "user_id": user_id
-                    }
-                },
-                success_url="https://yourapp.com/success",
-                cancel_url="https://yourapp.com/cancel",
-                metadata={"user_id": user_id}
-            )
-            st.session_state.stripe_session_url = session.url
-        except Exception as e:
-            st.error(f"❌ Error creating Stripe session: {e}")
+    cols = st.columns(len(plans))
+    for i, plan in enumerate(plans):
+        with cols[i]:
+            if st.button(plan):
+                st.session_state.selected_plan = plan
+                st.session_state.stripe_session_url = None
 
-# Display the Stripe link after session is created
-if st.session_state.stripe_session_url:
-    st.markdown(f"➡️ [Continue to Stripe to activate your 30-day free trial]({st.session_state.stripe_session_url})", unsafe_allow_html=True)
+    if st.session_state.selected_plan:
+        st.markdown(f"**Selected Plan:** `{st.session_state.selected_plan}`")
 
-    # === API Key Manager ===
+        if st.button("🚀 Sign Up for Free Trial"):
+            try:
+                price_id = PLAN_LOOKUP[st.session_state.selected_plan]
+                session = stripe.checkout.Session.create(
+                    payment_method_types=["card"],
+                    mode="subscription",
+                    line_items=[{"price": price_id, "quantity": 1}],
+                    subscription_data={
+                        "trial_period_days": 30,
+                        "metadata": {"user_id": user_id}
+                    },
+                    success_url="https://yourapp.com/success",
+                    cancel_url="https://yourapp.com/cancel",
+                    metadata={"user_id": user_id}
+                )
+                st.session_state.stripe_session_url = session.url
+            except Exception as e:
+                st.error(f"❌ Error creating Stripe session: {e}")
+
+    if st.session_state.stripe_session_url:
+        st.markdown(
+            f"➡️ [Continue to Stripe to activate your 30-day free trial]({st.session_state.stripe_session_url})",
+            unsafe_allow_html=True
+        )
+
+    st.markdown("---")
     st.subheader("🔐 Exchange API Keys")
 
     exchange_options = ["kraken", "binance", "coinbase"]
@@ -86,7 +77,7 @@ if st.session_state.stripe_session_url:
     current_keys = load_user_api_keys(user_id, selected_exchange, token=token)
 
     if "api_keys_saved" not in st.session_state:
-         st.session_state.api_keys_saved = False
+        st.session_state.api_keys_saved = False
 
     if st.session_state.api_keys_saved:
         st.success("✅ API keys already saved.")
@@ -94,7 +85,7 @@ if st.session_state.stripe_session_url:
             st.session_state.api_keys_saved = False
             st.rerun()
         return
-    
+
     key_status = "✅ Keys saved" if current_keys else "❌ No keys saved"
     st.markdown(f"**Status:** {key_status}")
     st.markdown("You can safely store or update your API keys below. These are encrypted and saved securely.")
@@ -112,5 +103,3 @@ if st.session_state.stripe_session_url:
                 st.rerun()
             else:
                 st.error("Please enter both API key and secret.")
-
-    st.markdown("---")
