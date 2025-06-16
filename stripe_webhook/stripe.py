@@ -2,11 +2,12 @@ import os
 import stripe
 from flask import Flask, request, jsonify
 import json
+import firebase_admin
 from firebase_admin import credentials, firestore
 
 import credentials, firestore, initialize_app
 
-# Protect against re-initializing the app
+# Initialize Firebase only if not already initialized
 if not firebase_admin._apps:
     cred = credentials.ApplicationDefault()
     firebase_admin.initialize_app(cred)
@@ -16,10 +17,6 @@ db = firestore.client()
 app = Flask(__name__)
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 endpoint_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
-
-initialize_app()  # Assumes Firebase SDK is configured with credentials
-
-db = firestore.client()
 
 @app.route("/stripe/webhook", methods=["POST"])
 def stripe_webhook():
