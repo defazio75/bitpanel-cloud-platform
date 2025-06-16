@@ -57,6 +57,7 @@ if "mode" not in st.session_state:
 
 mode = st.session_state.mode
 
+# === GATEKEEP LIVE MODE ACCESS ===
 if st.session_state.mode == "live":
     if not api_keys_exist(user_id, token, exchange="kraken"):
         st.warning("🔐 Live mode requires saved API keys. Switching back to Paper mode.")
@@ -67,14 +68,6 @@ if st.session_state.mode == "live":
         st.session_state.mode = "paper"
         st.session_state.current_page = "checkout"
         st.rerun()
-
-# === GATEKEEP LIVE MODE ACCESS ===
-if mode == "live":
-    if not api_keys_exist(user_id, token, exchange="kraken"):
-        st.warning("🔐 Live mode requires saved API keys. You've been switched back to Paper mode.")
-        st.session_state.mode = "paper"
-        st.rerun()
-    # (In the future) Also check for paid user status here
 
 # Initialize current page
 if "current_page" not in st.session_state:
@@ -113,11 +106,10 @@ with st.sidebar:
     if st.session_state.user.get("paid", False):
         st.success("✅ Pro Plan Active")
     else:
-        if not st.session_state.user.get("paid", False):
-            st.info("💡 Live trading requires a Pro subscription")
-            if st.button("🚀 Upgrade to Pro"):
-                st.session_state.current_page = "checkout"
-                st.rerun()
+        st.info("💡 Live trading requires a Pro subscription")
+        if st.button("🚀 Upgrade to Pro", key="upgrade_button_sidebar"):
+            st.session_state.current_page = "checkout"
+            st.rerun()
 
     mode_labels = {"paper": "Paper Trading", "live": "Live Trading"}
     reverse_labels = {v: k for k, v in mode_labels.items()}
@@ -143,12 +135,12 @@ with st.sidebar:
 
             if not has_keys:
                 st.warning("⚠️ Live mode requires saved API keys.")
-                if st.button("🔧 Go to API Settings"):
+                if st.button("🔧 Go to API Settings", key="api_key_redirect_button"):
                     st.session_state.current_page = "⚙️ Settings"
                     st.rerun()
             elif not is_paid_user:
                 st.error("💳 Live mode is only available for Pro users.")
-                if st.button("🚀 Subscribe Now"):
+                if st.button("🚀 Subscribe Now", key="upgrade_button_live_warning"):
                     st.session_state.current_page = "checkout"
                     st.rerun()
             else:
@@ -163,12 +155,12 @@ with st.sidebar:
         st.warning(f"Change to {st.session_state.pending_mode}?")
         col1, col2 = st.columns([1, 1])
         with col1:
-            if st.button("✅ Confirm"):
+            if st.button("✅ Confirm", key="confirm_mode_change"):
                 st.session_state.mode = st.session_state.pending_mode
                 st.session_state.show_mode_confirm = False
                 st.rerun()
         with col2:
-            if st.button("❌ Cancel"):
+            if st.button("❌ Cancel", key="cancel_mode_change"):
                 st.session_state.show_mode_confirm = False
                 st.session_state.mode_selector = st.session_state.mode
 
