@@ -16,6 +16,7 @@ from components.settings_panel import render_settings_panel
 from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
+from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 
@@ -148,7 +149,7 @@ with st.sidebar:
             elif not is_paid_user:
                 st.error("💳 Live mode is only available for Pro users.")
                 if st.button("🚀 Subscribe Now"):
-                    st.session_state.current_page = "⚙️ Settings"
+                    st.session_state.current_page = "checkout"
                     st.rerun()
             else:
                 request_mode_change(selected_mode)
@@ -249,3 +250,6 @@ elif current_page == "📈 Performance":
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange, token=token)
+
+elif current_page == "checkout":
+    render_checkout(user_id=user_id)
