@@ -7,9 +7,25 @@ import streamlit.components.v1 as components
 stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj" 
 
 PLAN_LOOKUP = {
-    "Starter - $8.99/mo": "price_1Rakh12cME1qYwWKBeF9hl1w",
-    "Pro - $24.99/mo": "price_1Raedr2cME1qYwWKk4onb9Tw",
-    "Pro Annual - $149.99/yr": "price_1RakiW2cME1qYwWKwhyZv8BP"   
+    "Pro – $24.99/mo": "price_xxx_pro_month",      # Replace with real Stripe ID
+    "Pro Annual – $149.99/yr": "price_xxx_pro_annual"
+}
+
+PLAN_DETAILS = {
+    "Pro – $24.99/mo": [
+        "✅ Full Access to All Bots",
+        "✅ Live + Paper Trading",
+        "✅ Supports BTC, ETH, XRP, DOT, LINK, SOL",
+        "✅ Supports All Coins",
+        "✅ Connect with Coinbase, Binance, or Kraken",
+        "✅ Cancel Anytime"
+    ],
+    "Pro Annual – $149.99/yr": [
+        "✅ Everything in Pro Plan",
+        "✅ Save 50% vs Monthly",
+        "✅ Priority Feature Access",
+        "✅ Cancel Anytime"
+    ]
 }
 
 def render_settings_panel(user_id, token, exchange="kraken"):
