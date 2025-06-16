@@ -7,9 +7,9 @@ import streamlit.components.v1 as components
 stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj" 
 
 PLAN_LOOKUP = {
-    "Starter - $9/mo": "price_...",
-    "Pro - $25/mo": "price_...",
-    "Pro Annual - $149/yr": "price_..."
+    "Starter - $8.99/mo": "price_1Rakh12cME1qYwWKBeF9hl1w",
+    "Pro - $24.99/mo": "price_1Raedr2cME1qYwWKk4onb9Tw",
+    "Pro Annual - $149.99/yr": "price_1RakiW2cME1qYwWKwhyZv8BP"   
 }
 
 def render_settings_panel(user_id, token, exchange="kraken"):
