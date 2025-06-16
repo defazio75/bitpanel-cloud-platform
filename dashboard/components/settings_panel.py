@@ -49,16 +49,8 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 cancel_url="https://yourapp.com/cancel",
                 metadata={"user_id": user_id}
             )
-            st.markdown("✅ Redirecting to Stripe Checkout...")
-            # Inject JavaScript redirect
-            components.html(
-                f"""
-                <script>
-                    window.location.href = "{session.url}";
-                </script>
-                """,
-                height=0,
-            )
+            st.success("✅ Your free trial is almost ready!")
+            st.markdown(f"➡️ [Continue to Stripe to activate your 30-day free trial]({session.url})"
         except Exception as e:
             st.error(f"❌ Error creating Stripe session: {e}")
 
