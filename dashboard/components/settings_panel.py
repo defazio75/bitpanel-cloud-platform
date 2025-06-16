@@ -2,6 +2,7 @@ import streamlit as st
 import stripe
 from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
+import streamlit.components.v1 as components
 
 stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj"  
 
@@ -48,8 +49,16 @@ def render_settings_panel(user_id, token, exchange="kraken"):
                 cancel_url="https://yourapp.com/cancel",
                 metadata={"user_id": user_id}
             )
-            st.success("✅ Redirecting to Stripe Checkout...")
-            st.markdown(f"[Click here to complete payment]({session.url})", unsafe_allow_html=True)
+            st.markdown("✅ Redirecting to Stripe Checkout...")
+            # Inject JavaScript redirect
+            components.html(
+                f"""
+                <script>
+                    window.location.href = "{session.url}";
+                </script>
+                """,
+                height=0,
+            )
         except Exception as e:
             st.error(f"❌ Error creating Stripe session: {e}")
 
