@@ -44,10 +44,12 @@ def stripe_webhook():
         # Save to Firebase
         if user_id:
             db.collection("users").document(user_id).update({
-                "subscription_status": "active",
-                "stripe_customer_id": customer_id,
-                "plan": plan_name,
-                "trial_end_date": trial_timestamp
+                "profile.billing": {
+                    "subscription_status": "active",
+                    "stripe_customer_id": customer_id,
+                    "plan": plan_name,
+                    "trial_end_date": trial_timestamp
+                }
             })
             print(f"✅ Subscription updated for {user_id}")
 
