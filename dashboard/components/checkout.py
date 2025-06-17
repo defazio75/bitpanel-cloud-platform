@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 def render_checkout(user_id):
-    st.title("💳 Choose Your BitPanel Plan")
+    st.title("💳 Choose Your Plan")
 
     user_info = st.session_state.user
     is_paid_user = user_info.get("paid", False)
