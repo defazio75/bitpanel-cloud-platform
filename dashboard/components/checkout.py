@@ -70,8 +70,11 @@ def render_checkout(user_id):
         - ✅ 50% Annual Savings  
         - ✅ Early Feature Access  
         """)
-        if st.button("📆 Subscribe Annually"):
-            st.markdown(
-                '<meta http-equiv="refresh" content="0;URL=\'https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00\'" />',
-                unsafe_allow_html=True
-            )
+        st.markdown(
+            """
+            <a href="https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00" target="_blank">
+                <button style="padding: 0.5em 1em; font-size: 16px;">📆 Subscribe Annually</button>
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
