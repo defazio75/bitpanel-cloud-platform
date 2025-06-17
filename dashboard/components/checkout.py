@@ -75,22 +75,31 @@ def render_checkout(user_id):
 
     # === Pro Annual Plan ===
     with col3:
-        st.markdown("""
-### 🎯 Pro Plan (Annual)
-~~$299.99~~ → **Now Only $149.99 / year**  
+        st.markdown("### 🎯 Pro Plan (Annual)")
+        st.markdown(
+            "<p><span style='text-decoration: line-through;'>$299.99</span> &nbsp; <strong>Now Only $149.99 / year</strong></p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """
 🔥 **Limited Time Offer! (Save 50%)**  
 
 - ✅ 30 Day Free Trial  
 - ✅ 50% Annual Savings  
 - ✅ Includes all Pro Plan Features  
 - ✅ Cancel Anytime
-        """)
+            """
+        )
+
+        # Add space so button aligns with monthly plan
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
         if st.button("👉 Subscribe Annually"):
             components.html(
                 """
                 <script>
-                window.open("https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00", "_blank");
+                    window.open("https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00", "_blank");
                 </script>
                 """,
                 height=0,
