@@ -45,7 +45,7 @@ def render_checkout(user_id):
         st.markdown("""
         ### 🚀 Pro Plan (Monthly)  
         <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <span style='color:green; font-weight:bold;'>Now Only $24.99 / month</span><br>
-        <span style='color:#e67e22;'><strong>🔥 Limited Time Launch Offer!</strong></span> 
+        <span style='color:#e67e22;'><strong>🔥 Limited Time Offer!</strong></span> 
         - ✅ 30 Day Free Trial",
         - ✅ Full Access to All Bot Strategies",
         - ✅ Live + Paper Trading",
@@ -68,7 +68,7 @@ def render_checkout(user_id):
         st.markdown("""
         ### 🎯 Pro Plan (Annual)  
         <span style='color:gray; text-decoration: line-through;'>$299.99</span> → <span style='color:green; font-weight:bold;'>Now Only $149.99 / year</span><br>
-        <span style='color:#e67e22;'><strong>🔥 Limited Time Launch Offer! (Save 50%)</strong></span>
+        <span style='color:#e67e22;'><strong>🔥 Limited Time Offer! (Save 50%)</strong></span>
         - ✅ 30 Day Free Trial",
         - ✅ 50% Annual Savings,
         - ✅ Includes all Pro Plan features,
