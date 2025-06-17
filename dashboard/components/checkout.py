@@ -69,11 +69,10 @@ def render_checkout(user_id):
         ### 🎯 Pro Plan (Annual)  
         <span style='color:gray; text-decoration: line-through;'>$299.99</span> → <span style='color:green; font-weight:bold;'>Now Only $149.99 / year</span><br>
         <span style='color:#e67e22;'><strong>🔥 Limited Time Offer! (Save 50%)</strong></span>
-        - ✅ 30 Day Free Trial",
-        - ✅ 50% Annual Savings,
-        - ✅ Includes all Pro Plan features,
+        - ✅ 30 Day Free Trial  
         - ✅ 50% Annual Savings  
-        """)
+        - ✅ Includes all Pro Plan Features  
+        """, unsafe_allow_html=True)
         st.markdown(
             """
             <a href="https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00" target="_blank">
