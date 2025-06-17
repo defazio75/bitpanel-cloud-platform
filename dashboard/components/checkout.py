@@ -43,7 +43,7 @@ def render_checkout(user_id):
 
     # === Pro Monthly Plan ===
     with col2:
-        st.markdown("""
+st.markdown("""
 ### 🚀 Pro Plan (Monthly)
 ~~$49.99~~ → **Now Only $24.99 / month**  
 🔥 **Limited Time Offer!**  
@@ -54,7 +54,7 @@ def render_checkout(user_id):
 - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
 - ✅ Connect with Coinbase, Binance, or Kraken  
 - ✅ Cancel Anytime
-        """)
+""")
 
         if st.button("👉 Subscribe Monthly"):
             components.html(
