@@ -43,18 +43,18 @@ def render_checkout(user_id):
 
     # === Pro Monthly Plan ===
     with col2:
-st.markdown("""
-### 🚀 Pro Plan (Monthly)
-~~$49.99~~ → **Now Only $24.99 / month**  
-🔥 **Limited Time Offer!**  
+        st.markdown("""
+    ### 🚀 Pro Plan (Monthly)
+    ~~$49.99~~ → **Now Only $24.99 / month**  
+    🔥 **Limited Time Offer!**  
 
-- ✅ 30 Day Free Trial  
-- ✅ Full Access to All Bot Strategies  
-- ✅ Live + Paper Trading  
-- ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
-- ✅ Connect with Coinbase, Binance, or Kraken  
-- ✅ Cancel Anytime
-""")
+    - ✅ 30 Day Free Trial  
+    - ✅ Full Access to All Bot Strategies  
+    - ✅ Live + Paper Trading  
+    - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
+    - ✅ Connect with Coinbase, Binance, or Kraken  
+    - ✅ Cancel Anytime
+    """)
 
         if st.button("👉 Subscribe Monthly"):
             components.html(
