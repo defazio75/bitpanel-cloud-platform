@@ -44,22 +44,26 @@ def render_checkout(user_id):
     # === Pro Monthly Plan ===
     with col2:
         st.markdown("### 🚀 Monthly Pro Plan")
-        st.markdown("""
-    <span style='text-decoration: line-through;'>$49.99</span> → <strong>Now Only $24.99 / month</strong> 
-    🔥 **Limited Time Offer! (Save 50%)** 
-    - ✅ 30 Day Free Trial  
-    - ✅ Full Access to All Bot Strategies  
-    - ✅ Live + Paper Trading  
-    - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
-    - ✅ Connect with Coinbase, Binance, or Kraken  
-    - ✅ Cancel Anytime
-    """)
+        st.markdown(
+            """
+            <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <strong>Now Only $24.99 / month</strong>  
+            🔥 <strong>Limited Time Offer! (Save 50%)</strong>  
+
+            - ✅ 30 Day Free Trial  
+            - ✅ Full Access to All Bot Strategies  
+            - ✅ Live + Paper Trading  
+            - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
+            - ✅ Connect with Coinbase, Binance, or Kraken  
+            - ✅ Cancel Anytime
+            """,
+            unsafe_allow_html=True
+        )
 
         if st.button("👉 Subscribe Monthly"):
             components.html(
                 """
                 <script>
-                window.open("https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01", "_blank");
+                    window.open("https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01", "_blank");
                 </script>
                 """,
                 height=0,
