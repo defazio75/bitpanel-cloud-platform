@@ -35,7 +35,7 @@ def login():
                 st.success("✅ Login successful!")
                 st.session_state.page = "📊 Portfolio"
                 st.session_state.current_page = "📊 Portfolio"
-                st.experimental_rerun()
+                st.rerun() 
                 
             except Exception as e:
                 st.error("❌ Invalid email or password. Try again.")
