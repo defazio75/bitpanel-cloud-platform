@@ -64,7 +64,7 @@ if st.session_state.mode == "live":
         st.warning("🔐 Live mode requires saved API keys. Switching back to Paper mode.")
         st.session_state.mode = "paper"
         st.rerun()
-    elif not st.session_state.user.get("paid", False):
+    elif not (st.session_state.user.get("paid", False) or st.session_state.user.get("bypass", False)):
         st.warning("💳 Pro subscription required for Live mode. Switching back to Paper mode.")
         st.session_state.mode = "paper"
         st.session_state.current_page = "checkout"
