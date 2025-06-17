@@ -55,7 +55,7 @@ def render_checkout(user_id):
         st.markdown(
             """
             <a href="https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01" target="_blank">
-                <button style="padding: 0.5em 1em; font-size: 16px;">📅 Subscribe Monthly</button>
+                <button style="padding: 0.5em 1em; font-size: 16px;">Subscribe Now</button>
             </a>
             """,
             unsafe_allow_html=True
@@ -73,7 +73,7 @@ def render_checkout(user_id):
         st.markdown(
             """
             <a href="https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00" target="_blank">
-                <button style="padding: 0.5em 1em; font-size: 16px;">📆 Subscribe Annually</button>
+                <button style="padding: 0.5em 1em; font-size: 16px;">Subscribe Now</button>
             </a>
             """,
             unsafe_allow_html=True
