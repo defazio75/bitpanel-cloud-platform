@@ -46,12 +46,12 @@ def render_checkout(user_id):
         ### 🚀 Pro Plan (Monthly)  
         <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <span style='color:green; font-weight:bold;'>Now Only $24.99 / month</span><br>
         <span style='color:#e67e22;'><strong>🔥 Limited Time Offer!</strong></span> 
-        - ✅ 30 Day Free Trial",
-        - ✅ Full Access to All Bot Strategies",
-        - ✅ Live + Paper Trading",
-        - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL",
-        - ✅ Connect with Coinbase, Binance, or Kraken",
-        - ✅ Cancel Anytime" 
+        - ✅ 30 Day Free Trial  
+        - ✅ Full Access to All Bot Strategies  
+        - ✅ Live + Paper Trading  
+        - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
+        - ✅ Connect with Coinbase, Binance, or Kraken  
+        - ✅ Cancel Anytime  
         """, unsafe_allow_html=True)
         
         st.markdown(
