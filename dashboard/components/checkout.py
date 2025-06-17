@@ -45,18 +45,20 @@ def render_checkout(user_id):
     with col2:
         st.markdown("### 🚀 Monthly Pro Plan")
         st.markdown(
+            "~~$49.99~~ **Now Only $24.99!**"
+        )
+        
+        st.markdown(
             """
-<span style='color:gray; text-decoration: line-through;'>$49.99</span> → <strong>Now Only $24.99 / month</strong>  
-🔥 <strong>Limited Time Offer! (Save 50%)</strong>  
+    🔥 **Limited Time Offer! (Save 50%)**
 
-- ✅ 30 Day Free Trial  
-- ✅ Full Access to All Bot Strategies  
-- ✅ Live + Paper Trading  
-- ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
-- ✅ Connect with Coinbase, Binance, or Kraken  
-- ✅ Cancel Anytime
-            """,
-            unsafe_allow_html=True
+    - ✅ 30 Day Free Trial  
+    - ✅ Full Access to All Bot Strategies  
+    - ✅ Live + Paper Trading  
+    - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
+    - ✅ Connect with Coinbase, Binance, or Kraken  
+    - ✅ Cancel Anytime
+            """
         )
 
         if st.button("👉 Subscribe Monthly"):
