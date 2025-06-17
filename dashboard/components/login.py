@@ -21,13 +21,15 @@ def login():
 
                 # Load profile from Firebase Realtime DB
                 profile = load_user_profile(user_id, token) or {}
+                account_info = profile.get("account", {})
 
-                # Store only clean user info into session_state
+                # Store full user info into session_state
                 st.session_state.user = {
                     "email": email,
                     "token": token,
                     "name": profile.get("name", "User"),
-                    "localId": user_id
+                    "localId": user_id,
+                    "account": account_info
                 }
 
                 st.session_state.token = token
