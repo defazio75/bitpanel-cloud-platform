@@ -3,8 +3,8 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    st.title("🔐 Welcome to BitPanel")
-    st.markdown("#### Please log in to continue")
+    st.title(" Welcome to BitPanel")
+    st.markdown("#### Please login to continue")
 
     
     # Get user input
@@ -47,7 +47,7 @@ def login():
             st.rerun()
 
         # Forgot Password button
-        if st.button("🔑 Forgot Password?"):
+        if st.button(" Forgot Password?"):
             st.session_state.reset_email = email  # pre-fill on next page
             st.session_state.page = "reset_password"
             st.rerun()   
