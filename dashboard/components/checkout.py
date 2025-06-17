@@ -45,10 +45,12 @@ def render_checkout(user_id):
         st.markdown("### 🚀 Pro Plan (Monthly)")
         st.markdown("""
         **$24.99 / month**  
-        - ✅ Live Trading  
-        - ✅ Real Exchange Execution  
-        - ✅ Priority Feature Access  
-        - ✅ Email Support  
+        -✅ 30 Day Free Trial",
+        -✅ Full Access to All Bot Strategies",
+        -✅ Live + Paper Trading",
+        -✅ Support for BTC, ETH, XRP, DOT, LINK, SOL",
+        "✅ Connect with Coinbase, Binance, or Kraken",
+        "✅ Cancel Anytime" 
         """)
         if st.button("📅 Subscribe Monthly"):
             st.markdown(
@@ -62,7 +64,7 @@ def render_checkout(user_id):
         st.markdown("""
         **$149.99 / year** *(Save 50%)*  
         - ✅ Everything in Monthly  
-        - ✅ Priority Support  
+        - ✅ 50% Annual Savings  
         - ✅ Early Feature Access  
         """)
         if st.button("📆 Subscribe Annually"):
