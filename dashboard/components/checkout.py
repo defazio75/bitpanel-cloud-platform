@@ -42,16 +42,18 @@ def render_checkout(user_id):
 
     # === Pro Monthly Plan ===
     with col2:
-        st.markdown("### 🚀 Pro Plan (Monthly)")
         st.markdown("""
-        **$24.99 / month**  
+        ### 🚀 Pro Plan (Monthly)  
+        <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <span style='color:green; font-weight:bold;'>Now Only $24.99 / month</span><br>
+        <span style='color:#e67e22;'><strong>🔥 Limited Time Launch Offer!</strong></span> 
         - ✅ 30 Day Free Trial",
         - ✅ Full Access to All Bot Strategies",
         - ✅ Live + Paper Trading",
         - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL",
         - ✅ Connect with Coinbase, Binance, or Kraken",
         - ✅ Cancel Anytime" 
-        """)
+        """, unsafe_allow_html=True)
+        
         st.markdown(
             """
             <a href="https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01" target="_blank">
@@ -63,12 +65,14 @@ def render_checkout(user_id):
 
     # === Pro Annual Plan ===
     with col3:
-        st.markdown("### 💼 Pro Plan (Annual)")
         st.markdown("""
-        **$149.99 / year** *(Save 50%)*  
-        - ✅ Everything in Monthly  
+        ### 🎯 Pro Plan (Annual)  
+        <span style='color:gray; text-decoration: line-through;'>$299.99</span> → <span style='color:green; font-weight:bold;'>Now Only $149.99 / year</span><br>
+        <span style='color:#e67e22;'><strong>🔥 Limited Time Launch Offer! (Save 50%)</strong></span>
+        - ✅ 30 Day Free Trial",
+        - ✅ 50% Annual Savings,
+        - ✅ Includes all Pro Plan features,
         - ✅ 50% Annual Savings  
-        - ✅ Early Feature Access  
         """)
         st.markdown(
             """
