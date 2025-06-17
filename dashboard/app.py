@@ -50,7 +50,8 @@ if "api_keys" not in st.session_state:
 user_api_keys = st.session_state.api_keys
 
 if "mode" not in st.session_state:
-    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret"):
+    is_paid_user = st.session_state.user.get("paid", False)
+    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and is_paid_user:
         st.session_state.mode = "live"
     else:
         st.session_state.mode = "paper"
