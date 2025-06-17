@@ -50,8 +50,10 @@ if "api_keys" not in st.session_state:
 user_api_keys = st.session_state.api_keys
 
 if "mode" not in st.session_state:
-    is_paid_user = st.session_state.user.get("paid", False)
-    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and is_paid_user:
+    account = st.session_state.user.get("account", {})
+    is_paid_user = account.get("paid", False)
+    has_bypass = account.get("bypass", False)
+    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and (is_paid_user or has_bypass):
         st.session_state.mode = "live"
     else:
         st.session_state.mode = "paper"
@@ -64,11 +66,13 @@ if st.session_state.mode == "live":
         st.warning("🔐 Live mode requires saved API keys. Switching back to Paper mode.")
         st.session_state.mode = "paper"
         st.rerun()
-    elif not (st.session_state.user.get("paid", False) or st.session_state.user.get("bypass", False)):
-        st.warning("💳 Pro subscription required for Live mode. Switching back to Paper mode.")
-        st.session_state.mode = "paper"
-        st.session_state.current_page = "checkout"
-        st.rerun()
+    else:
+        account = st.session_state.user.get("account", {})
+        if not (account.get("paid", False) or account.get("bypass", False)):
+            st.warning("💳 Pro subscription or bypass required for Live mode. Switching back to Paper mode.")
+            st.session_state.mode = "paper"
+            st.session_state.current_page = "checkout"
+            st.rerun()
 
 # Initialize current page
 if "current_page" not in st.session_state:
@@ -105,8 +109,11 @@ with st.sidebar:
         st.success("You have been logged out.")
         st.rerun()
 
-    if st.session_state.user.get("paid", False):
+    account = st.session_state.user.get("account", {})
+    if account.get("paid", False):
         st.success("✅ Pro Plan Active")
+    elif account.get("bypass", False):
+        st.success("✅ Dev Access (Bypass)")
     else:
         st.info("💡 Live trading requires a Pro subscription")
         if st.button("🚀 Upgrade to Pro", key="upgrade_button_sidebar"):
