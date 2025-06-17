@@ -75,7 +75,7 @@ def render_checkout(user_id):
 
     # === Pro Annual Plan ===
     with col3:
-        st.markdown("### 🎯 Pro Plan (Annual)")
+        st.markdown("### 🎯 Annual Pro Plan")
         st.markdown(
             "<p><span style='text-decoration: line-through;'>$299.99</span> &nbsp; <strong>Now Only $149.99 / year</strong></p>",
             unsafe_allow_html=True
