@@ -45,7 +45,7 @@ def render_checkout(user_id):
     with col2:
         st.markdown("### 🚀 Monthly Pro Plan")
         st.markdown("""
-    ~~$49.99~~ → **Now Only $24.99 / month**  
+    <span style='text-decoration: line-through;'>$49.99</span> → <strong>Now Only $24.99 / month</strong> 
     🔥 **Limited Time Offer! (Save 50%)** 
     - ✅ 30 Day Free Trial  
     - ✅ Full Access to All Bot Strategies  
