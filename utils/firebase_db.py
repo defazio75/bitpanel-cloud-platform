@@ -22,19 +22,27 @@ def get_all_user_ids():
         return []
 
 # === USER PROFILE ===
-def save_user_profile(user_id, name, email, signup_date=None, last_login=None):
-    tz = pytz.timezone("America/Chicago")
-    if not signup_date:
-        signup_date = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
-    if not last_login:
-        last_login = datetime.now(tz).strftime("%B %-d, %Y at %-I:%M %p %Z")
+def save_user_profile(user_id, email, name="New User"):
+    """Save minimal user profile in Firebase under /users/{user_id}/profile/"""
+    now = datetime.utcnow()
     profile_data = {
         "name": name,
         "email": email,
-        "signup_date": signup_date,
-        "last_login": last_login
+        "signup_date": now.strftime("%Y-%m-%d"),
+        "account": {
+            "role": "lead",
+            "paid": False,
+            "plan": None,
+            "last_login": now.isoformat(),
+            "last_payment_date": None
+        }
     }
-    firebase.database().child("users").child(user_id).child("profile").set(profile_data)
+
+    try:
+        firebase.database().child("users").child(user_id).child("profile").set(profile_data)
+        print(f"✅ User profile created for {user_id}")
+    except Exception as e:
+        print(f"❌ Failed to save profile for {user_id}: {e}")
 
 def update_last_login(user_id, token):
     tz = pytz.timezone("America/Chicago")
