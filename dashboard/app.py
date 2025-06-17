@@ -95,6 +95,7 @@ st.markdown(
 
 # === SIDEBAR ===
 with st.sidebar:
+    st.title("🚀 BitPanel")
     st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
 
     if st.button("🔓 Log Out", help="End your session and return to login"):
@@ -220,8 +221,6 @@ with st.sidebar:
             st.session_state["current_page"] = page
 
 # === Main Content Area ===
-st.title("🚀 BitPanel")
-
 current_page = st.session_state["current_page"]
 mode = st.session_state.mode
 
