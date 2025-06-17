@@ -1,4 +1,5 @@
 import streamlit as st
+import webbrowser
 
 def render_checkout(user_id):
     st.title("💳 Choose Your BitPanel Plan")
@@ -51,7 +52,10 @@ def render_checkout(user_id):
         - ✅ Email Support  
         """)
         if st.button("📅 Subscribe Monthly"):
-            webbrowser.open_new_tab("https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01")
+            st.markdown(
+                '<meta http-equiv="refresh" content="0;URL=\'https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01\'" />',
+                unsafe_allow_html=True
+            )
 
     # === Pro Annual Plan ===
     with col3:
@@ -63,4 +67,7 @@ def render_checkout(user_id):
         - ✅ Early Feature Access  
         """)
         if st.button("📆 Subscribe Annually"):
-            webbrowser.open_new_tab("https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00")
+            st.markdown(
+                '<meta http-equiv="refresh" content="0;URL=\'https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00\'" />',
+                unsafe_allow_html=True
+            )
