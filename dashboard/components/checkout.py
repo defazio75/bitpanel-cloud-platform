@@ -52,11 +52,14 @@ def render_checkout(user_id):
         - ✅ Connect with Coinbase, Binance, or Kraken",
         - ✅ Cancel Anytime" 
         """)
-        if st.button("📅 Subscribe Monthly"):
-            st.markdown(
-                '<meta http-equiv="refresh" content="0;URL=\'https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01\'" />',
-                unsafe_allow_html=True
-            )
+        st.markdown(
+            """
+            <a href="https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01" target="_blank">
+                <button style="padding: 0.5em 1em; font-size: 16px;">📅 Subscribe Monthly</button>
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
 
     # === Pro Annual Plan ===
     with col3:
