@@ -45,7 +45,7 @@ def render_checkout(user_id):
     with col2:
         st.markdown("### 🚀 Monthly Pro Plan")
         st.markdown(
-            "<span style='text-decoration: line-through;'>$49.99</span> <strong>Now Only $24.99!</strong>",
+            "<p><span style='text-decoration: line-through;'>$49.99</span> &nbsp; <strong>Now Only $24.99!</strong></p>",
             unsafe_allow_html=True
         )
         
