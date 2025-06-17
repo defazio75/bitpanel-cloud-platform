@@ -58,6 +58,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
         if st.button("🚀 Upgrade to Pro", key="upgrade_button_settings_panel"):
             st.session_state.current_page = "checkout"
             st.rerun()
+        return
 
     st.markdown("---")
     st.subheader("🔐 Exchange API Keys")
@@ -68,7 +69,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     current_keys = load_user_api_keys(user_id, selected_exchange, token=token)
 
     if "api_keys_saved" not in st.session_state:
-        st.session_state.api_keys_saved = False
+        st.session_state.api_keys_saved = bool(current_keys)
 
     if st.session_state.api_keys_saved:
         st.success("✅ API keys already saved.")
@@ -77,8 +78,7 @@ def render_settings_panel(user_id, token, exchange="kraken"):
             st.rerun()
         return
 
-    key_status = "✅ Keys saved" if current_keys else "❌ No keys saved"
-    st.markdown(f"**Status:** {key_status}")
+    st.markdown(f"**Status:** {'✅ Keys saved' if current_keys else '❌ No keys saved'}")
     st.markdown("You can safely store or update your API keys below. These are encrypted and saved securely.")
 
     with st.form(f"api_key_form_{selected_exchange}"):
