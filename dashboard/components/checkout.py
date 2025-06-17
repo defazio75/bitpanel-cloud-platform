@@ -42,20 +42,26 @@ def render_checkout(user_id):
 
     # === Pro Monthly Plan ===
     with col2:
-        st.markdown("""
-        ### 🚀 Pro Plan (Monthly)  
-        <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <span style='color:green; font-weight:bold;'>Now Only $24.99 / month</span><br>
-        <span style='color:#e67e22;'><strong>🔥 Limited Time Offer!</strong></span> 
+        st.markdown(
+            """### 🚀 Pro Plan (Monthly)    
+    <span style='color:gray; text-decoration: line-through;'>$49.99</span> → <span style='color:green; font-weight:bold;'>Now Only $24.99 / month</span><br>
+    <span style='color:#e67e22;'><strong>🔥 Limited Time Offer!</strong></span> 
         
-        - ✅ 30 Day Free Trial  
-        - ✅ Full Access to All Bot Strategies  
-        - ✅ Live + Paper Trading  
-        - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
-        - ✅ Connect with Coinbase, Binance, or Kraken  
-        - ✅ Cancel Anytime  
+    - ✅ 30 Day Free Trial  
+    - ✅ Full Access to All Bot Strategies  
+    - ✅ Live + Paper Trading  
+    - ✅ Support for BTC, ETH, XRP, DOT, LINK, SOL  
+    - ✅ Connect with Coinbase, Binance, or Kraken  
+    - ✅ Cancel Anytime  
         
-        [👉 Subscribe Now](https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01)
-        """, unsafe_allow_html=True)
+    <a href="https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01" target="_blank">
+        <button style="margin-top:10px; padding:10px 20px; font-size:16px; background-color:#1E90FF; color:white; border:none; border-radius:8px; cursor:pointer;">
+            👉 Subscribe Now
+        </button>
+    </a>
+            """,
+            unsafe_allow_html=True
+         )
 
     # === Pro Annual Plan ===
     with col3:
