@@ -3,15 +3,7 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # 🔧 Remove ghost top div
-    st.markdown("""
-        <style>
-        .block-container > div:first-child:empty {
-            display: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    # === Styling ===
+    # === Clean UI ===
     st.markdown("""
         <style>
         #MainMenu, header, footer {visibility: hidden;}
@@ -24,24 +16,17 @@ def login():
             width: 100%;
             max-width: 400px;
         }
-        .login-card {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            text-align: center;
-        }
         .login-header {
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
         }
         .forgot-link, .signup-link {
             color: #2563eb;
             text-decoration: underline;
             cursor: pointer;
             font-size: 13px;
-            display: inline-block;
         }
         .forgot-wrapper {
             text-align: right;
@@ -58,13 +43,9 @@ def login():
     """, unsafe_allow_html=True)
 
     # === Layout ===
-    st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
+    st.markdown("<div class='login-wrapper'>", unsafe_allow_html=True)
 
-    st.markdown("""
-        <div style='text-align: center; margin-bottom: 1rem;'>
-            <h3 style='margin-bottom: 0.25rem;'>🚀 Welcome to BitPanel</h3>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel<br><span style='font-size:16px;'>Please log in to continue</span></div>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
