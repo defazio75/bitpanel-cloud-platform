@@ -1,6 +1,6 @@
 import streamlit as st
 
-def render_performance():
+def render_performance(mode, user_id, token):
     st.title("📈 Performance Dashboard")
 
     # Section 1: Total Portfolio Performance
