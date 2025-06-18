@@ -4,7 +4,6 @@ from utils.firebase_auth import sign_in
 
 def login():
     # === Safe layout cleanup ===
-    st.set_page_config(page_title="Login", layout="centered")  # Must be top-level
     st.markdown("""
         <style>
         [data-testid="stAppViewContainer"] > .main {
