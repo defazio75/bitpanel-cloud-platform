@@ -42,7 +42,8 @@ def render_settings_panel(user_id, token, exchange="kraken"):
     st.subheader("💳 Subscription Plan")
     
     user_info = st.session_state.user
-    is_paid_user = user.get("paid", False) or user.get("bypass", False)
+    role = user.get("role", "lead")
+    is_paid_user = role in ["admin", "customer"]
     plan_code = user_info.get("plan", None)
     
     if is_paid_user and plan_code:
