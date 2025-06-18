@@ -3,22 +3,20 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
+    # Inject styling FIRST
     st.markdown("""
         <style>
-        /* Background and layout */
-        body {
-            background-color: #f3f4f6;
-        }
-
+        /* Hide default Streamlit elements */
         #MainMenu, footer, header {visibility: hidden;}
 
+        /* Layout */
         .block-container {
             padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
 
-        /* Login card style */
+        /* Login Bubble */
         .login-card {
             background-color: #ffffff;
             padding: 2rem;
@@ -32,7 +30,7 @@ def login():
             text-align: center;
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .subtle-link {
@@ -41,13 +39,13 @@ def login():
             text-align: right;
             display: block;
             margin-top: -10px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         .bottom-text {
             text-align: center;
             font-size: 13px;
-            margin-top: 1.5rem;
+            margin-top: 20px;
             color: #555;
         }
 
@@ -56,12 +54,19 @@ def login():
             text-decoration: none;
             font-weight: 500;
         }
+
+        /* Optional fix for any rogue top spacing box */
+        .block-container > div:first-child:empty {
+            display: none;
+        }
         </style>
     """, unsafe_allow_html=True)
 
-    # Login UI
+    # Start login bubble container
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
-    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
+    
+    # --- Inside the bubble ---
+    st.markdown("<div class='login-header'>🚀 BitPanel Login</div>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
@@ -105,4 +110,5 @@ def login():
         </div>
     """, unsafe_allow_html=True)
 
+    # End bubble
     st.markdown("</div>", unsafe_allow_html=True)
