@@ -2,24 +2,20 @@ import streamlit as st
 from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
-import streamlit as st
-from utils.firebase_db import load_user_profile
-from utils.firebase_auth import sign_in
-
 def login():
-    # === Style for clean, centered login card ===
+    # === Fullscreen CSS layout & card style ===
     st.markdown("""
         <style>
-        html, body, [data-testid="stAppViewContainer"] {
-            height: 100%;
-        }
-        .block-container {
+        /* Force full-height layout and background */
+        [data-testid="stAppViewContainer"] > .main {
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: #f5f5f5;
         }
+
+        /* Centered login card */
         .login-card {
             width: 100%;
             max-width: 400px;
@@ -29,27 +25,32 @@ def login():
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
         }
+
         .login-card h3 {
             margin-bottom: 0.25rem;
             font-size: 24px;
         }
+
         .login-card p {
             margin-top: 0;
             margin-bottom: 1.5rem;
             font-size: 14px;
             color: #666;
         }
+
         .forgot-link, .signup-link {
             color: #2563eb;
             text-decoration: underline;
             cursor: pointer;
             font-size: 13px;
         }
+
         .forgot-wrapper {
             text-align: right;
             margin-top: -10px;
             margin-bottom: 20px;
         }
+
         .signup-wrapper {
             text-align: center;
             margin-top: 20px;
@@ -59,24 +60,25 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # === Card Layout ===
+    # === Start Layout ===
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
 
-    # Header
+    # Title + Subtitle
     st.markdown("<h3>🚀 Welcome to BitPanel</h3>", unsafe_allow_html=True)
     st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
 
-    # Input fields
+    # Form Inputs
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Forgot password link
-    st.markdown(
-        "<div class='forgot-wrapper'><span class='forgot-link'>Forgot Password?</span></div>",
-        unsafe_allow_html=True
-    )
+    # Forgot Password
+    st.markdown("""
+        <div class='forgot-wrapper'>
+            <span class='forgot-link'>Forgot Password?</span>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Sign In
+    # Sign In Button
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -108,17 +110,17 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # Signup
+    # Sign Up Link
     st.markdown("""
         <div class='signup-wrapper'>
             Need an account? <span class='signup-link'>Sign up</span>
         </div>
     """, unsafe_allow_html=True)
 
-    # Close card
+    # === End Layout ===
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # JavaScript click handlers
+    # === JS link handlers ===
     st.markdown("""
         <script>
         const forgot = window.parent.document.querySelector('span.forgot-link');
@@ -127,6 +129,7 @@ def login():
                 window.parent.postMessage({type: 'streamlit:rerun', page: 'reset_password'}, '*');
             };
         }
+
         const signup = window.parent.document.querySelector('span.signup-link');
         if (signup) {
             signup.onclick = () => {
@@ -136,7 +139,7 @@ def login():
         </script>
     """, unsafe_allow_html=True)
 
-    # Backend routing fallback
+    # === Fallback if JS fails ===
     if "page" in st.session_state:
         if st.session_state.page == "reset_password":
             st.session_state.page = None
