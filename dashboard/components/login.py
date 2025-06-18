@@ -60,8 +60,11 @@ def login():
     # === Layout ===
     st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
 
-    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
-    st.markdown("Please log in to continue")
+    st.markdown("""
+        <div style='text-align: center; margin-bottom: 1rem;'>
+            <h3 style='margin-bottom: 0.25rem;'>🚀 Welcome to BitPanel</h3>
+        </div>
+    """, unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
