@@ -3,6 +3,14 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
+    # 🔧 Remove ghost top div
+    st.markdown("""
+        <style>
+        .block-container > div:first-child:empty {
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     # === Styling ===
     st.markdown("""
         <style>
