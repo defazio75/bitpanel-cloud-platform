@@ -2,11 +2,17 @@ import streamlit as st
 from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
+import streamlit as st
+from utils.firebase_db import load_user_profile
+from utils.firebase_auth import sign_in
+
 def login():
-    # === CSS Layout ===
+    # === Style for clean, centered login card ===
     st.markdown("""
         <style>
-        /* Fullscreen flex centering */
+        html, body, [data-testid="stAppViewContainer"] {
+            height: 100%;
+        }
         .block-container {
             height: 100vh;
             display: flex;
@@ -14,7 +20,6 @@ def login():
             justify-content: center;
             background-color: #f5f5f5;
         }
-        /* Login card */
         .login-card {
             width: 100%;
             max-width: 400px;
