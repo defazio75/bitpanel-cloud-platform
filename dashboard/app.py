@@ -1,11 +1,7 @@
 import streamlit as st
-st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
-from streamlit_autorefresh import st_autorefresh
-st_autorefresh(interval=600_000, limit=None, key="keepalive")
 import time
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from components.portfolio_summary import render_portfolio_summary
 from components.coin_allocation import render_coin_allocation
@@ -19,6 +15,9 @@ from components.reset_password import reset_password
 from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
+
+st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -57,6 +56,15 @@ if "mode" not in st.session_state:
         st.session_state.mode = "paper"
 
 mode = st.session_state.mode
+
+REFRESH_INTERVAL = 10  # seconds
+
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = time.time()
+
+if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
+    st.session_state.last_refresh = time.time()
+    st.rerun()
 
 # === GATEKEEP LIVE MODE ACCESS ===
 if st.session_state.mode == "live":
