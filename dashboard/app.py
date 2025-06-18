@@ -145,7 +145,7 @@ with st.sidebar:
             has_keys = st.session_state.api_keys and st.session_state.api_keys.get("key") and st.session_state.api_keys.get("secret")
 
             # 🚫 Check subscription status (from session_state or Firebase in future)
-            role = st.session_state.user.get("account", {}).get("role", "lead")
+            role = st.session_state.user.get("role", "lead")
             has_access = role in ["admin", "customer"]
 
             if not has_keys:
