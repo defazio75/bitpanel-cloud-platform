@@ -3,53 +3,71 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Hide extra UI
-    hide_st_style = """
+    st.markdown("""
         <style>
+        /* Background and layout */
+        body {
+            background-color: #f3f4f6;
+        }
+
         #MainMenu, footer, header {visibility: hidden;}
+
         .block-container {
-            padding-top: 10vh;
-            padding-bottom: 10vh;
+            padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
-        </style>
-    """
-    st.markdown(hide_st_style, unsafe_allow_html=True)
 
-    # Bubble styling
-    st.markdown("""
-        <style>
-        .login-bubble {
-            max-width: 420px;
-            width: 100%;
-            margin: auto;
+        /* Login card style */
+        .login-card {
+            background-color: #ffffff;
             padding: 2rem;
-            border-radius: 20px;
-            background-color: #ffffff10;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
+
         .login-header {
             text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+
+        .subtle-link {
+            font-size: 13px;
+            color: #2563eb;
+            text-align: right;
+            display: block;
+            margin-top: -10px;
             margin-bottom: 1.5rem;
+        }
+
+        .bottom-text {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 1.5rem;
+            color: #555;
+        }
+
+        .bottom-text a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Start bubble container
-    st.markdown("<div class='login-bubble'>", unsafe_allow_html=True)
-    
-    # Header
-    st.markdown("<h2 class='login-header'>🚀 Welcome to BitPanel</h2>", unsafe_allow_html=True)
-    st.markdown("<p class='login-header'>Please login to continue</p>", unsafe_allow_html=True)
+    # Login UI
+    st.markdown("<div class='login-card'>", unsafe_allow_html=True)
+    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
 
-    # Get user input
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Buttons stacked
+    st.markdown("<a class='subtle-link' href='#'>Forgot your password?</a>", unsafe_allow_html=True)
+
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -81,14 +99,10 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    if st.button("🆕 Create Account", use_container_width=True):
-        st.session_state.page = "signup"
-        st.rerun()
-
-    st.markdown("---")
-    if st.button("🔁 Forgot Password?", use_container_width=True):
-        st.session_state.reset_email = email
-        st.session_state.page = "reset_password"
-        st.rerun()
+    st.markdown("""
+        <div class='bottom-text'>
+            Need an account? <a href='#' onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'signup'}, '*')">Create one</a>
+        </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
