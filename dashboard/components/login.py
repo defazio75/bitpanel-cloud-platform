@@ -101,9 +101,6 @@ def login():
         </div>
     """, unsafe_allow_html=True)
 
-    # === Javascript-style click triggers ===
-    clicked = st.query_params
-
     # Check for link clicks using a clever hack with JavaScript injection
     st.markdown("""
         <script>
