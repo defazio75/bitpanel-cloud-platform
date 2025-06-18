@@ -7,11 +7,17 @@ from utils.firebase_db import save_user_profile, create_default_snapshot
 def signup():
     st.title("🆕 Create Your BitPanel Account")
 
+    # === Input Fields ===
     name = st.text_input("Full Name", key="signup_name")
     email = st.text_input("Email", key="signup_email")
     password = st.text_input("Password", type="password", key="signup_password")
     confirm_password = st.text_input("Confirm Password", type="password", key="signup_confirm")
 
+    # === Flag to Prevent Double Submit ===
+    if "signup_completed" not in st.session_state:
+    st.session_state.signup_completed = False
+
+    # === Create Account ===
     if st.button("Create Account"):
         if not name or not email or not password:
             st.error("All fields are required.")
@@ -43,12 +49,15 @@ def signup():
                 )
 
                 st.success("✅ Account created successfully!")
+                st.session_state.signup_completed = True
                 st.session_state.page = "login"
                 st.rerun()
                 
             except Exception as e:
                 st.error("❌ Account creation failed. Email may already be in use.")
+                st.session_state.signup_completed = False
 
+    # === Back to Login ===
     if st.button("← Back to Login"):
         st.session_state.page = "login"
         st.rerun()
