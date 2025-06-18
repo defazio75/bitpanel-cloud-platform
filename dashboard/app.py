@@ -50,10 +50,8 @@ if "api_keys" not in st.session_state:
 user_api_keys = st.session_state.api_keys
 
 if "mode" not in st.session_state:
-    account = st.session_state.user.get("account", {})
-    role = account.get("role", "lead")
-    has_access = role in ["admin", "customer"]
-    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and has_access:
+    role = st.session_state.user.get("role", "lead")
+    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and role in ["admin", "customer"]:
         st.session_state.mode = "live"
     else:
         st.session_state.mode = "paper"
@@ -67,10 +65,9 @@ if st.session_state.mode == "live":
         st.session_state.mode = "paper"
         st.rerun()
     else:
-        account = st.session_state.user.get("account", {})
-        role = account.get("role", "lead")
+        role = st.session_state.user.get("role", "lead")
         if role not in ["admin", "customer"]:
-            st.warning("💳 Live mode is only available for customers or admins. Switching to Paper mode.")
+            st.warning("💳 Live mode is only available for active users. Switching to Paper mode.")
             st.session_state.mode = "paper"
             st.rerun()
 
