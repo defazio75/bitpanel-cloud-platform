@@ -3,24 +3,36 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Clean UI ===
+    # === Clean UI Styling ===
     st.markdown("""
         <style>
         #MainMenu, header, footer {visibility: hidden;}
         .block-container {
-            padding-top: 12vh;
+            height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
+            background-color: #f5f5f5;
         }
         .login-wrapper {
+            background-color: #fff;
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
         }
         .login-header {
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 1.5rem;
             text-align: center;
+            margin-bottom: 0.25rem;
+        }
+        .login-subtext {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1.5rem;
         }
         .forgot-link, .signup-link {
             color: #2563eb;
@@ -42,18 +54,18 @@ def login():
         </style>
     """, unsafe_allow_html=True)
 
-    # === Layout ===
+    # === Login Layout ===
     st.markdown("<div class='login-wrapper'>", unsafe_allow_html=True)
 
-    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel<br><span style='font-size:16px;'>Please log in to continue</span></div>", unsafe_allow_html=True)
+    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
+    st.markdown("<div class='login-subtext'>Please log in to continue</div>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Forgot Password link (styled + triggers routing below)
+    # Forgot Password link
     st.markdown("<div class='forgot-wrapper'><span class='forgot-link'>Forgot Password?</span></div>", unsafe_allow_html=True)
 
-    # Sign In button
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -89,11 +101,11 @@ def login():
     st.markdown("""
         <div class='signup-wrapper'>
             Need an account?
-            <span class='signup-link'> Sign up</span>
+            <span class='signup-link'>Sign up</span>
         </div>
     """, unsafe_allow_html=True)
 
-    # Check for link clicks using a clever hack with JavaScript injection
+    # JS Routing
     st.markdown("""
         <script>
         const forgot = window.parent.document.querySelector('span.forgot-link');
@@ -111,7 +123,7 @@ def login():
         </script>
     """, unsafe_allow_html=True)
 
-    # Fallback: if routing fails, use buttons as invisible triggers
+    # Fallback if JS fails
     if "page" in st.session_state:
         if st.session_state.page == "reset_password":
             st.session_state.page = None
@@ -122,4 +134,4 @@ def login():
             st.session_state.current_page = "signup"
             st.rerun()
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
