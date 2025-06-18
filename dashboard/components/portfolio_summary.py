@@ -173,7 +173,8 @@ def render_portfolio_summary(mode, user_id, token):
                 usd_held = strat_data.get("usd_held", 0)
                 status = strat_data.get("status", "Unknown")
                 profit = strat_data.get("profit", 0)
-                total_usd = round(amount * prices.get(coin, 0), 2) + usd_held
+                price = prices.get(coin, {}).get("price", 0)
+                total_usd = round(amount * price, 2) + usd_held
                 st.write(
                     f"**{strategy}** | Status: `{status}` | Value: `${total_usd:,.2f}` | Profit: `${profit:,.2f}`"
                 )
