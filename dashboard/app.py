@@ -154,7 +154,7 @@ with st.sidebar:
                     st.session_state.current_page = "⚙️ Settings"
                     st.rerun()
             elif not has_access:
-                st.error("💳 Live mode is only available for customers or admins.")
+                st.error("💳 Upgrade to BitPanel Pro for Live trading")
                 if st.button("🚀 Subscribe Now", key="upgrade_button_live_warning"):
                     st.session_state.current_page = "checkout"
                     st.rerun()
