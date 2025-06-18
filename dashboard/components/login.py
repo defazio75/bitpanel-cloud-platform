@@ -3,8 +3,6 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Hide sidebar and other content
-    st.set_page_config(layout="centered")
     hide_st_style = """
         <style>
         #MainMenu {visibility: hidden;}
