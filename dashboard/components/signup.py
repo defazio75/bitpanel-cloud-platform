@@ -15,7 +15,7 @@ def signup():
 
     # === Flag to Prevent Double Submit ===
     if "signup_completed" not in st.session_state:
-    st.session_state.signup_completed = False
+        st.session_state.signup_completed = False
 
     # === Create Account ===
     if st.button("Create Account"):
