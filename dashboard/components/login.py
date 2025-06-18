@@ -3,10 +3,10 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Clean UI Styling ===
+    # === CSS Layout ===
     st.markdown("""
         <style>
-        #MainMenu, header, footer {visibility: hidden;}
+        /* Fullscreen flex centering */
         .block-container {
             height: 100vh;
             display: flex;
@@ -14,25 +14,25 @@ def login():
             justify-content: center;
             background-color: #f5f5f5;
         }
-        .login-wrapper {
-            background-color: #fff;
-            padding: 2rem 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        /* Login card */
+        .login-card {
             width: 100%;
-            max-width: 360px;
-        }
-        .login-header {
-            font-size: 24px;
-            font-weight: 600;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
+        }
+        .login-card h3 {
             margin-bottom: 0.25rem;
+            font-size: 24px;
         }
-        .login-subtext {
-            text-align: center;
+        .login-card p {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
             font-size: 14px;
             color: #666;
-            margin-bottom: 1.5rem;
         }
         .forgot-link, .signup-link {
             color: #2563eb;
@@ -47,25 +47,31 @@ def login():
         }
         .signup-wrapper {
             text-align: center;
-            font-size: 13px;
             margin-top: 20px;
+            font-size: 13px;
             color: #555;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # === Login Layout ===
-    st.markdown("<div class='login-wrapper'>", unsafe_allow_html=True)
+    # === Card Layout ===
+    st.markdown("<div class='login-card'>", unsafe_allow_html=True)
 
-    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
-    st.markdown("<div class='login-subtext'>Please log in to continue</div>", unsafe_allow_html=True)
+    # Header
+    st.markdown("<h3>🚀 Welcome to BitPanel</h3>", unsafe_allow_html=True)
+    st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
 
+    # Input fields
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Forgot Password link
-    st.markdown("<div class='forgot-wrapper'><span class='forgot-link'>Forgot Password?</span></div>", unsafe_allow_html=True)
+    # Forgot password link
+    st.markdown(
+        "<div class='forgot-wrapper'><span class='forgot-link'>Forgot Password?</span></div>",
+        unsafe_allow_html=True
+    )
 
+    # Sign In
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -97,15 +103,17 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # Sign up link
+    # Signup
     st.markdown("""
         <div class='signup-wrapper'>
-            Need an account?
-            <span class='signup-link'>Sign up</span>
+            Need an account? <span class='signup-link'>Sign up</span>
         </div>
     """, unsafe_allow_html=True)
 
-    # JS Routing
+    # Close card
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # JavaScript click handlers
     st.markdown("""
         <script>
         const forgot = window.parent.document.querySelector('span.forgot-link');
@@ -123,7 +131,7 @@ def login():
         </script>
     """, unsafe_allow_html=True)
 
-    # Fallback if JS fails
+    # Backend routing fallback
     if "page" in st.session_state:
         if st.session_state.page == "reset_password":
             st.session_state.page = None
@@ -133,5 +141,3 @@ def login():
             st.session_state.page = None
             st.session_state.current_page = "signup"
             st.rerun()
-
-    st.markdown("</div>", unsafe_allow_html=True)
