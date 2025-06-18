@@ -40,6 +40,7 @@ if "user" not in st.session_state:
 
 # === Determine initial mode based on API keys ===
 user_id = st.session_state.user["localId"]
+st.session_state.role = st.session_state.user.get("role", "lead")
 token = st.session_state.token
 exchange = "kraken"
 
@@ -73,7 +74,7 @@ if st.session_state.mode == "live":
         st.session_state.mode = "paper"
         st.rerun()
     else:
-        role = st.session_state.user.get("role", "lead")
+        role = st.session_state.role
         if role not in ["admin", "customer"]:
             st.warning("💳 Live mode is only available for active users. Switching to Paper mode.")
             st.session_state.mode = "paper"
@@ -145,7 +146,7 @@ with st.sidebar:
             has_keys = st.session_state.api_keys and st.session_state.api_keys.get("key") and st.session_state.api_keys.get("secret")
 
             # 🚫 Check subscription status (from session_state or Firebase in future)
-            role = st.session_state.user.get("role", "lead")
+            role = st.session_state.role
             has_access = role in ["admin", "customer"]
 
             if not has_keys:
