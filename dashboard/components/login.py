@@ -3,31 +3,45 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Centered layout with limited width
-    st.markdown(
-        """
+    # Hide sidebar and other content
+    st.set_page_config(layout="centered")
+    hide_st_style = """
         <style>
-        .login-card {
-            max-width: 400px;
-            margin: 5vh auto;
-            padding: 2rem;
-            background-color: #ffffff10;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .center-text {
-            text-align: center;
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .block-container {
+            padding-top: 10vh;
+            padding-bottom: 10vh;
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    """
+    st.markdown(hide_st_style, unsafe_allow_html=True)
 
+    # Style for bubble login card
+    st.markdown("""
+        <style>
+        .login-card {
+            max-width: 420px;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: #ffffff10;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Login Card
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
-    st.markdown("<h3 class='center-text'>🔐 Welcome to BitPanel</h3>", unsafe_allow_html=True)
-    st.markdown("<p class='center-text'>Please login to continue</p>", unsafe_allow_html=True)
+    st.markdown("<h2 class='login-header'>🚀 Welcome to BitPanel</h2>", unsafe_allow_html=True)
+    st.markdown("<p class='login-header'>Please login to continue</p>", unsafe_allow_html=True)
 
     
     # Get user input
