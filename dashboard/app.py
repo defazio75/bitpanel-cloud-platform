@@ -3,6 +3,9 @@ import time
 import os
 import sys
 
+st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from components.portfolio_summary import render_portfolio_summary
 from components.coin_allocation import render_coin_allocation
 from components.strategy import render_strategy_controls
@@ -15,9 +18,6 @@ from components.reset_password import reset_password
 from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
-
-st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
