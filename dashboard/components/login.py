@@ -3,26 +3,30 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Inject styling FIRST
+    # Inject styling to control layout + card width
     st.markdown("""
         <style>
-        /* Hide default Streamlit elements */
+        /* Hide unnecessary elements */
         #MainMenu, footer, header {visibility: hidden;}
 
-        /* Layout */
+        /* Lock main container layout */
         .block-container {
             padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
 
-        /* Login Bubble */
+        /* Outer wrapper for the card */
+        .login-wrapper {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        /* Login card bubble */
         .login-card {
             background-color: #ffffff;
             padding: 2rem;
             border-radius: 12px;
-            max-width: 400px;
-            width: 100%;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
@@ -55,15 +59,14 @@ def login():
             font-weight: 500;
         }
 
-        /* Optional fix for any rogue top spacing box */
         .block-container > div:first-child:empty {
             display: none;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Start login bubble container
-    st.markdown("<div class='login-card'>", unsafe_allow_html=True)
+    # ✅ Start outer wrapper to restrict width
+    st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
     
     # --- Inside the bubble ---
     st.markdown("<div class='login-header'>🚀 BitPanel Login</div>", unsafe_allow_html=True)
