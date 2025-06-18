@@ -3,11 +3,10 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Styling for layout and card ===
+    # === Styling ===
     st.markdown("""
         <style>
-        /* Hide extra UI elements */
-        #MainMenu, footer, header {visibility: hidden;}
+        #MainMenu, header, footer {visibility: hidden;}
         .block-container {
             padding-top: 12vh;
             display: flex;
@@ -21,7 +20,7 @@ def login():
             background-color: #ffffff;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             text-align: center;
         }
         .login-header {
@@ -29,21 +28,28 @@ def login():
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        .signup-text {
-            font-size: 13px;
-            color: #555;
-            margin-top: 20px;
-        }
-        .signup-text a {
+        .forgot-link, .signup-link {
             color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
+            text-decoration: underline;
             cursor: pointer;
+            font-size: 13px;
+            display: inline-block;
+        }
+        .forgot-wrapper {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .signup-wrapper {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 20px;
+            color: #555;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # === Start Login Card ===
+    # === Layout ===
     st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
 
     st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
@@ -52,28 +58,10 @@ def login():
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # 🔵 Forgot Password link — styled like a hyperlink but functional
-    col_forgot, _ = st.columns([1, 5])
-    with col_forgot:
-        if st.button("Forgot Password?", key="forgot_pw", help="Reset your password"):
-            st.session_state.page = "reset_password"
-            st.rerun()
+    # Forgot Password link (styled + triggers routing below)
+    st.markdown("<div class='forgot-wrapper'><span class='forgot-link'>Forgot Password?</span></div>", unsafe_allow_html=True)
 
-    st.markdown("""
-        <style>
-        button[kind="secondary"][data-testid="baseButton-forgot_pw"] {
-            background: none;
-            color: #2563eb;
-            border: none;
-            padding: 0;
-            font-size: 13px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # 🔐 Sign In
+    # Sign In button
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -105,29 +93,44 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # 🔵 Sign Up link under the card
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown("<div class='signup-text'>Need an account?</div>", unsafe_allow_html=True)
-    with col2:
-        if st.button("Sign up", key="signup_link", help="Create a new BitPanel account"):
-            st.session_state.page = "signup"
-            st.rerun()
-
-    # Style Sign up as a link
+    # Sign up link
     st.markdown("""
-        <style>
-        button[kind="secondary"][data-testid="baseButton-signup_link"] {
-            background: none;
-            color: #2563eb;
-            border: none;
-            padding: 0;
-            font-size: 13px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        </style>
+        <div class='signup-wrapper'>
+            Need an account?
+            <span class='signup-link'> Sign up</span>
+        </div>
     """, unsafe_allow_html=True)
 
-    # === End login card ===
+    # === Javascript-style click triggers ===
+    clicked = st.experimental_get_query_params()
+
+    # Check for link clicks using a clever hack with JavaScript injection
+    st.markdown("""
+        <script>
+        const forgot = window.parent.document.querySelector('span.forgot-link');
+        if (forgot) {
+            forgot.onclick = () => {
+                window.parent.postMessage({type: 'streamlit:rerun', page: 'reset_password'}, '*');
+            };
+        }
+        const signup = window.parent.document.querySelector('span.signup-link');
+        if (signup) {
+            signup.onclick = () => {
+                window.parent.postMessage({type: 'streamlit:rerun', page: 'signup'}, '*');
+            };
+        }
+        </script>
+    """, unsafe_allow_html=True)
+
+    # Fallback: if routing fails, use buttons as invisible triggers
+    if "page" in st.session_state:
+        if st.session_state.page == "reset_password":
+            st.session_state.page = None
+            st.session_state.current_page = "reset_password"
+            st.rerun()
+        elif st.session_state.page == "signup":
+            st.session_state.page = None
+            st.session_state.current_page = "signup"
+            st.rerun()
+
     st.markdown("</div></div>", unsafe_allow_html=True)
