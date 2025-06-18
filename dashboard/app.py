@@ -51,9 +51,9 @@ user_api_keys = st.session_state.api_keys
 
 if "mode" not in st.session_state:
     account = st.session_state.user.get("account", {})
-    is_paid_user = account.get("paid", False)
-    has_bypass = account.get("bypass", False)
-    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and (is_paid_user or has_bypass):
+    role = account.get("role", "lead")
+    has_access = role in ["admin", "customer"]
+    if user_api_keys and user_api_keys.get("key") and user_api_keys.get("secret") and has_access:
         st.session_state.mode = "live"
     else:
         st.session_state.mode = "paper"
@@ -68,10 +68,10 @@ if st.session_state.mode == "live":
         st.rerun()
     else:
         account = st.session_state.user.get("account", {})
-        if not (account.get("paid", False) or account.get("bypass", False)):
-            st.warning("💳 Pro subscription or bypass required for Live mode. Switching back to Paper mode.")
+        role = account.get("role", "lead")
+        if role not in ["admin", "customer"]:
+            st.warning("💳 Live mode is only available for customers or admins. Switching to Paper mode.")
             st.session_state.mode = "paper"
-            st.session_state.current_page = "checkout"
             st.rerun()
 
 # Initialize current page
@@ -140,15 +140,16 @@ with st.sidebar:
             has_keys = st.session_state.api_keys and st.session_state.api_keys.get("key") and st.session_state.api_keys.get("secret")
 
             # 🚫 Check subscription status (from session_state or Firebase in future)
-            is_paid_user = st.session_state.user.get("paid", False)  # Default False if not set
+            role = st.session_state.user.get("account", {}).get("role", "lead")
+            has_access = role in ["admin", "customer"]
 
             if not has_keys:
                 st.warning("⚠️ Live mode requires saved API keys.")
                 if st.button("🔧 Go to API Settings", key="api_key_redirect_button"):
                     st.session_state.current_page = "⚙️ Settings"
                     st.rerun()
-            elif not is_paid_user:
-                st.error("💳 Live mode is only available for Pro users.")
+            elif not has_access:
+                st.error("💳 Live mode is only available for customers or admins.")
                 if st.button("🚀 Subscribe Now", key="upgrade_button_live_warning"):
                     st.session_state.current_page = "checkout"
                     st.rerun()
