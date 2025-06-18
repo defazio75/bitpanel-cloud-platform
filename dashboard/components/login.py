@@ -6,20 +6,17 @@ def login():
     # === Styling for layout and card ===
     st.markdown("""
         <style>
-        /* Hide Streamlit built-in elements */
+        /* Hide extra UI elements */
         #MainMenu, footer, header {visibility: hidden;}
-
         .block-container {
             padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
-
         .login-wrapper {
             width: 100%;
             max-width: 400px;
         }
-
         .login-card {
             background-color: #ffffff;
             padding: 2rem;
@@ -27,54 +24,56 @@ def login():
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             text-align: center;
         }
-
         .login-header {
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
-
-        .forgot-password, .signup-link {
-            font-size: 13px;
-            color: #2563eb;
-            text-decoration: none;
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .signup-wrapper {
-            margin-top: 20px;
+        .signup-text {
             font-size: 13px;
             color: #555;
+            margin-top: 20px;
         }
-
-        .signup-wrapper a {
+        .signup-text a {
             color: #2563eb;
             text-decoration: none;
             font-weight: 500;
             cursor: pointer;
         }
-
-        .block-container > div:first-child:empty {
-            display: none;
-        }
         </style>
     """, unsafe_allow_html=True)
 
-    # === Start Card Layout ===
+    # === Start Login Card ===
     st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
 
     st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
-    st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
+    st.markdown("Please log in to continue")
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Forgot Password link (looks like text but works like a route)
-    if st.markdown("<span class='forgot-password'>Forgot Password?</span>", unsafe_allow_html=True):
-        pass  # Pure styling only — click handling below
+    # 🔵 Forgot Password link — styled like a hyperlink but functional
+    col_forgot, _ = st.columns([1, 5])
+    with col_forgot:
+        if st.button("Forgot Password?", key="forgot_pw", help="Reset your password"):
+            st.session_state.page = "reset_password"
+            st.rerun()
 
+    st.markdown("""
+        <style>
+        button[kind="secondary"][data-testid="baseButton-forgot_pw"] {
+            background: none;
+            color: #2563eb;
+            border: none;
+            padding: 0;
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # 🔐 Sign In
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -106,19 +105,29 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # Manual clickable links below
-    if st.button("🔁 Reset Password", key="reset_pw_link", help="Click here to reset your password"):
-        st.session_state.page = "reset_password"
-        st.rerun()
+    # 🔵 Sign Up link under the card
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        st.markdown("<div class='signup-text'>Need an account?</div>", unsafe_allow_html=True)
+    with col2:
+        if st.button("Sign up", key="signup_link", help="Create a new BitPanel account"):
+            st.session_state.page = "signup"
+            st.rerun()
 
+    # Style Sign up as a link
     st.markdown("""
-        <div class='signup-wrapper'>
-            Need an account? <a href='#' id='signup-link'>Sign up</a>
-        </div>
+        <style>
+        button[kind="secondary"][data-testid="baseButton-signup_link"] {
+            background: none;
+            color: #2563eb;
+            border: none;
+            padding: 0;
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        </style>
     """, unsafe_allow_html=True)
 
-    if st.button("🆕 Go to Signup", key="signup_link"):
-        st.session_state.page = "signup"
-        st.rerun()
-
+    # === End login card ===
     st.markdown("</div></div>", unsafe_allow_html=True)
