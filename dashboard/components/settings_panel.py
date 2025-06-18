@@ -4,7 +4,7 @@ from utils.firebase_db import save_user_api_keys
 from utils.load_keys import load_user_api_keys
 import streamlit.components.v1 as components
 
-stripe.api_key = "sk_test_51RaeXf2cME1qYwWKSuTCtxpAPbWr8dZcUQSzOUFaxnf2BWAKl26O6kPqKMLXnF66dPMdgjPbsF3jywwtqXJqoogX00rv5AUFEj" 
+stripe.api_key = "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" 
 
 PLAN_LOOKUP = {
     "Pro – $24.99/mo": "price_1RbNMvGmE1nxXnS9jhKL86Ga",
