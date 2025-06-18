@@ -3,80 +3,86 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Inject styling to control layout + card width
+    # === Styling: Clean, centered 6x4 card layout ===
     st.markdown("""
         <style>
-        /* Hide unnecessary elements */
+        /* Hide Streamlit fluff */
         #MainMenu, footer, header {visibility: hidden;}
 
-        /* Lock main container layout */
+        /* Center layout */
         .block-container {
             padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
 
-        /* Outer wrapper for the card */
+        /* Login card container */
         .login-wrapper {
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
         }
 
-        /* Login card bubble */
         .login-card {
             background-color: #ffffff;
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
         }
 
         .login-header {
-            text-align: center;
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
-        .subtle-link {
+        .link-inline {
             font-size: 13px;
-            color: #2563eb;
-            text-align: right;
-            display: block;
-            margin-top: -10px;
-            margin-bottom: 20px;
+            margin-top: 0.75rem;
         }
 
-        .bottom-text {
-            text-align: center;
-            font-size: 13px;
-            margin-top: 20px;
-            color: #555;
-        }
-
-        .bottom-text a {
+        .link-inline a {
             color: #2563eb;
             text-decoration: none;
             font-weight: 500;
         }
 
+        .forgot-link {
+            text-align: right;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 1.25rem;
+        }
+
+        .forgot-link a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Optional fix for ghost block */
         .block-container > div:first-child:empty {
             display: none;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # ✅ Start outer wrapper to restrict width
+    # === Start outer wrapper ===
     st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
-    
-    # --- Inside the bubble ---
-    st.markdown("<div class='login-header'>🚀 BitPanel Login</div>", unsafe_allow_html=True)
+
+    # --- Login content ---
+    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
+    st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    if st.button("🔁 Forgot your password?", key="forgot_pw_link"):
-        st.session_state.page = "reset_password"
-        st.rerun()
+    # Forgot password link
+    col1, col2 = st.columns([1, 1])
+    with col2:
+        if st.button("🔁 Forgot Password?", key="forgot_pw"):
+            st.session_state.page = "reset_password"
+            st.rerun()
 
     if st.button("🔐 Sign In", use_container_width=True):
         try:
@@ -109,10 +115,13 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    st.markdown("<div class='bottom-text'>Need an account?</div>", unsafe_allow_html=True)
-    if st.button("🆕 Create one", key="create_account_link"):
+    # --- Bottom: "Need an account? Sign up" ---
+    st.markdown("<div class='link-inline'>Need an account? <a href='#' onclick='document.dispatchEvent(new CustomEvent(\"signup\"))'>Sign up</a></div>", unsafe_allow_html=True)
+
+    # Manual routing fallback for "Sign up" (button version)
+    if st.button("🆕 Sign Up", key="signup_route_button"):
         st.session_state.page = "signup"
         st.rerun()
 
-    # End bubble
-    st.markdown("</div>", unsafe_allow_html=True)
+    # === End card ===
+    st.markdown("</div></div>", unsafe_allow_html=True)
