@@ -3,50 +3,72 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Set page layout if not already in app.py
+    # === Style for clean, centered login card ===
     st.markdown("""
         <style>
-        body {
-            background-color: #f0f2f6;
+        html, body, [data-testid="stAppViewContainer"] {
+            height: 100%;
         }
-        .stApp {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .block-container {
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
         }
         .login-card {
-            background: white;
-            padding: 2rem 2rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
         }
-        .login-card h2 {
-            margin-bottom: 0.5rem;
+        .login-card h3 {
+            margin-bottom: 0.25rem;
+            font-size: 24px;
         }
-        .login-card .link {
+        .login-card p {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
+            color: #666;
+        }
+        .forgot-link, .signup-link {
             color: #2563eb;
             text-decoration: underline;
             cursor: pointer;
             font-size: 13px;
         }
-        .login-card .footer {
-            margin-top: 1.25rem;
+        .forgot-wrapper {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .signup-wrapper {
+            text-align: center;
+            margin-top: 20px;
             font-size: 13px;
             color: #555;
         }
         </style>
     """, unsafe_allow_html=True)
 
+    # === Login Card Start ===
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
-    st.markdown("<h2>🚀 Welcome to BitPanel</h2>", unsafe_allow_html=True)
+
+    st.markdown("<h3>🚀 Welcome to BitPanel</h3>", unsafe_allow_html=True)
     st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
+
+    st.markdown("""
+        <div class='forgot-wrapper'>
+            <span class='forgot-link'>Forgot Password?</span>
+        </div>
+    """, unsafe_allow_html=True)
 
     if st.button("🔐 Sign In", use_container_width=True):
         try:
@@ -76,32 +98,42 @@ def login():
             st.rerun()
 
         except Exception as e:
-            st.error("❌ Invalid email or password.")
+            st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # Forgot Password
-    if st.markdown("<p class='link' style='text-align:right'>Forgot Password?</p>", unsafe_allow_html=True):
-        st.session_state.page = "reset_password"
-        st.rerun()
-
-    # Sign Up
     st.markdown("""
-        <div class='footer'>
-            Need an account? <span class='link'>Sign up</span>
+        <div class='signup-wrapper'>
+            Need an account? <span class='signup-link'>Sign up</span>
         </div>
     """, unsafe_allow_html=True)
 
-    # Link triggers
-    clicked_forgot = st.session_state.get("page") == "reset_password"
-    clicked_signup = st.session_state.get("page") == "signup"
-
-    if clicked_forgot:
-        st.session_state.page = None
-        st.session_state.current_page = "reset_password"
-        st.rerun()
-    elif clicked_signup:
-        st.session_state.page = None
-        st.session_state.current_page = "signup"
-        st.rerun()
-
+    # Close login card
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # === Link click logic ===
+    st.markdown("""
+        <script>
+        const forgot = window.parent.document.querySelector('span.forgot-link');
+        if (forgot) {
+            forgot.onclick = () => {
+                window.parent.postMessage({type: 'streamlit:rerun', page: 'reset_password'}, '*');
+            };
+        }
+        const signup = window.parent.document.querySelector('span.signup-link');
+        if (signup) {
+            signup.onclick = () => {
+                window.parent.postMessage({type: 'streamlit:rerun', page: 'signup'}, '*');
+            };
+        }
+        </script>
+    """, unsafe_allow_html=True)
+
+    if "page" in st.session_state:
+        if st.session_state.page == "reset_password":
+            st.session_state.page = None
+            st.session_state.current_page = "reset_password"
+            st.rerun()
+        elif st.session_state.page == "signup":
+            st.session_state.page = None
+            st.session_state.current_page = "signup"
+            st.rerun()
