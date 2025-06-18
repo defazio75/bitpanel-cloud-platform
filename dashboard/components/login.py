@@ -71,7 +71,9 @@ def login():
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    st.markdown("<a class='subtle-link' href='#'>Forgot your password?</a>", unsafe_allow_html=True)
+    if st.button("🔁 Forgot your password?", key="forgot_pw_link"):
+        st.session_state.page = "reset_password"
+        st.rerun()
 
     if st.button("🔐 Sign In", use_container_width=True):
         try:
@@ -104,11 +106,10 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    st.markdown("""
-        <div class='bottom-text'>
-            Need an account? <a href='#' onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'signup'}, '*')">Create one</a>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='bottom-text'>Need an account?</div>", unsafe_allow_html=True)
+    if st.button("🆕 Create one", key="create_account_link"):
+        st.session_state.page = "signup"
+        st.rerun()
 
     # End bubble
     st.markdown("</div>", unsafe_allow_html=True)
