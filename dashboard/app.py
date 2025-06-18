@@ -114,8 +114,8 @@ with st.sidebar:
         st.success("You have been logged out.")
         st.rerun()
 
-    account = st.session_state.user.get("account", {})
-    if account.get("paid", False):
+    account = st.session_state.user
+    if account.get("paid", False) or account.get("bypass", False):
         st.success("✅ Pro Plan Active")
     elif account.get("bypass", False):
         st.success("✅ Dev Access (Bypass)")
