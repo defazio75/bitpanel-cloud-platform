@@ -3,20 +3,18 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Styling: Clean, centered 6x4 card layout ===
+    # === Styling for layout and card ===
     st.markdown("""
         <style>
-        /* Hide Streamlit fluff */
+        /* Hide Streamlit built-in elements */
         #MainMenu, footer, header {visibility: hidden;}
 
-        /* Center layout */
         .block-container {
             padding-top: 12vh;
             display: flex;
             justify-content: center;
         }
 
-        /* Login card container */
         .login-wrapper {
             width: 100%;
             max-width: 400px;
@@ -33,56 +31,49 @@ def login():
         .login-header {
             font-size: 24px;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        .link-inline {
+        .forgot-password, .signup-link {
             font-size: 13px;
-            margin-top: 0.75rem;
+            color: #2563eb;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
         }
 
-        .link-inline a {
+        .signup-wrapper {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .signup-wrapper a {
             color: #2563eb;
             text-decoration: none;
             font-weight: 500;
+            cursor: pointer;
         }
 
-        .forgot-link {
-            text-align: right;
-            font-size: 13px;
-            margin-top: -10px;
-            margin-bottom: 1.25rem;
-        }
-
-        .forgot-link a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        /* Optional fix for ghost block */
         .block-container > div:first-child:empty {
             display: none;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # === Start outer wrapper ===
+    # === Start Card Layout ===
     st.markdown("<div class='login-wrapper'><div class='login-card'>", unsafe_allow_html=True)
 
-    # --- Login content ---
     st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
     st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    # Forgot password link
-    col1, col2 = st.columns([1, 1])
-    with col2:
-        if st.button("🔁 Forgot Password?", key="forgot_pw"):
-            st.session_state.page = "reset_password"
-            st.rerun()
+    # Forgot Password link (looks like text but works like a route)
+    if st.markdown("<span class='forgot-password'>Forgot Password?</span>", unsafe_allow_html=True):
+        pass  # Pure styling only — click handling below
 
     if st.button("🔐 Sign In", use_container_width=True):
         try:
@@ -115,13 +106,19 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # --- Bottom: "Need an account? Sign up" ---
-    st.markdown("<div class='link-inline'>Need an account? <a href='#' onclick='document.dispatchEvent(new CustomEvent(\"signup\"))'>Sign up</a></div>", unsafe_allow_html=True)
+    # Manual clickable links below
+    if st.button("🔁 Reset Password", key="reset_pw_link", help="Click here to reset your password"):
+        st.session_state.page = "reset_password"
+        st.rerun()
 
-    # Manual routing fallback for "Sign up" (button version)
-    if st.button("🆕 Sign Up", key="signup_route_button"):
+    st.markdown("""
+        <div class='signup-wrapper'>
+            Need an account? <a href='#' id='signup-link'>Sign up</a>
+        </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("🆕 Go to Signup", key="signup_link"):
         st.session_state.page = "signup"
         st.rerun()
 
-    # === End card ===
     st.markdown("</div></div>", unsafe_allow_html=True)
