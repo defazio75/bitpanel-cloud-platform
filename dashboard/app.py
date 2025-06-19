@@ -19,13 +19,12 @@ from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 
-# === Page Router ===
-def run():
-    page = st.session_state.get("current_page", "login")
+# === PAGE ROUTER LOGIC ===
+page = st.session_state.get("current_page", "login")
 
-    if page == "login":
-        login()
-    elif page == "signup":
+# If no user is logged in, only allow login/signup/reset
+if "user" not in st.session_state:
+    if page == "signup":
         signup()
     elif page == "reset_password":
         reset_password()
