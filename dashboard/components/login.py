@@ -3,14 +3,70 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Login Card Start ===
-    st.markdown("<div class='login-card'>", unsafe_allow_html=True)
+    st.markdown("""
+        <style>
+        /* Background and layout */
+        body {
+            background-color: #f3f4f6;
+        }
 
-    st.markdown("<h3>🚀 Welcome to BitPanel</h3>", unsafe_allow_html=True)
-    st.markdown("<p>Please log in to continue</p>", unsafe_allow_html=True)
+        #MainMenu, footer, header {visibility: hidden;}
+
+        .block-container {
+            padding-top: 12vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Login card style */
+        .login-card {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .login-header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+
+        .subtle-link {
+            font-size: 13px;
+            color: #2563eb;
+            text-align: right;
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .bottom-text {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 1.5rem;
+            color: #555;
+        }
+
+        .bottom-text a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Login UI
+    st.markdown("<div class='login-card'>", unsafe_allow_html=True)
+    st.markdown("<div class='login-header'>🚀 Welcome to BitPanel</div>", unsafe_allow_html=True)
 
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
+
+    st.markdown("<a class='subtle-link' href='#'>Forgot your password?</a>", unsafe_allow_html=True)
 
     if st.button("🔐 Sign In", use_container_width=True):
         try:
@@ -43,32 +99,10 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # Blue text links
     st.markdown("""
-        <div class='forgot-wrapper'>
-            <a href='?page=reset_password' style='color:#1E90FF; text-decoration:underline;'>Forgot Password?</a>
+        <div class='bottom-text'>
+            Need an account? <a href='#' onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: 'signup'}, '*')">Create one</a>
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-        <div class='signup-wrapper'>
-            Need an account? <a href='?page=signup' style='color:#1E90FF; text-decoration:underline;'>Sign up</a>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Close login card
     st.markdown("</div>", unsafe_allow_html=True)
-
-    # === Handle link redirects ===
-    query_params = st.query_params
-    if query_params.get("page") == "reset_password":
-        st.session_state.page = "reset_password"
-        st.session_state.current_page = "reset_password"
-        st.experimental_set_query_params()  # Clears URL
-        st.rerun()
-
-    elif query_params.get("page") == "signup":
-        st.session_state.page = "signup"
-        st.session_state.current_page = "signup"
-        st.experimental_set_query_params()
-        st.rerun()
