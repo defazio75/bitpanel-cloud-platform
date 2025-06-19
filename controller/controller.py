@@ -39,15 +39,20 @@ LOOP_INTERVAL = 60  # Run every 60 seconds
 # === Background Snapshot Thread ===
 def snapshot_loop(user_id, token):
     try:
+        print(f"🧪 Starting snapshot thread for {user_id}")
         mode = get_mode(user_id)
+        print(f"🔍 Snapshot mode for {user_id}: {mode}")
+        
         while True:
             try:
                 print(f"[SNAPSHOT] Attempting snapshot for {user_id} in {mode}")
                 write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
+                print(f"[SNAPSHOT] ✅ Snapshot complete for {user_id}")
             except Exception as e:
                 print(f"❌ Error writing snapshot for {user_id}: {e}")
                 traceback.print_exc()
-            time.sleep(60)
+            time.sleep(5)
+
     except Exception as e:
         print(f"❌ Snapshot thread crashed for {user_id}: {e}")
         traceback.print_exc()
