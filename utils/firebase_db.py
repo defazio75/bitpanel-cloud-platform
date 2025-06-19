@@ -95,15 +95,10 @@ def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
     print(f"📤 Saving snapshot to {path}")
     db.reference(path).set(snapshot)
 
-def load_portfolio_snapshot(user_id, token, mode):
-    data = firebase.database() \
-        .child("users") \
-        .child(user_id) \
-        .child(mode) \
-        .child("balances") \
-        .child("portfolio_snapshot") \
-        .get(token) \
-        .val()
+def load_portfolio_snapshot(user_id, token=None, mode="paper"):
+    path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
+    ref = db.reference(path)
+    data = ref.get()
     return data if data else {}
 
 # === COIN STATE ===
