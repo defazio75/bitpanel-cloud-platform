@@ -57,12 +57,14 @@ def login():
     """, unsafe_allow_html=True)
     
     # === Handle POST trigger ===
-    if st.experimental_get_query_params().get("page") == ["reset_password"]:
+    query_params = st.query_params
+
+    if query_params.get("page") == ["reset_password"]:
         st.session_state.page = "reset_password"
         st.session_state.current_page = "reset_password"
         st.rerun()
 
-    if st.experimental_get_query_params().get("page") == ["signup"]:
+    if query_params.get("page") == ["signup"]:
         st.session_state.page = "signup"
         st.session_state.current_page = "signup"
         st.rerun()
