@@ -4,4 +4,4 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python controller/bot_runner.py
-    pythonVersion: 3.11
+    pythonVersion: 3.11.7
