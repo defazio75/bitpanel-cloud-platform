@@ -55,17 +55,16 @@ def login():
             Need an account? <a href='#' style='color:#1E90FF; text-decoration:underline;' onclick="window.parent.postMessage({type: 'streamlit:rerun', page: 'signup'}, '*')">Sign up</a>
         </div>
     """, unsafe_allow_html=True)
+    
+    # === Handle POST trigger ===
+    if st.experimental_get_query_params().get("page") == ["reset_password"]:
+        st.session_state.page = "reset_password"
+        st.session_state.current_page = "reset_password"
+        st.rerun()
 
-    # Close login card
+    if st.experimental_get_query_params().get("page") == ["signup"]:
+        st.session_state.page = "signup"
+        st.session_state.current_page = "signup"
+        st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
-
-    # Link logic
-    if "page" in st.session_state:
-        if st.session_state.page == "reset_password":
-            st.session_state.page = None
-            st.session_state.current_page = "reset_password"
-            st.rerun()
-        elif st.session_state.page == "signup":
-            st.session_state.page = None
-            st.session_state.current_page = "signup"
-            st.rerun()
