@@ -11,6 +11,7 @@ from utils.firebase_db import (
 
 
 def write_portfolio_snapshot(user_id, mode=None, token=None):
+    print(f"[WRITER] Running portfolio_writer for {user_id} in {mode} mode")
     if not mode:
         mode = get_mode(user_id)
 
