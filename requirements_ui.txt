@@ -12,3 +12,4 @@ pyrebase4
 pandas_ta==0.3.14b0
 cryptography>=41.0
 stripe
+firebase-admin
