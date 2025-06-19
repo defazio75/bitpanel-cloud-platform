@@ -9,7 +9,7 @@ from exchange.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
-from portfolio_writer import write_portfolio_snapshot
+from utils.portfolio_writer import write_portfolio_snapshot
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
 
