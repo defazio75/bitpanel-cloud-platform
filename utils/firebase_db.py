@@ -10,12 +10,13 @@ FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
 def get_all_user_ids():
     """
-    Returns a list of all user IDs from the Realtime Database.
+    Returns a list of all user IDs from Firebase Realtime Database using firebase_admin.
     """
     try:
-        users_snapshot = db.child("users").get()
-        if users_snapshot.each():
-            return [user.key() for user in users_snapshot.each()]
+        ref = db.reference("users")
+        users_snapshot = ref.get()
+        if users_snapshot:
+            return list(users_snapshot.keys())
         else:
             return []
     except Exception as e:
