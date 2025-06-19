@@ -9,6 +9,7 @@ from exchange.exchange_manager import get_exchange
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 from utils.config import get_mode
 from utils.load_keys import load_user_api_keys
+from portfolio_writer import write_portfolio_snapshot
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
 
@@ -17,7 +18,7 @@ def snapshot_loop(user_id, token):
     mode = get_mode(user_id)
     while True:
         print(f"[SNAPSHOT] Saving snapshot for {user_id} in {mode} mode...")
-        save_portfolio_snapshot(user_id, token, mode)
+        write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
         time.sleep(60)
 
 # === Main Controller ===
