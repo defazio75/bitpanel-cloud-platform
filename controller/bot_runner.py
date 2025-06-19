@@ -1,10 +1,12 @@
 print("✅ Hello from bot_runner")
 
+print("👣 STEP 1: Trying to import controller...")
+
 try:
     import controller
-    print("✅ controller imported successfully")
+    print("✅ STEP 2: Controller imported successfully")
 except Exception as e:
-    print(f"❌ Error importing controller: {e}")
+    print(f"❌ STEP 2: Failed to import controller: {e}")
     import traceback
     traceback.print_exc()
 
