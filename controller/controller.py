@@ -15,16 +15,21 @@ LOOP_INTERVAL = 60  # Run every 60 seconds
 
 # === Background Snapshot Thread ===
 def snapshot_loop(user_id, token):
-    mode = get_mode(user_id)
-    while True:
-        print(f"[SNAPSHOT] Saving snapshot for {user_id} in {mode} mode...")
-        write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
-        time.sleep(60)
+    try:
+        mode = get_mode(user_id)
+        while True:
+            print(f"[SNAPSHOT] Saving snapshot for {user_id} in {mode} mode...")
+            write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
+            time.sleep(60)
+    except Exception as e:
+        print(f"❌ Snapshot thread crashed for {user_id}: {e}")
+        traceback.print_exc()
 
 # === Main Controller ===
 def run_controller():
     print("✅ Controller launched and loop is running")
     user_ids = get_all_user_ids()
+    print(f"🧑‍💻 Loaded user_ids: {user_ids}")
 
     # Launch snapshot thread once per user
     for user_id in user_ids:
