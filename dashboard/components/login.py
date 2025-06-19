@@ -3,33 +3,20 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # Hide extra UI
-    hide_st_style = """
+    # === Minimal Centered Styling ===
+    st.markdown("""
         <style>
         #MainMenu, footer, header {visibility: hidden;}
         .block-container {
             padding-top: 10vh;
-            padding-bottom: 10vh;
+            padding-bottom: 5vh;
             display: flex;
             justify-content: center;
         }
-        </style>
-    """
-    st.markdown(hide_st_style, unsafe_allow_html=True)
-
-    # Bubble styling
-    #st.markdown("""
-        <style>
-        .login-bubble {
-            max-width: 420px;
+        .login-container {
+            max-width: 400px;
             width: 100%;
             margin: auto;
-            padding: 2rem;
-            border-radius: 20px;
-            background-color: #ffffff10;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
         .login-header {
             text-align: center;
@@ -37,9 +24,6 @@ def login():
         }
         </style>
     """, unsafe_allow_html=True)
-
-    # Start bubble container
-   # st.markdown("<div class='login-bubble'>", unsafe_allow_html=True)
 
     # Header
     st.markdown("<h2 class='login-header'>🚀 Welcome to BitPanel</h2>", unsafe_allow_html=True)
@@ -90,5 +74,3 @@ def login():
         st.session_state.reset_email = email
         st.session_state.page = "reset_password"
         st.rerun()
-
-   # st.markdown("</div>", unsafe_allow_html=True)
