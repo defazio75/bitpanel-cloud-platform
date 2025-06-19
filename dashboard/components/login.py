@@ -3,58 +3,6 @@ from utils.firebase_db import load_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
-    # === Style for clean, centered login card ===
-    st.markdown("""
-        <style>
-        html, body, [data-testid="stAppViewContainer"] {
-            height: 100%;
-        }
-        .block-container {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f5f5f5;
-        }
-        .login-card {
-            width: 100%;
-            max-width: 400px;
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .login-card h3 {
-            margin-bottom: 0.25rem;
-            font-size: 24px;
-        }
-        .login-card p {
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            font-size: 14px;
-            color: #666;
-        }
-        .forgot-link, .signup-link {
-            color: #2563eb;
-            text-decoration: underline;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .forgot-wrapper {
-            text-align: right;
-            margin-top: -10px;
-            margin-bottom: 20px;
-        }
-        .signup-wrapper {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #555;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
     # === Login Card Start ===
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
 
