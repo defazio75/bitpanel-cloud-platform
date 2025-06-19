@@ -12,7 +12,7 @@ except Exception as e:
 
 try:
     print("🚀 Starting controller loop...")
-    #controller.run_controller()
+    controller.run_controller()
 except Exception as e:
     print(f"❌ Error running controller: {e}")
     import traceback
