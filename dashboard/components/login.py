@@ -18,7 +18,7 @@ def login():
     st.markdown(hide_st_style, unsafe_allow_html=True)
 
     # Bubble styling
-    st.markdown("""
+    #st.markdown("""
         <style>
         .login-bubble {
             max-width: 420px;
@@ -39,7 +39,7 @@ def login():
     """, unsafe_allow_html=True)
 
     # Start bubble container
-    st.markdown("<div class='login-bubble'>", unsafe_allow_html=True)
+   # st.markdown("<div class='login-bubble'>", unsafe_allow_html=True)
 
     # Header
     st.markdown("<h2 class='login-header'>🚀 Welcome to BitPanel</h2>", unsafe_allow_html=True)
@@ -91,4 +91,4 @@ def login():
         st.session_state.page = "reset_password"
         st.rerun()
 
-    st.markdown("</div>", unsafe_allow_html=True)
+   # st.markdown("</div>", unsafe_allow_html=True)
