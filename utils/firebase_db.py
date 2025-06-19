@@ -4,6 +4,7 @@ import pytz
 from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 from utils.kraken_wrapper import get_live_balances, get_prices
+from firebase_admin import db
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
@@ -89,14 +90,10 @@ def load_strategy_allocations(user_id, token, mode, coin=None):
     return data if data else {}
 
 # === PORTFOLIO SNAPSHOT ===
-def save_portfolio_snapshot(user_id, snapshot, token, mode):
-    firebase.database() \
-        .child("users") \
-        .child(user_id) \
-        .child(mode) \
-        .child("balances") \
-        .child("portfolio_snapshot") \
-        .set(snapshot, token)
+def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
+    path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
+    print(f"📤 Saving snapshot to {path}")
+    db.reference(path).set(snapshot)
 
 def load_portfolio_snapshot(user_id, token, mode):
     data = firebase.database() \
