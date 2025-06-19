@@ -18,8 +18,12 @@ def snapshot_loop(user_id, token):
     try:
         mode = get_mode(user_id)
         while True:
-            print(f"[SNAPSHOT] Saving snapshot for {user_id} in {mode} mode...")
-            write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
+            try:
+                print(f"[SNAPSHOT] Attempting snapshot for {user_id} in {mode}")
+                write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
+            except Exception as e:
+                print(f"❌ Error writing snapshot for {user_id}: {e}")
+                traceback.print_exc()
             time.sleep(60)
     except Exception as e:
         print(f"❌ Snapshot thread crashed for {user_id}: {e}")
@@ -28,24 +32,31 @@ def snapshot_loop(user_id, token):
 # === Main Controller ===
 def run_controller():
     print("✅ Controller launched and loop is running")
-    user_ids = get_all_user_ids()
-    print(f"🧑‍💻 Loaded user_ids: {user_ids}")
+    
+    try:
+        user_ids = get_all_user_ids()
+        print(f"🧑‍💻 Loaded user_ids: {user_ids}")
+    except Exception as e:
+        print(f"❌ Failed to load user_ids: {e}")
+        traceback.print_exc()
+        return
 
     # Launch snapshot thread once per user
     for user_id in user_ids:
         try:
             mode = get_mode(user_id)
+            print(f"🧾 Mode for {user_id}: {mode}")
+
             token = None
             if mode == "live":
                 api_keys = load_user_api_keys(user_id, token=token)
+                print(f"🔑 API keys for {user_id}: {api_keys}")
                 token = api_keys.get("token") if api_keys else None
-            else:
-                token = None
 
             threading.Thread(target=snapshot_loop, args=(user_id, token), daemon=True).start()
 
         except Exception as e:
-            print(f"❌ Error starting snapshot thread for {user_id}: {e}")
+            print(f"❌ Error during snapshot thread setup for {user_id}: {e}")
             traceback.print_exc()
 
     # Main loop runs bots
