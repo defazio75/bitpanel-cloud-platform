@@ -12,12 +12,6 @@ def login():
     email = st.text_input("Email", key="login_email")
     password = st.text_input("Password", type="password", key="login_password")
 
-    st.markdown("""
-        <div class='forgot-wrapper'>
-            <span class='forgot-link'>Forgot Password?</span>
-        </div>
-    """, unsafe_allow_html=True)
-
     if st.button("🔐 Sign In", use_container_width=True):
         try:
             user = sign_in(email, password)
@@ -49,33 +43,23 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
+    # Styled links
+    st.markdown("""
+        <div class='forgot-wrapper'>
+            <a href='#' style='color:#1E90FF; text-decoration:underline;' onclick="window.parent.postMessage({type: 'streamlit:rerun', page: 'reset_password'}, '*')">Forgot Password?</a>
+        </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("""
         <div class='signup-wrapper'>
-            Need an account? <span class='signup-link'>Sign up</span>
+            Need an account? <a href='#' style='color:#1E90FF; text-decoration:underline;' onclick="window.parent.postMessage({type: 'streamlit:rerun', page: 'signup'}, '*')">Sign up</a>
         </div>
     """, unsafe_allow_html=True)
 
     # Close login card
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # === Link click logic ===
-    st.markdown("""
-        <script>
-        const forgot = window.parent.document.querySelector('span.forgot-link');
-        if (forgot) {
-            forgot.onclick = () => {
-                window.parent.postMessage({type: 'streamlit:rerun', page: 'reset_password'}, '*');
-            };
-        }
-        const signup = window.parent.document.querySelector('span.signup-link');
-        if (signup) {
-            signup.onclick = () => {
-                window.parent.postMessage({type: 'streamlit:rerun', page: 'signup'}, '*');
-            };
-        }
-        </script>
-    """, unsafe_allow_html=True)
-
+    # Link logic
     if "page" in st.session_state:
         if st.session_state.page == "reset_password":
             st.session_state.page = None
