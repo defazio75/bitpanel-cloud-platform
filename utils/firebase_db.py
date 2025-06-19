@@ -5,18 +5,15 @@ from utils.encryption import encrypt_string, decrypt_string
 from utils.firebase_config import firebase
 from utils.kraken_wrapper import get_live_balances, get_prices
 from firebase_admin import db
+from utils.firebase_config import db
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
 
 def get_all_user_ids():
-    """
-    Returns a list of all user IDs from Firebase Realtime Database using firebase_admin.
-    """
     try:
-        ref = db.reference("users")
-        users_snapshot = ref.get()
-        if users_snapshot:
-            return list(users_snapshot.keys())
+        users_snapshot = db.child("users").get()
+        if users_snapshot.each():
+            return [user.key() for user in users_snapshot.each()]
         else:
             return []
     except Exception as e:
