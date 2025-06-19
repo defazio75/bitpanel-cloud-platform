@@ -49,7 +49,6 @@ def run_controller():
         for user_id in user_ids:
             try:
                 mode = get_mode(user_id)
-                strategy_config = load_strategy_allocations(user_id, token=token, mode=mode)
 
                 if mode == "live":
                     api_keys = load_user_api_keys(user_id, token=token)
@@ -63,18 +62,32 @@ def run_controller():
                     token = None
                     exchange = get_exchange("kraken", mode=mode, api_keys=None)
 
+                strategy_config = load_strategy_allocations(user_id, token=token, mode=mode)
+
                 # === Strategy Bot Triggers ===
-                if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
-                    rsi_5min.run(user_id=user_id, token=token, coin="BTC")
+                try:
+                    if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
+                        rsi_5min.run(user_id=user_id, token=token, coin="BTC")
+                except Exception as e:
+                    print(f"⚠️ RSI 5-Min bot failed for {user_id}: {e}")
 
-                if strategy_config.get("BTC", {}).get("rsi_1hr", {}).get("enabled"):
-                    rsi_1hr.run(user_id, exchange, strategy_config)
+                try:
+                    if strategy_config.get("BTC", {}).get("rsi_1hr", {}).get("enabled"):
+                        rsi_1hr.run(user_id, exchange, strategy_config)
+                except Exception as e:
+                    print(f"⚠️ RSI 1-Hour bot failed for {user_id}: {e}")
+                    
+                try:
+                    if strategy_config.get("BTC", {}).get("bollinger", {}).get("enabled"):
+                        bollinger.run(user_id, exchange, strategy_config)
+                except Exception as e:
+                    print(f"⚠️ Bollinger bot failed for {user_id}: {e}")
 
-                if strategy_config.get("BTC", {}).get("bollinger", {}).get("enabled"):
-                    bollinger.run(user_id, exchange, strategy_config)
-
-                if strategy_config.get("BTC", {}).get("dca_matrix", {}).get("enabled"):
-                    dca_matrix.run(user_id, exchange, strategy_config)
+                try:
+                    if strategy_config.get("BTC", {}).get("dca_matrix", {}).get("enabled"):
+                        dca_matrix.run(user_id, exchange, strategy_config)
+                except Exception as e:
+                    print(f"⚠️ DCA Matrix bot failed for {user_id}: {e}")
 
             except Exception as e:
                 print(f"❌ Error running bots for user {user_id}: {e}")
