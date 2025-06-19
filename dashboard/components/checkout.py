@@ -66,7 +66,7 @@ def render_checkout(user_id):
             components.html(
                 """
                 <script>
-                    window.open("https://buy.stripe.com/test_aFa6oA5oqgjcglk6OM5ZC01", "_blank");
+                    window.open("https://buy.stripe.com/00w3cv3QgfpvegJ76H18c01", "_blank");
                 </script>
                 """,
                 height=0,
@@ -99,7 +99,7 @@ def render_checkout(user_id):
             components.html(
                 """
                 <script>
-                    window.open("https://buy.stripe.com/test_00wdR27wy5Ey9WW0qo5ZC00", "_blank");
+                    window.open("https://buy.stripe.com/9B628rfyY6SZ4G9aiT18c00", "_blank");
                 </script>
                 """,
                 height=0,
