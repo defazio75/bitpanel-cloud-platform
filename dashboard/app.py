@@ -19,17 +19,16 @@ from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 
-# Detect from query params
-query_params = st.query_params
-page_param = query_params.get("page", [None])[0]
+# === Page Router ===
+def run():
+    page = st.session_state.get("current_page", "login")
 
-# Routing
-if page_param == "signup":
-    signup()
-elif page_param == "reset_password":
-    reset_password()
-else:
-    login()
+    if page == "login":
+        login()
+    elif page == "signup":
+        signup()
+    elif page == "reset_password":
+        reset_password()
 
 # === PROTECTED AREA (Requires Logged-in User) ===
 if "user" not in st.session_state:
