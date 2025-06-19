@@ -3,7 +3,11 @@ import pandas as pd
 from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances, get_prices
-from utils.firebase_db import load_coin_state, save_portfolio_snapshot
+from utils.firebase_db import (
+    save_portfolio_snapshot,
+    save_coin_state,
+    load_coin_state,
+)
 
 
 def write_portfolio_snapshot(user_id, mode=None, token=None):
@@ -45,6 +49,3 @@ def write_portfolio_snapshot(user_id, mode=None, token=None):
 
     save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
     print(f"✅ Portfolio snapshot updated for {user_id} — Total USD: ${snapshot['total_usd']:.2f}")
-    # Save daily history
-    date_path = f"{mode}/history/{datetime.now().strftime('%Y-%m-%d')}.json"
-    save_firebase_json(date_path, snapshot, user_id, token)
