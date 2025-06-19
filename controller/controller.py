@@ -23,6 +23,7 @@ def snapshot_loop(user_id, token):
 
 # === Main Controller ===
 def run_controller():
+    print("✅ Controller launched and loop is running")
     user_ids = get_all_user_ids()
 
     # Launch snapshot thread once per user
