@@ -29,6 +29,8 @@ def run():
         signup()
     elif page == "reset_password":
         reset_password()
+    else:
+        login()
 
 # === PROTECTED AREA (Requires Logged-in User) ===
 if "user" not in st.session_state:
