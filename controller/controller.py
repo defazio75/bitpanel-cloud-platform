@@ -59,87 +59,12 @@ def snapshot_loop(user_id, token):
 
 # === Main Controller ===
 def run_controller():
-    print("🔁 ENTERED run_controller")
+    print("🧠 STEP 3: Entered run_controller()")
 
-    # Load all user IDs
     try:
         user_ids = get_all_user_ids()
-        print(f"👤 Found {len(user_ids)} users: {user_ids}")
+        print(f"🔍 STEP 4: Retrieved user IDs: {user_ids}")
     except Exception as e:
-        print(f"❌ Failed to get user IDs: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ STEP 4: Failed to get user IDs: {e}")
+        import traceback; traceback.print_exc()
         return
-
-    # Launch snapshot thread once per user
-    for user_id in user_ids:
-        print(f"⚙️ Starting controller thread for {user_id}")
-        try:
-            mode = get_mode(user_id)
-            print(f"🧾 Mode for {user_id}: {mode}")
-
-            token = None
-            if mode == "live":
-                api_keys = load_user_api_keys(user_id, token=token)
-                print(f"🔑 API keys for {user_id}: {api_keys}")
-                token = api_keys.get("token") if api_keys else None
-
-            threading.Thread(target=snapshot_loop, args=(user_id, token), daemon=True).start()
-
-        except Exception as e:
-            print(f"❌ Error during snapshot thread setup for {user_id}: {e}")
-            traceback.print_exc()
-
-    # Main loop runs bots
-    while True:
-        print(f"🔁 Running controller loop at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-        for user_id in user_ids:
-            try:
-                mode = get_mode(user_id)
-
-                if mode == "live":
-                    api_keys = load_user_api_keys(user_id, token=token)
-                    if not api_keys:
-                        print(f"⚠️ Skipping {user_id} (no API keys in live mode)")
-                        continue
-                    token = api_keys.get("token")
-                    user_exchange = api_keys.get("exchange", "kraken")
-                    exchange = get_exchange(user_exchange, mode=mode, api_keys=api_keys)
-                else:
-                    token = None
-                    exchange = get_exchange("kraken", mode=mode, api_keys=None)
-
-                strategy_config = load_strategy_allocations(user_id, token=token, mode=mode)
-
-                # === Strategy Bot Triggers ===
-                try:
-                    if strategy_config.get("BTC", {}).get("rsi_5min", {}).get("enabled"):
-                        rsi_5min.run(user_id=user_id, token=token, coin="BTC")
-                except Exception as e:
-                    print(f"⚠️ RSI 5-Min bot failed for {user_id}: {e}")
-
-                try:
-                    if strategy_config.get("BTC", {}).get("rsi_1hr", {}).get("enabled"):
-                        rsi_1hr.run(user_id, exchange, strategy_config)
-                except Exception as e:
-                    print(f"⚠️ RSI 1-Hour bot failed for {user_id}: {e}")
-                    
-                try:
-                    if strategy_config.get("BTC", {}).get("bollinger", {}).get("enabled"):
-                        bollinger.run(user_id, exchange, strategy_config)
-                except Exception as e:
-                    print(f"⚠️ Bollinger bot failed for {user_id}: {e}")
-
-                try:
-                    if strategy_config.get("BTC", {}).get("dca_matrix", {}).get("enabled"):
-                        dca_matrix.run(user_id, exchange, strategy_config)
-                except Exception as e:
-                    print(f"⚠️ DCA Matrix bot failed for {user_id}: {e}")
-
-            except Exception as e:
-                print(f"❌ Error running bots for user {user_id}: {e}")
-                traceback.print_exc()
-
-        print("⏳ Waiting for next loop...\n")
-        time.sleep(LOOP_INTERVAL)
