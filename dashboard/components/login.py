@@ -43,7 +43,7 @@ def login():
             st.error("❌ Invalid email or password. Try again.")
             st.exception(e)
 
-    # === Styled Links ===
+    # Blue text links
     st.markdown("""
         <div class='forgot-wrapper'>
             <a href='?page=reset_password' style='color:#1E90FF; text-decoration:underline;'>Forgot Password?</a>
@@ -56,19 +56,19 @@ def login():
         </div>
     """, unsafe_allow_html=True)
 
-    # === Check query param for navigation ===
-    query_params = st.query_params
-    page_param = query_params.get("page", [None])[0]
-
-    if page_param == "reset_password":
-        st.session_state.page = "reset_password"
-        st.session_state.current_page = "reset_password"
-        st.rerun()
-
-    elif page_param == "signup":
-        st.session_state.page = "signup"
-        st.session_state.current_page = "signup"
-        st.rerun()
-
     # Close login card
     st.markdown("</div>", unsafe_allow_html=True)
+
+    # === Handle link redirects ===
+    query_params = st.query_params
+    if query_params.get("page") == "reset_password":
+        st.session_state.page = "reset_password"
+        st.session_state.current_page = "reset_password"
+        st.experimental_set_query_params()  # Clears URL
+        st.rerun()
+
+    elif query_params.get("page") == "signup":
+        st.session_state.page = "signup"
+        st.session_state.current_page = "signup"
+        st.experimental_set_query_params()
+        st.rerun()
