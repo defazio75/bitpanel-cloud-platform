@@ -1,15 +1,38 @@
+print("📦 Starting controller.py")
+
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print("✅ sys.path set")
+
 import time
+print("✅ time imported")
+
 import threading
+print("✅ threading imported")
+
 import traceback
+print("✅ traceback imported")
+
 from utils.firebase_db import get_all_user_ids, load_strategy_allocations, save_portfolio_snapshot
+print("✅ firebase_db methods imported")
+
 from exchange.exchange_manager import get_exchange
+print("✅ exchange manager imported")
+
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
+print("✅ bots imported")
+
 from utils.config import get_mode
+print("✅ config imported")
+
 from utils.load_keys import load_user_api_keys
+print("✅ load_keys imported")
+
 from utils.portfolio_writer import write_portfolio_snapshot
+print("✅ portfolio_writer imported")
+
+print("🎯 All controller.py imports successful")
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
 
