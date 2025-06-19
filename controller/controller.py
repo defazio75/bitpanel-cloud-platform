@@ -59,18 +59,21 @@ def snapshot_loop(user_id, token):
 
 # === Main Controller ===
 def run_controller():
-    print("✅ Controller launched and loop is running")
-    
+    print("🔁 ENTERED run_controller")
+
+    # Load all user IDs
     try:
         user_ids = get_all_user_ids()
-        print(f"🧑‍💻 Loaded user_ids: {user_ids}")
+        print(f"👤 Found {len(user_ids)} users: {user_ids}")
     except Exception as e:
-        print(f"❌ Failed to load user_ids: {e}")
+        print(f"❌ Failed to get user IDs: {e}")
+        import traceback
         traceback.print_exc()
         return
 
     # Launch snapshot thread once per user
     for user_id in user_ids:
+        print(f"⚙️ Starting controller thread for {user_id}")
         try:
             mode = get_mode(user_id)
             print(f"🧾 Mode for {user_id}: {mode}")
