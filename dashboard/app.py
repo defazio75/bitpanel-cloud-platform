@@ -41,10 +41,11 @@ if "user" not in st.session_state:
 
 # === Determine initial mode based on API keys ===
 user_id = st.session_state.user["localId"]
-user_profile = get_user_profile(user_id, token)
-st.session_state.role = user_profile.get("role", "lead")
 token = st.session_state.token
 exchange = "kraken"
+
+user_profile = get_user_profile(user_id, token)
+st.session_state.role = user_profile.get("role", "lead")
 
 if "api_keys" not in st.session_state:
     st.session_state.api_keys = load_user_api_keys(user_id, exchange, token=token)
