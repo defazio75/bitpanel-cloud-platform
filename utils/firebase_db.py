@@ -77,19 +77,21 @@ def save_strategy_allocations(user_id, coin, config, mode, token):
         .child(coin) \
         .set(config, token)
 
-def load_strategy_allocations(user_id, token, mode, coin=None):
-    ref = firebase.database() \
-        .child("users") \
-        .child(user_id) \
-        .child(mode) \
-        .child("strategy_allocations")
-    
-    if coin:
-        data = ref.child(coin).get(token).val()
-    else:
-        data = ref.get(token).val()
+# === Get Strategy USD Allocation from Percent in Firebase ===
+def load_strategy_allocation(user_id, coin, strategy_key, token, mode):
+    # Load saved percentage allocations
+    data = load_strategy_allocations(user_id, token, mode) or {}
+    allocation_pct = data.get(coin.upper(), {}).get(strategy_key, 0.0)
 
-    return data if data else {}
+    # Load portfolio snapshot for total value
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    usd_balance = snapshot.get("usd_balance", 0.0)
+    total_value = usd_balance
+    for info in snapshot.get("coins", {}).values():
+        total_value += info.get("usd", 0.0)
+
+    allocated_usd = (allocation_pct / 100.0) * total_value
+    return round(allocated_usd, 2)
 
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
@@ -103,10 +105,15 @@ def save_portfolio_history_snapshot(user_id, snapshot, token=None, mode="paper")
     print(f"🗂️ Saving daily history snapshot to {path}")
     firebase.database().child(path).set(snapshot, token)
 
-def load_portfolio_snapshot(user_id, token, mode):
-    path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
-    result = firebase.database().child(path).get(token)
-    return result.val() if result.val() else {}
+# === Get Coin Balances from Portfolio Snapshot ===
+def load_portfolio_balances(user_id, token, mode):
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    balances = {}
+    if snapshot and "coins" in snapshot:
+        for coin, info in snapshot["coins"].items():
+            balances[coin.upper()] = info.get("balance", 0.0)
+    balances["USD"] = snapshot.get("usd_balance", 0.0)
+    return balances
 
 # === COIN STATE ===
 def save_coin_state(user_id, coin, state_data, token, mode):
@@ -147,24 +154,6 @@ def load_performance_snapshot(user_id, token, mode):
         .child("history") \
         .get(token) \
         .val()
-    return data if data else {}
-
-def load_balances(user_id, token=None, mode="paper"):
-    """
-    Load all coin balances from Firebase for the given user and mode (live or paper).
-    Returns a dictionary like: {'BTC': {'balance': 0.01, 'usd_value': 300}, ...}
-    """
-    if mode not in ["live", "paper"]:
-        raise ValueError("Mode must be either 'live' or 'paper'.")
-
-    ref = firebase.database() \
-        .child("users") \
-        .child(user_id) \
-        .child(mode) \
-        .child("portfolio_snapshot") \
-        .child("coins")
-
-    data = ref.get(token).val()
     return data if data else {}
 
 def create_default_snapshot(user_id, token, mode, usd_balance=100000.0):
