@@ -12,7 +12,7 @@ from utils.firebase_db import (
 )
 
 
-def simulate_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None):
+def simulate_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None, token=None):
     if not user_id:
         print("❌ simulate_trade: user_id is required.")
         return
@@ -20,7 +20,9 @@ def simulate_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_
     if not mode:
         mode = get_mode(user_id)
 
-    token = st.session_state.get("token")
+    if token is None:
+        print("❌ simulate_trade: token is required.")
+        return
 
     # === Load current snapshot ===
     snapshot = load_portfolio_snapshot(user_id, token, mode)
