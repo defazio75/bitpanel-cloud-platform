@@ -38,7 +38,7 @@ def save_user_profile(user_id, email, name="New User"):
     }
 
     try:
-        firebase.database().child("users").child(user_id).child("profile").set(profile_data)
+        firebase.database().child("users").child(user_id).child("profile").child("account").set(user_profile_dict, token)
         print(f"✅ User profile created for {user_id}")
     except Exception as e:
         print(f"❌ Failed to save profile for {user_id}: {e}")
@@ -50,12 +50,12 @@ def update_last_login(user_id, token):
         "last_login": last_login
     }, token)
 
-def get_user_profile(user_id=None, token=None):
+def get_user_profile(user_id, token=None):
     try:
-        result = firebase.database().child("users").child("profile").child("account").get(token)
+        result = firebase.database().child("users").child(user_id).child("profile").child("account").get(token)
         return result.val() if result.val() else {}
     except Exception as e:
-        print(f"❌ Error fetching profile: {e}")
+        print(f"❌ Error fetching profile for {user_id}: {e}")
         return {}
 
 # === API KEYS ===
