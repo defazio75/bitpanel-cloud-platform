@@ -5,6 +5,7 @@ from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances, get_prices
 from utils.firebase_db import (
     save_portfolio_snapshot,
+    load_portfolio_snapshot,
     save_coin_state,
     load_coin_state,
 )
