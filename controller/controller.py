@@ -17,17 +17,8 @@ print("✅ traceback imported")
 from utils.firebase_db import get_all_user_ids, get_user_profile, save_portfolio_snapshot
 print("✅ firebase_db methods imported")
 
-from exchange.exchange_manager import get_exchange
-print("✅ exchange manager imported")
-
 from bots import rsi_5min, rsi_1hr, bollinger, dca_matrix
 print("✅ bots imported")
-
-from utils.config import get_mode
-print("✅ config imported")
-
-from utils.load_keys import load_user_api_keys
-print("✅ load_keys imported")
 
 from utils.portfolio_writer import write_portfolio_snapshot
 print("✅ portfolio_writer imported")
@@ -35,27 +26,6 @@ print("✅ portfolio_writer imported")
 print("🎯 All controller.py imports successful")
 
 LOOP_INTERVAL = 60  # Run every 60 seconds
-
-# === Background Snapshot Thread ===
-def snapshot_loop(user_id, token):
-    try:
-        print(f"🧪 Starting snapshot thread for {user_id}")
-        mode = get_mode(user_id)
-        print(f"🔍 Snapshot mode for {user_id}: {mode}")
-        
-        while True:
-            try:
-                print(f"[SNAPSHOT] Attempting snapshot for {user_id} in {mode}")
-                write_portfolio_snapshot(user_id=user_id, mode=mode, token=token)
-                print(f"[SNAPSHOT] ✅ Snapshot complete for {user_id}")
-            except Exception as e:
-                print(f"❌ Error writing snapshot for {user_id}: {e}")
-                traceback.print_exc()
-            time.sleep(5)
-
-    except Exception as e:
-        print(f"❌ Snapshot thread crashed for {user_id}: {e}")
-        traceback.print_exc()
 
 # === Main Controller ===
 def run_controller():
@@ -77,8 +47,13 @@ def run_controller():
             exchange_name = profile.get("exchange", "kraken")
             print(f"🔁 STEP 6: Exchange for {user_id}: {exchange_name}")
 
-            # TEMP: Don't run any threads yet — just confirm logic flow
-            print(f"✅ STEP 7: Ready to launch strategies for {user_id}... (skipped for now)")
+            # Write both paper and live snapshots to Firebase
+            write_portfolio_snapshot(user_id=user_id, mode="paper", token=None)
+            write_portfolio_snapshot(user_id=user_id, mode="live", token=None)
+            print(f"📝 STEP 7: Snapshots (paper + live) saved for {user_id}")
+
+            # TEMP: Bots will be triggered later
+            print(f"✅ STEP 8: Ready to launch strategies for {user_id}... (skipped for now)")
 
         except Exception as e:
             print(f"❌ Error during setup for {user_id}: {e}")
