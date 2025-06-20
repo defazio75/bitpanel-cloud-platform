@@ -75,7 +75,7 @@ def render_coin_allocation(mode, user_id, token):
 
             # Setup session key
             if buy_key not in st.session_state:
-            st.session_state[buy_key] = 0.0
+                st.session_state[buy_key] = 0.0
 
             if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
                 st.session_state[buy_key] = round(max_buy_usd, 2)
