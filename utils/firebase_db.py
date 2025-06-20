@@ -50,9 +50,13 @@ def update_last_login(user_id, token):
         "last_login": last_login
     }, token)
 
-def load_user_profile(user_id, token):
-    result = firebase.database().child("users").child(user_id).child("profile").get(token)
-    return result.val() if result.val() else None
+def get_user_profile(user_id, token):
+    try:
+        result = firebase.database().child("users").child(user_id).child("profile").get(token)
+        return result.val() if result.val() else {}
+    except Exception as e:
+        print(f"❌ Error fetching profile for {user_id}: {e}")
+        return {}
 
 # === API KEYS ===
 def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
