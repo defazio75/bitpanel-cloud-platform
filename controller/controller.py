@@ -66,19 +66,19 @@ def run_controller():
         print(f"🔍 STEP 4: Retrieved user IDs: {user_ids}")
     except Exception as e:
         print(f"❌ STEP 4: Failed to get user IDs: {e}")
-        import traceback; traceback.print_exc()
+        traceback.print_exc()
         return
 
     for user_id in user_ids:
         print(f"👤 STEP 5: Starting setup for user {user_id}")
 
         try:
-            token = load_user_api_keys(user_id).get("token")  # or however you retrieve the token
-            profile = get_user_profile(user_id, token)
-            exchange_name = profile.get("exchange", "kraken")  # default to kraken if not set
+            exchange_name = profile.get("exchange", "kraken") 
             api_keys = profile.get("api_keys", {})
+            token = load_user_api_keys(user_id).get("token") 
+            profile = get_user_profile(user_id, token)
+
             mode = get_mode(user_id)
-            
             exchange = get_exchange(exchange_name=exchange_name, mode=mode, api_keys=api_keys)
             print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
 
