@@ -7,7 +7,7 @@ from utils.firebase_db import (
     load_portfolio_snapshot,
     load_coin_state,
     save_coin_state, 
-    load_balances
+    load_portfolio_balances
 )
 
 mode = get_mode()
