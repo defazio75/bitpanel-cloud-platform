@@ -55,7 +55,7 @@ def run_controller():
             # === Run RSI 5-Min Bot (Safe Isolation) ===
             try:
                 print(f"⚙️ STEP 8: Launching RSI 5-Min Bot for {user_id}")
-                rsi_5min.run(user_id=user_id)
+                rsi_5min.run(user_id=user_id, token=None)
                 print(f"✅ RSI 5-Min Bot completed for {user_id}")
             except Exception as bot_err:
                 print(f"❌ RSI 5-Min Bot failed for {user_id}: {bot_err}")
