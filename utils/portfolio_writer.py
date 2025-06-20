@@ -11,50 +11,36 @@ from utils.firebase_db import (
 
 print("📦 portfolio_writer module loaded")
 
-def write_portfolio_snapshot(user_id, mode=None, token=None):
+def write_portfolio_snapshot(user_id, mode="paper", token=None):
     print(f"[WRITER] Running portfolio_writer for {user_id} in {mode} mode")
-    if not mode:
-        mode = get_mode(user_id)
+
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    if not snapshot:
+        print(f"❌ No existing snapshot found for {user_id} in {mode} mode. Skipping.")
+        return
 
     prices = get_prices(user_id=user_id)
-    if mode == "live":
-        if not token:
-            print(f"⚠️ Skipping live balance pull for {user_id}: No token provided.")
-            return
-        balances = get_live_balances(user_id=user_id, token=token)
-    else:
-        # In paper mode, balances come from state files
-        balances = {}
+    total_usd = 0.0
 
-    snapshot = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "usd_balance": 0.0,
-        "coins": {},
-        "total_usd": 0.0
-    }
-
-    for coin in balances:
-        coin_upper = coin.upper()
-        price = prices.get(coin_upper, 0.0)
-        state = load_coin_state(user_id, coin, token, mode)
-        balance = 0.0
-
-        # Sum coin amounts from all strategies + HODL
-        for strat in ["HODL", "RSI_5MIN", "RSI_1HR", "BOLLINGER", "DCA MATRIX"]:
-            if strat in state:
-                balance += float(state[strat].get("amount", 0.0))
-                snapshot["usd_balance"] += float(state[strat].get("usd_held", 0.0))
-
+    for coin, data in snapshot.get("coins", {}).items():
+        balance = float(data.get("balance", 0.0))
+        price = prices.get(coin.upper(), 0.0)
         value = round(balance * price, 2)
-        snapshot["coins"][coin_upper] = {
-            "balance": round(balance, 6),
-            "price": round(price, 2),
-            "value": value
-        }
 
-        snapshot["total_usd"] += value
+        snapshot["coins"][coin]["price"] = round(price, 2)
+        snapshot["coins"][coin]["value"] = value
+        total_usd += value
 
-    snapshot["total_usd"] += snapshot["usd_balance"]
+    usd_balance = float(snapshot.get("usd_balance", 0.0))
+    snapshot["total_usd"] = round(total_usd + usd_balance, 2)
+    snapshot["timestamp"] = datetime.utcnow().isoformat()
 
-    save_portfolio_snapshot(user_id=user_id, snapshot=snapshot, token=token, mode=mode)
+    # === Save to Firebase main snapshot ===
+    save_portfolio_snapshot(user_id, snapshot, token, mode)
     print(f"✅ Portfolio snapshot updated for {user_id} — Total USD: ${snapshot['total_usd']:.2f}")
+
+    # === Check if it's 7:00 PM CST to save history snapshot ===
+    now_cst = datetime.now(pytz.timezone("US/Central"))
+    if now_cst.hour == 19 and now_cst.minute == 0:
+        save_portfolio_history_snapshot(user_id, snapshot, token, mode)
+        print("🕖 Daily portfolio snapshot saved to history.")
