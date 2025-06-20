@@ -18,6 +18,7 @@ from components.reset_password import reset_password
 from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
+from utils.firebase_db import get_user_profile
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -107,7 +108,8 @@ st.markdown(
 # === SIDEBAR ===
 with st.sidebar:
     st.title("🚀 BitPanel")
-    st.markdown(f"👤 Logged in as: **{st.session_state.user.get('name', 'User')}**")
+    user_profile = get_user_profile(user_id, token)
+    st.markdown(f"👤 Logged in as: **{user_profile.get('name', 'User')}**")
 
     if st.button("🔓 Log Out", help="End your session and return to login"):
         for key in list(st.session_state.keys()):
