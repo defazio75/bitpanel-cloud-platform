@@ -5,9 +5,9 @@ from utils.performance_logger import log_trade
 from utils.firebase_db import (
     load_strategy_allocations,
     load_portfolio_snapshot,
+    load_portfolio_balances,    
     load_coin_state,
-    save_coin_state, 
-    load_balances
+    save_coin_state
 )
 
 mode = get_mode()
@@ -17,15 +17,6 @@ else:
     from utils.trade_simulator import simulate_trade
 
 STRATEGY = "5min RSI"
-
-def load_strategy_usd(user_id, coin, strategy_key, mode, token):
-    data = load_strategy_allocations(user_id, token, mode) or {}
-    return data.get(coin.upper(), {}).get(strategy_key, 0.0)
-
-def load_balances_from_firebase(user_id, token, mode):
-    path = f"{mode}_data/balances"
-    data = firebase.database().child("users").child(user_id).child(path).get(token).val()
-    return data if data else {}
 
 def run(user_id, token, coin="BTC"):
     print(f"🟢 [RSI 5MIN] Running for user: {user_id}, Coin: {coin}")
@@ -48,7 +39,7 @@ def run(user_id, token, coin="BTC"):
     strat_state = state.get(STRATEGY, {})
 
     # === Allocation
-    allocated_usd = load_strategy_usd(user_id, coin, STRATEGY, mode, token)
+    allocated_usd = load_strategy_allocation(user_id, coin, STRATEGY, token, mode)
     print(f"💼 Allocated USD for strategy: ${allocated_usd:.2f}")
 
     if allocated_usd <= 0:
@@ -65,7 +56,7 @@ def run(user_id, token, coin="BTC"):
     # === Initialize if state is empty
     if not state:
         print("🧾 No existing state. Checking live/paper balances...")
-        balances = get_live_balances(user_id) if mode == "live" else load_balances(user_id, token, mode)
+        balances = get_live_balances(user_id) if mode == "live" else load_portfolio_balances(user_id, token, mode)
         held = balances.get(coin.upper(), 0)
         print(f"📊 Held {coin.upper()} in account: {held:.6f}")
 
