@@ -14,7 +14,7 @@ print("✅ threading imported")
 import traceback
 print("✅ traceback imported")
 
-from utils.firebase_db import get_all_user_ids, load_strategy_allocations, save_portfolio_snapshot
+from utils.firebase_db import get_all_user_ids, get_user_profile, load_strategy_allocations, save_portfolio_snapshot
 print("✅ firebase_db methods imported")
 
 from exchange.exchange_manager import get_exchange
@@ -73,7 +73,12 @@ def run_controller():
         print(f"👤 STEP 5: Starting setup for user {user_id}")
 
         try:
-            exchange = get_exchange(user_id)
+            profile = get_user_profile(user_id)
+            exchange_name = profile.get("exchange", "kraken")  # default to kraken if not set
+            api_keys = profile.get("api_keys", {})
+            mode = get_mode(user_id)
+            
+            exchange = get_exchange(exchange_name=exchange_name, mode=mode, api_keys=api_keys)
             print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
 
             strategy_config = load_strategy_allocations(user_id)
