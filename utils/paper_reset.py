@@ -17,7 +17,7 @@ def reset_paper_account(user_id):
 
     print(f"🔄 Resetting paper account for user: {user_id}...")
 
-    token = st.session_state.user["token"]
+    token = None
     mode = "paper"
     coins = ["BTC", "ETH", "XRP", "DOT", "LINK", "SOL"]
 
