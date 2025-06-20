@@ -15,7 +15,7 @@ import pandas as pd
 def get_exchange_for_user(user_id, token=None):
     api_keys = load_user_api_keys(user_id, token)
     user_exchange = api_keys.get("exchange", "kraken")
-    return get_exchange(user_exchange, mode=mode, api_keys=api_keys)
+    return get_exchange(user_exchange, mode="live", api_keys=api_keys)
 
 # === Main Execution Function ===
 def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None, token=None):
