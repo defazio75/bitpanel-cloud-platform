@@ -73,7 +73,7 @@ def run_controller():
         print(f"👤 STEP 5: Starting setup for user {user_id}")
 
         try:
-            profile = get_user_profile(user_id, token)
+            profile = get_user_profile(user_id, token=None)
             exchange_name = profile.get("exchange", "kraken")
             print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
 
