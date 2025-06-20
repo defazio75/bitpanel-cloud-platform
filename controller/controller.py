@@ -75,7 +75,7 @@ def run_controller():
         try:
             profile = get_user_profile(user_id, token=None)
             exchange_name = profile.get("exchange", "kraken")
-            print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
+            print(f"🔁 STEP 6: Exchange for {user_id}: {exchange_name}")
 
             # TEMP: Don't run any threads yet — just confirm logic flow
             print(f"✅ STEP 7: Ready to launch strategies for {user_id}... (skipped for now)")
