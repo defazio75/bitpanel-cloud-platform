@@ -91,7 +91,8 @@ def render_coin_allocation(mode, user_id, token):
                             price=coin_price,
                             mode=mode,
                             coin=selected_coin,
-                            user_id=user_id
+                            user_id=user_id,
+                            token=token
                         )
                     else:
                         execute_trade(
@@ -126,7 +127,8 @@ def render_coin_allocation(mode, user_id, token):
                             price=coin_price,
                             mode=mode,
                             coin=selected_coin,
-                            user_id=user_id
+                            user_id=user_id,
+                            token=token
                         )
                     else:
                         execute_trade(
