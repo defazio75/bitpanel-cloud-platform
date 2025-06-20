@@ -68,3 +68,20 @@ def run_controller():
         print(f"❌ STEP 4: Failed to get user IDs: {e}")
         import traceback; traceback.print_exc()
         return
+
+    for user_id in user_ids:
+        print(f"👤 STEP 5: Starting setup for user {user_id}")
+
+        try:
+            exchange = get_exchange(user_id)
+            print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
+
+            strategy_config = load_strategy_allocations(user_id)
+            print(f"🧠 STEP 7: Strategy config for {user_id}: {strategy_config}")
+
+            # TEMP: Don't run any threads yet — just confirm logic flow
+            print(f"✅ STEP 8: Ready to launch strategies for {user_id}... (skipped for now)")
+
+        except Exception as e:
+            print(f"❌ Error during setup for {user_id}: {e}")
+            traceback.print_exc()
