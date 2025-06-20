@@ -13,17 +13,16 @@ from utils.firebase_db import (
 import pandas as pd
 
 def get_exchange_for_user(user_id, token=None):
-    mode = get_mode(user_id)
     api_keys = load_user_api_keys(user_id, token)
     user_exchange = api_keys.get("exchange", "kraken")
     return get_exchange(user_exchange, mode=mode, api_keys=api_keys)
 
 # === Main Execution Function ===
-def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None):
-    if not mode:
-        mode = get_mode()
+def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_id=None, token=None):
     if not user_id:
         raise ValueError("❌ user_id is required for execute_trade.")
+
+    mode = "live"
 
     order = {
         "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
@@ -38,50 +37,6 @@ def execute_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_i
 
     print(f"📝 [{bot_name.upper()}] {action.upper()} {order['amount']} {coin} @ ${order['price']:,.2f}")
     send_live_order(order, token)
-
-# === Portfolio Snapshot Updater ===
-def update_portfolio_snapshot(order, mode, user_id, token):
-    snapshot_path = f"{mode}/balances/portfolio_snapshot.json"
-    portfolio = load_firebase_json(snapshot_path, user_id, token) or {
-        "usd_balance": 0.0,
-        "coins": {},
-        "timestamp": None,
-        "total_value": 0.0
-    }
-
-    coin = order['coin']
-    action = order['action']
-    amount = float(order['amount'])
-    price = float(order['price'])
-    usd_change = amount * price
-
-    portfolio.setdefault("coins", {})
-    coin_data = portfolio["coins"].get(coin, {"balance": 0.0, "price": price, "value": 0.0})
-    current_balance = coin_data.get("balance", 0.0)
-
-    if action == "buy":
-        if portfolio.get("usd_balance", 0) >= usd_change:
-            portfolio["usd_balance"] -= usd_change
-            current_balance += amount
-    elif action == "sell":
-        if current_balance >= amount:
-            portfolio["usd_balance"] += usd_change
-            current_balance -= amount
-
-    portfolio["coins"][coin] = {
-        "balance": round(current_balance, 8),
-        "price": price,
-        "value": round(current_balance * price, 2)
-    }
-
-    portfolio["timestamp"] = datetime.utcnow().isoformat()
-    portfolio["total_value"] = round(
-        portfolio["usd_balance"] +
-        sum(coin["balance"] * coin["price"] for coin in portfolio["coins"].values()),
-        2
-    )
-
-    save_firebase_json(snapshot_path, portfolio, user_id, token)
 
 # === Live Trade Execution (Kraken API) ===
 def send_live_order(order, token):
