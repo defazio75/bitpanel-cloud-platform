@@ -39,7 +39,7 @@ def run(user_id, token, coin="BTC"):
     strat_state = state.get(STRATEGY, {})
 
     # === Allocation
-    allocated_usd = load_strategy_allocation(user_id, coin, STRATEGY, token, mode)
+    allocated_usd = load_strategy_allocations(user_id, coin, STRATEGY, token, mode)
     print(f"💼 Allocated USD for strategy: ${allocated_usd:.2f}")
 
     if allocated_usd <= 0:
