@@ -78,7 +78,7 @@ def save_strategy_allocations(user_id, coin, config, mode, token):
         .set(config, token)
 
 # === Get Strategy USD Allocation from Percent in Firebase ===
-def load_strategy_allocation(user_id, coin, strategy_key, token, mode):
+def load_strategy_allocations(user_id, coin, strategy_key, token, mode):
     # Load saved percentage allocations
     data = load_strategy_allocations(user_id, token, mode) or {}
     allocation_pct = data.get(coin.upper(), {}).get(strategy_key, 0.0)
