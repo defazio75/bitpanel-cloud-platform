@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import pytz
 from datetime import datetime
 from utils.config import get_mode
 from utils.kraken_wrapper import get_live_balances, get_prices
