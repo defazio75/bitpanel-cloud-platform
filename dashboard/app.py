@@ -41,7 +41,8 @@ if "user" not in st.session_state:
 
 # === Determine initial mode based on API keys ===
 user_id = st.session_state.user["localId"]
-st.session_state.role = st.session_state.user.get("role", "lead")
+user_profile = get_user_profile(user_id, token)
+st.session_state.role = user_profile.get("role", "lead")
 token = st.session_state.token
 exchange = "kraken"
 
@@ -75,7 +76,7 @@ if st.session_state.mode == "live":
         st.session_state.mode = "paper"
         st.rerun()
     else:
-        role = st.session_state.role
+        role = user_profile.get("role", "lead")
         if role not in ["admin", "customer"]:
             st.warning("💳 Live mode is only available for active users. Switching to Paper mode.")
             st.session_state.mode = "paper"
@@ -117,8 +118,7 @@ with st.sidebar:
         st.success("You have been logged out.")
         st.rerun()
 
-    account = st.session_state.user
-    role = account.get("role", "lead")
+    role = user_profile.get("role", "lead")
     
     if role in ["admin", "customer"]:
         st.success("✅ Live Trading Access Enabled")
