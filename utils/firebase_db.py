@@ -95,7 +95,7 @@ def load_strategy_allocations(user_id, token, mode, coin=None):
 def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
     path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
     print(f"📤 Saving snapshot to {path}")
-    db.reference(path).set(snapshot)
+    firebase.database().child(path).set(snapshot, token)
 
 def load_portfolio_snapshot(user_id, token=None, mode="paper"):
     path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
