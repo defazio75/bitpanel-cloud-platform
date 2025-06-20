@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.firebase_db import load_user_profile
+from utils.firebase_db import get_user_profile
 from utils.firebase_auth import sign_in
 
 def login():
@@ -39,7 +39,7 @@ def login():
             user = sign_in(email, password)
             user_id = user["localId"]
             token = user["idToken"]
-            profile = load_user_profile(user_id, token) or {}
+            profile = get_user_profile(user_id, token) or {}
             account_info = profile.get("account", {})
             role = account_info.get("role", "lead")
             paid = account_info.get("paid", False)
