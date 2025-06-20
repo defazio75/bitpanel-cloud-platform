@@ -97,6 +97,12 @@ def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
     print(f"📤 Saving snapshot to {path}")
     firebase.database().child(path).set(snapshot, token)
 
+def save_portfolio_history_snapshot(user_id, snapshot, token=None, mode="paper"):
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    path = f"users/{user_id}/{mode}/balances/history/{date_str}"
+    print(f"🗂️ Saving daily history snapshot to {path}")
+    firebase.database().child(path).set(snapshot, token)
+
 def load_portfolio_snapshot(user_id, token, mode):
     path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
     result = firebase.database().child(path).get(token)
