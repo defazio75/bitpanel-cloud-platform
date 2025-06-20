@@ -73,21 +73,23 @@ def render_coin_allocation(mode, user_id, token):
         with col1:
             st.subheader("Buy")
 
-            default_buy_usd = st.session_state.get(buy_key, 0.0)
+            # Setup session key
+            if buy_key not in st.session_state:
+            st.session_state[buy_key] = 0.0
 
             if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
-                default_buy_usd = round(max_buy_usd, 2)
+                st.session_state[buy_key] = round(max_buy_usd, 2)
 
-            buy_usd_input = st.number_input(
+            st.number_input(
                 "Amount (USD)",
                 min_value=0.0,
                 max_value=max_buy_usd,
-                value=buy_usd_input,
                 step=0.01,
                 format="%.2f",
-                key=f"buy_number_input_{selected_coin}"
+                key=buy_key
             )
 
+            buy_usd_input = st.session_state[buy_key]
             coin_amt = buy_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
@@ -121,21 +123,23 @@ def render_coin_allocation(mode, user_id, token):
         with col2:
             st.subheader("Sell")
 
-            default_sell_usd = st.session_state.get(sell_key, 0.0)
+            # Setup session key
+            if sell_key not in st.session_state:
+                st.session_state[sell_key] = 0.0
 
             if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
-                sell_usd_input = round(max_sell_usd, 2)
+                st.session_state[sell_key] = round(max_sell_usd, 2)
 
-            sell_usd_input = st.number_input(
+            st.number_input(
                 "Amount (USD)",
                 min_value=0.0,
                 max_value=max_sell_usd,
-                value=sell_usd_input,
                 step=0.01,
                 format="%.2f",
-                key=f"sell_number_input_{selected_coin}"
+                key=sell_key
             )
 
+            sell_usd_input = st.session_state[sell_key]
             sell_amt = sell_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
