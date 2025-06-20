@@ -38,8 +38,14 @@ def run(user_id, token, coin="BTC"):
     state = load_coin_state(user_id, coin, token, mode) or {}
     strat_state = state.get(STRATEGY, {})
 
-    # === Allocation
-    allocated_usd = load_strategy_allocations(user_id, coin, STRATEGY, token, mode)
+    allocations = load_strategy_allocations(user_id, token, mode)
+    strategy_percent = allocations.get(coin.upper(), {}).get(STRATEGY, 0.0)
+
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    usd_balance = snapshot.get("usd_balance", 0.0)
+    total_value = usd_balance + sum(c.get("usd", 0.0) for c in snapshot.get("coins", {}).values())
+
+    allocated_usd = round(strategy_percent * total_value, 2)
     print(f"💼 Allocated USD for strategy: ${allocated_usd:.2f}")
 
     if allocated_usd <= 0:
