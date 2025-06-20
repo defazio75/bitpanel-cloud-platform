@@ -69,17 +69,20 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
 
 # === STRATEGY CONFIGURATION ===
 def save_strategy_allocations(user_id, coin, config, mode, token):
+    # Convert all percentage values to decimals
+    percent_config = {k: round(v / 100.0, 4) for k, v in config.items()}
+
     firebase.database() \
         .child("users") \
         .child(user_id) \
         .child(mode) \
         .child("strategy_allocations") \
-        .child(coin) \
-        .set(config, token)
+        .child(coin.upper()) \
+        .set(percent_config, token)
 
 # === Get Strategy USD Allocation from Percent in Firebase ===
-def load_strategy_allocations(user_id, coin, strategy_key, token, mode):
-    # Load saved percentage allocations
+def load_strategy_allocation(user_id, coin, strategy_key, token, mode):
+    # Load saved percentage allocations (already stored as decimal)
     data = load_strategy_allocations(user_id, token, mode) or {}
     allocation_pct = data.get(coin.upper(), {}).get(strategy_key, 0.0)
 
@@ -90,7 +93,7 @@ def load_strategy_allocations(user_id, coin, strategy_key, token, mode):
     for info in snapshot.get("coins", {}).values():
         total_value += info.get("usd", 0.0)
 
-    allocated_usd = (allocation_pct / 100.0) * total_value
+    allocated_usd = allocation_pct * total_value  # ✅ no extra divide
     return round(allocated_usd, 2)
 
 def load_portfolio_snapshot(user_id, token, mode):
