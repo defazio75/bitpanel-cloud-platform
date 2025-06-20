@@ -58,3 +58,8 @@ def run_controller():
         except Exception as e:
             print(f"❌ Error during setup for {user_id}: {e}")
             traceback.print_exc()
+
+if __name__ == "__main__":
+    while True:
+        run_controller()
+        time.sleep(LOOP_INTERVAL)
