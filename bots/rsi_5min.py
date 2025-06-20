@@ -20,7 +20,7 @@ STRATEGY = "5min RSI"
 
 def load_strategy_usd(user_id, coin, strategy_key, mode, token):
     data = load_strategy_allocations(user_id, token, mode) or {}
-    return data.get(coin.upper(), {}).get(strategy_key.upper(), 0.0)
+    return data.get(coin.upper(), {}).get(strategy_key, 0.0)
 
 def load_balances_from_firebase(user_id, token, mode):
     path = f"{mode}_data/balances"
