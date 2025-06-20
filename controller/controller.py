@@ -73,7 +73,8 @@ def run_controller():
         print(f"👤 STEP 5: Starting setup for user {user_id}")
 
         try:
-            profile = get_user_profile(user_id)
+            token = load_user_api_keys(user_id).get("token")  # or however you retrieve the token
+            profile = get_user_profile(user_id, token)
             exchange_name = profile.get("exchange", "kraken")  # default to kraken if not set
             api_keys = profile.get("api_keys", {})
             mode = get_mode(user_id)
