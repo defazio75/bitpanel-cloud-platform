@@ -73,8 +73,10 @@ def render_coin_allocation(mode, user_id, token):
         with col1:
             st.subheader("Buy")
 
+            default_buy_usd = st.session_state.get(buy_key, 0.0)
+
             if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
-                buy_usd_input = round(max_buy_usd, 2)
+                default_buy_usd = round(max_buy_usd, 2)
 
             buy_usd_input = st.number_input(
                 "Amount (USD)",
@@ -86,12 +88,11 @@ def render_coin_allocation(mode, user_id, token):
                 key=f"buy_number_input_{selected_coin}"
             )
 
-            st.session_state[buy_key] = buy_usd_input
-
             coin_amt = buy_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
             if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
+                st.session_state[buy_key] = buy_usd_input
                 if buy_usd_input > 0:
                     if mode == "paper":
                         simulate_trade(
@@ -120,6 +121,8 @@ def render_coin_allocation(mode, user_id, token):
         with col2:
             st.subheader("Sell")
 
+            default_sell_usd = st.session_state.get(sell_key, 0.0)
+
             if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
                 sell_usd_input = round(max_sell_usd, 2)
 
@@ -133,12 +136,11 @@ def render_coin_allocation(mode, user_id, token):
                 key=f"sell_number_input_{selected_coin}"
             )
 
-            st.session_state[sell_key] = sell_usd_input
-
             sell_amt = sell_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
             if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
+                st.session_state[sell_key] = sell_usd_input
                 if sell_amt > 0:
                     if mode == "paper":
                         simulate_trade(
