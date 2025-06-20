@@ -93,6 +93,11 @@ def load_strategy_allocations(user_id, coin, strategy_key, token, mode):
     allocated_usd = (allocation_pct / 100.0) * total_value
     return round(allocated_usd, 2)
 
+def load_portfolio_snapshot(user_id, token, mode):
+    path = f"{mode}_data/portfolio_snapshot"
+    data = firebase.database().child("users").child(user_id).child(path).get(token).val()
+    return data if data else {}
+
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
     path = f"users/{user_id}/{mode}/balances/portfolio_snapshot"
