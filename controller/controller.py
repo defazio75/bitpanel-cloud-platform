@@ -14,7 +14,7 @@ print("✅ threading imported")
 import traceback
 print("✅ traceback imported")
 
-from utils.firebase_db import get_all_user_ids, get_user_profile, load_strategy_allocations, save_portfolio_snapshot
+from utils.firebase_db import get_all_user_ids, get_user_profile, save_portfolio_snapshot
 print("✅ firebase_db methods imported")
 
 from exchange.exchange_manager import get_exchange
@@ -73,20 +73,12 @@ def run_controller():
         print(f"👤 STEP 5: Starting setup for user {user_id}")
 
         try:
-            exchange_name = "kraken"
-            api_keys = load_user_api_keys(user_id, exchange_name)
-            token = api_keys.get("token")
-
             profile = get_user_profile(user_id, token)
-            exchange_name = profile.get("exchange", "kraken") 
-            exchange = get_exchange(exchange_name=exchange_name, api_keys=api_keys)
+            exchange_name = profile.get("exchange", "kraken")
             print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
 
-            strategy_config = load_strategy_allocations(user_id)
-            print(f"🧠 STEP 7: Strategy config for {user_id}: {strategy_config}")
-
             # TEMP: Don't run any threads yet — just confirm logic flow
-            print(f"✅ STEP 8: Ready to launch strategies for {user_id}... (skipped for now)")
+            print(f"✅ STEP 7: Ready to launch strategies for {user_id}... (skipped for now)")
 
         except Exception as e:
             print(f"❌ Error during setup for {user_id}: {e}")
