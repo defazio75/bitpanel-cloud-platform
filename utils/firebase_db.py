@@ -50,12 +50,12 @@ def update_last_login(user_id, token):
         "last_login": last_login
     }, token)
 
-def get_user_profile(user_id, token=None):
+def get_user_profile(user_id=None, token=None):
     try:
-        result = firebase.database().child("users").child(user_id).child("profile").get(token)
+        result = firebase.database().child("users").child("profile").child("account").get(token)
         return result.val() if result.val() else {}
     except Exception as e:
-        print(f"❌ Error fetching profile for {user_id}: {e}")
+        print(f"❌ Error fetching profile: {e}")
         return {}
 
 # === API KEYS ===
