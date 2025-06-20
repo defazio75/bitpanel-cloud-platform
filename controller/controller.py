@@ -52,8 +52,14 @@ def run_controller():
             write_portfolio_snapshot(user_id=user_id, mode="live", token=None)
             print(f"📝 STEP 7: Snapshots (paper + live) saved for {user_id}")
 
-            # TEMP: Bots will be triggered later
-            print(f"✅ STEP 8: Ready to launch strategies for {user_id}... (skipped for now)")
+            # === Run RSI 5-Min Bot (Safe Isolation) ===
+            try:
+                print(f"⚙️ STEP 8: Launching RSI 5-Min Bot for {user_id}")
+                rsi_5min.run(user_id=user_id)
+                print(f"✅ RSI 5-Min Bot completed for {user_id}")
+            except Exception as bot_err:
+                print(f"❌ RSI 5-Min Bot failed for {user_id}: {bot_err}")
+                traceback.print_exc()
 
         except Exception as e:
             print(f"❌ Error during setup for {user_id}: {e}")
