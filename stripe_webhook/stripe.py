@@ -63,7 +63,8 @@ def stripe_webhook():
                 "stripe_customer_id": customer_id,
                 "plan": plan_name,
                 "trial_end_date": trial_timestamp
-            }
+            },
+            "profile.role": "customer"
         })
         print(f"✅ Subscription updated for {user_id}")
 
