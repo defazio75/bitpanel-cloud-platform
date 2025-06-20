@@ -76,6 +76,7 @@ def simulate_trade(bot_name, action, amount, price, mode=None, coin="BTC", user_
         amount=amount,
         price=price,
         mode=mode,
+        token=token,
         notes="Simulated trade"
     )
 
