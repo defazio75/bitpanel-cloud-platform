@@ -17,7 +17,14 @@ def write_portfolio_snapshot(user_id, mode=None, token=None):
         mode = get_mode(user_id)
 
     prices = get_prices(user_id=user_id)
-    balances = get_live_balances(user_id=user_id)
+    if mode == "live":
+        if not token:
+            print(f"⚠️ Skipping live balance pull for {user_id}: No token provided.")
+            return
+        balances = get_live_balances(user_id=user_id, token=token)
+    else:
+        # In paper mode, balances come from state files
+        balances = {}
 
     snapshot = {
         "timestamp": datetime.utcnow().isoformat(),
