@@ -79,7 +79,6 @@ def run_controller():
 
             profile = get_user_profile(user_id, token)
             exchange_name = profile.get("exchange", "kraken") 
-            mode = get_mode(user_id)
             exchange = get_exchange(exchange_name=exchange_name, api_keys=api_keys)
             print(f"🔁 STEP 6: Exchange loaded for {user_id}: {exchange.name}")
 
