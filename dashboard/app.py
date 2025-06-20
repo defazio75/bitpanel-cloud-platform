@@ -118,10 +118,10 @@ with st.sidebar:
         st.rerun()
 
     account = st.session_state.user
-    if account.get("paid", False):
-        st.success("✅ Pro Plan Active")
-    elif account.get("bypass", False):
-        st.success("✅ Tester (Bypass)")
+    role = account.get("role", "lead")
+    
+    if role in ["admin", "customer"]:
+        st.success("✅ Live Trading Access Enabled")
     else:
         st.info("💡 Live trading requires a Pro subscription")
         if st.button("🚀 Upgrade to Pro", key="upgrade_button_sidebar"):
