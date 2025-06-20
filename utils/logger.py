@@ -1,12 +1,11 @@
 from datetime import datetime
 from utils.firebase_config import firebase
 
-def log_trade_to_firebase(user_id, mode, trade):
+def log_trade_to_firebase(user_id, mode, trade, token):
     """
     Logs a single trade to Firebase under:
     users/{user_id}/{mode}/trade_logs/{YYYY-MM-DD}/{timestamp}
     """
-    token = st.session_state.user.get("token")
     date_str = datetime.now().strftime("%Y-%m-%d")
     timestamp = datetime.now().strftime("%H-%M-%S")
 
@@ -31,6 +30,7 @@ def log_trade_multi(
     amount,
     price,
     mode,
+    token,
     profit_usd=0.0,
     notes=""
 ):
@@ -47,5 +47,5 @@ def log_trade_multi(
         "notes": notes,
     }
 
-    log_trade_to_firebase(user_id, mode, trade)
+    log_trade_to_firebase(user_id, mode, trade, token)
     print(f"📝 Trade logged: {trade}")
