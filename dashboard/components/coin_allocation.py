@@ -1,6 +1,7 @@
 import sys
 import os
 import streamlit as st
+import time
 import matplotlib.pyplot as plt
 import plotly.express as px
 from utils.kraken_wrapper import get_prices, get_live_balances
@@ -14,6 +15,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 from utils.trade_simulator import simulate_trade
 from utils.trade_executor import execute_trade
 
+@st.cache_data(ttl=300)  # Cache live prices and portfolio for 5 minutes
+def get_cached_snapshot(user_id, token, mode):
+    snapshot = load_portfolio_snapshot(user_id, token, mode)
+    prices = get_prices(user_id=user_id)
+    return snapshot, prices
+
 def render_coin_allocation(mode, user_id, token):
     if not token and "token" in st.session_state:
         token = st.session_state.token
@@ -24,8 +31,7 @@ def render_coin_allocation(mode, user_id, token):
 
     st.caption(f"🛠 Mode: **{mode.upper()}**")
 
-    snapshot = load_portfolio_snapshot(user_id, token, mode)
-    prices = get_prices(user_id=user_id)
+    snapshot, prices = get_cached_snapshot(user_id, token, mode)
 
     usd_balance = snapshot.get("usd_balance", 0)
     total_value = usd_balance
