@@ -48,9 +48,6 @@ def render_coin_allocation(mode, user_id, token):
             "price": price
         }
 
-    st.metric("💼 Total Portfolio Value", f"${total_value:,.2f}")
-    st.metric("💰 Available USD", f"${usd_balance:,.2f}")
-
     SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
     for coin in SUPPORTED_COINS:
         if coin not in coins:
