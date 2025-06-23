@@ -60,31 +60,37 @@ def render_manual_trade(mode, user_id, token):
             st.write(f"Estimated: **{buy_qty} {selected_coin}**")
 
             if st.button(f"Execute Buy {selected_coin}"):
-                if buy_amount > 0:
-                    if mode == "paper":
-                        simulate_trade(
-                            bot_name="ManualTrade",
-                            action="buy",
-                            amount=buy_qty,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    else:
-                        execute_trade(
-                            bot_name="ManualTrade",
-                            action="buy",
-                            amount=buy_qty,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id
-                        )
-                    st.success(f"✅ Bought {buy_qty} {selected_coin} at ${coin_price:.2f}")
-                    st.rerun()
-
+                if buy_amount <= 0:
+                    st.error("❌ Please enter USD amount greater than 0.")
+                elif coin_price <= 0:
+                    st.error(f"❌ Invalid price for {selected_coin}. Please refresh or try again later.")
+                else:
+                    try:
+                        if mode == "paper":
+                            simulate_trade(
+                                bot_name="ManualTrade",
+                                action="buy",
+                                amount=buy_qty,
+                                price=coin_price,
+                                mode=mode,
+                                coin=selected_coin,
+                                user_id=user_id,
+                                token=token
+                            )
+                        else:
+                            execute_trade(
+                                bot_name="ManualTrade",
+                                action="buy",
+                                amount=buy_qty,
+                                price=coin_price,
+                                mode=mode,
+                                coin=selected_coin,
+                                user_id=user_id
+                            )
+                        st.success(f"✅ Bought {buy_qty:.6f} {selected_coin} at ${coin_price:.2f}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Trade failed: {e}")
         # SELL section
         with col2:
             st.subheader("Sell")
