@@ -16,6 +16,7 @@ from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
 from components.checkout import render_checkout
+from components.manual_trade import render_manual_trade
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 from utils.firebase_db import get_user_profile, load_portfolio_snapshot
@@ -242,6 +243,7 @@ with st.sidebar:
         "🧠 Strategies",
         "📜 Positions",
         "📈 Performance",
+        "💸 Manual Trade",
         "⚙️ Settings"
     ]
 
@@ -267,6 +269,9 @@ elif current_page == "📜 Positions":
 
 elif current_page == "📈 Performance":
     render_performance(mode=mode, user_id=user_id, token=token)
+
+elif page == "Manual Trade":
+    render_manual_trade(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "⚙️ Settings":
     render_settings_panel(user_id=user_id, exchange=exchange, token=token)
