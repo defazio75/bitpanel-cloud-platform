@@ -98,9 +98,14 @@ def load_strategy_allocations(user_id, token, mode):
     )
 
 def load_portfolio_snapshot(user_id, token, mode):
-    path = f"{mode}_data/portfolio_snapshot"
-    data = firebase.database().child("users").child(user_id).child(path).get(token).val()
-    return data if data else {}
+    try:
+        # This now points to /users/{user_id}/{mode}/balances/portfolio_snapshot
+        path = f"{mode}/balances/portfolio_snapshot"
+        data = firebase.database().child("users").child(user_id).child(path).get(token).val()
+        return data if data else {}
+    except Exception as e:
+        print(f"❌ Error loading portfolio snapshot for {user_id} in {mode}: {e}")
+        return {}
 
 # === PORTFOLIO SNAPSHOT ===
 def save_portfolio_snapshot(user_id, snapshot, token=None, mode="paper"):
