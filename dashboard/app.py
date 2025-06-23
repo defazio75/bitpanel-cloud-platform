@@ -270,7 +270,7 @@ elif current_page == "📜 Positions":
 elif current_page == "📈 Performance":
     render_performance(mode=mode, user_id=user_id, token=token)
 
-elif page == "Manual Trade":
+elif current_page == "💸 Manual Trade":
     render_manual_trade(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "⚙️ Settings":
