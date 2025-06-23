@@ -116,8 +116,8 @@ with st.sidebar:
     # Load snapshot from Firebase
     snapshot = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
-    total_balance = snapshot.get("total_value_usd", 0)
-    available_usd = snapshot.get("available_usd", 0)
+    total_balance = snapshot.get("total_usd", 0)
+    available_usd = snapshot.get("usd_balance", 0)
 
     # Display in sidebar
     st.sidebar.markdown("### 💰 Portfolio Summary")
