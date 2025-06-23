@@ -18,7 +18,7 @@ from components.reset_password import reset_password
 from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
-from utils.firebase_db import get_user_profile
+from utils.firebase_db import get_user_profile, load_portfolio_snapshot
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
