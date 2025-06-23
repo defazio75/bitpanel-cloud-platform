@@ -113,6 +113,17 @@ with st.sidebar:
     user_profile = get_user_profile(user_id, token)
     st.markdown(f"👤 Logged in as: **{user_profile.get('name', 'User')}**")
 
+    # Load snapshot from Firebase
+    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode)
+
+    total_balance = snapshot.get("total_value_usd", 0)
+    available_usd = snapshot.get("available_usd", 0)
+
+    # Display in sidebar
+    st.sidebar.markdown("### 💰 Portfolio Summary")
+    st.sidebar.markdown(f"**Total Portfolio:** `${total_balance:,.2f}`")
+    st.sidebar.markdown(f"**Available USD:** `${available_usd:,.2f}`")
+
     if st.button("🔓 Log Out", help="End your session and return to login"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
