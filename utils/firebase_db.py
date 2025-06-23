@@ -70,7 +70,12 @@ def save_user_api_keys(user_id, exchange, api_key, api_secret, token):
 # === STRATEGY CONFIGURATION ===
 def save_strategy_allocations(user_id, coin, config, mode, token):
     # Convert all percentage values to decimals
-    percent_config = {k: round(v / 100.0, 4) for k, v in config.items()}
+    percent_config = {}
+    for k, v in config.items():
+        if k == "assumption":
+            percent_config[k] = v
+        else:
+            percent_config[k] = round(float(v), 4) 
 
     firebase.database() \
         .child("users") \
