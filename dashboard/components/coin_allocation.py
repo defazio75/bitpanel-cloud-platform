@@ -71,13 +71,18 @@ def render_coin_allocation(mode, user_id, token):
 
         buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
         sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
-
-        # Initialize temporary input values
-        buy_usd_input = st.session_state.get(buy_key, 0.0)
-        sell_usd_input = st.session_state.get(sell_key, 0.0)
+        max_buy_trigger = f"trigger_max_buy_{selected_coin}_{mode}_{user_id}"
 
         with col1:
             st.subheader("Buy")
+
+            # Trigger Max Buy
+            if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
+                st.session_state[max_buy_trigger] = True
+                st.rerun()
+
+            # Determine initial value
+            initial_value = round(max_buy_usd, 2) if st.session_state.get(max_buy_trigger) else st.session_state.get(buy_key, 0.0)
 
             buy_usd_input = st.number_input(
                 "Amount (USD)",
@@ -85,12 +90,13 @@ def render_coin_allocation(mode, user_id, token):
                 max_value=max_buy_usd,
                 step=0.01,
                 format="%.2f",
-                key=buy_key
+                key=buy_key,
+                value=initial_value
             )
 
-            if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
-                st.session_state[buy_key] = round(max_buy_usd, 2)
-                st.rerun()
+            # Clear the max trigger flag after use
+            if max_buy_trigger in st.session_state:
+                del st.session_state[max_buy_trigger]
 
             coin_amt = buy_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
@@ -124,6 +130,10 @@ def render_coin_allocation(mode, user_id, token):
         with col2:
             st.subheader("Sell")
 
+            if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
+                st.session_state[sell_key] = round(max_sell_usd, 2)
+                st.rerun()
+
             sell_usd_input = st.number_input(
                 "Amount (USD)",
                 min_value=0.0,
@@ -132,10 +142,6 @@ def render_coin_allocation(mode, user_id, token):
                 format="%.2f",
                 key=sell_key
             )
-
-            if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
-                st.session_state[sell_key] = round(max_sell_usd, 2)
-                st.rerun()
 
             sell_amt = sell_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
