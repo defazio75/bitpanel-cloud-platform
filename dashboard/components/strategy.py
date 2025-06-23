@@ -116,13 +116,22 @@ def render_strategy_controls(mode, user_id, token):
                             else:
                                 updated.update(PRESET_ALLOCATIONS[assumption]["allocations"])
 
-                            save_strategy_allocations(user_id, coin, updated, mode, token)
+                            # Convert percent integers to decimals (0.25 instead of 25)
+                            decimal_updated = {}
+                            for k, v in updated.items():
+                                if k == "assumption":
+                                    decimal_updated[k] = v
+                                else:
+                                    decimal_updated[k] = round(float(v) / 100.0, 4)
+
+                            # Save to Firebase
+                            save_strategy_allocations(user_id, coin, decimal_updated, mode, token)
                             
                             coin_balance = portfolio_coins.get(coin, {}).get("balance", 0.0)
                             
-                            for strat, alloc in updated.items():
+                            for strat, alloc in decimal_updated.items():
                                 if strat != "assumption" and alloc > 0:
-                                    allocated_amount = round((alloc / 100) * coin_balance, 6)
+                                    allocated_amount = round(alloc * coin_balance, 6)
                                     initial_data = {
                                         "amount": allocated_amount,
                                         "usd_held": 0.0,
