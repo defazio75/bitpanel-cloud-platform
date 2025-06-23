@@ -56,7 +56,12 @@ def render_manual_trade(mode, user_id, token):
                 key="buy_amount_input"
             )
 
-            buy_qty = round(buy_amount / coin_price, 6) if coin_price > 0 else 0.0
+            # ⬇️ MOVE this inside the reactive block
+            if coin_price > 0 and buy_amount > 0:
+                buy_qty = round(buy_amount / coin_price, 6)
+            else:
+                buy_qty = 0.0
+
             st.write(f"Estimated: **{buy_qty} {selected_coin}**")
 
             if st.button(f"Execute Buy {selected_coin}"):
@@ -106,7 +111,11 @@ def render_manual_trade(mode, user_id, token):
                 key="sell_amount_input"
             )
 
-            sell_qty = round(sell_amount / coin_price, 6) if coin_price > 0 else 0.0
+            if coin_price > 0 and sell_amount > 0:
+                sell_qty = round(sell_amount / coin_price, 6)
+            else:
+                sell_qty = 0.0
+                
             st.write(f"Estimated: **{sell_qty} {selected_coin}**")
 
             if st.button(f"Execute Sell {selected_coin}"):
