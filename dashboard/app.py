@@ -114,7 +114,7 @@ with st.sidebar:
     st.markdown(f"👤 Logged in as: **{user_profile.get('name', 'User')}**")
 
     # Load snapshot from Firebase
-    snapshot = load_portfolio_snapshot(user_id=user_id, mode=mode)
+    snapshot = load_portfolio_snapshot(user_id=user_id, token=token, mode=mode)
 
     total_balance = snapshot.get("total_value_usd", 0)
     available_usd = snapshot.get("available_usd", 0)
