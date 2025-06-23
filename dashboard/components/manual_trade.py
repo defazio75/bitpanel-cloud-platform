@@ -32,7 +32,7 @@ def render_manual_trade(mode, user_id, token):
             "usd": usd_value
         }
 
-    st.markdown(f"**💵 Available USD:** `${usd_balance:,.2f}``")
+    st.markdown(f"**💵 Available USD:** `${usd_balance:,.2f}`")
 
     with st.expander("🛒 Trade Now", expanded=True):
         selected_coin = st.selectbox("Select a Coin", SUPPORTED_COINS)
@@ -91,6 +91,7 @@ def render_manual_trade(mode, user_id, token):
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Trade failed: {e}")
+
         # SELL section
         with col2:
             st.subheader("Sell")
@@ -109,27 +110,34 @@ def render_manual_trade(mode, user_id, token):
             st.write(f"Estimated: **{sell_qty} {selected_coin}**")
 
             if st.button(f"Execute Sell {selected_coin}"):
-                if sell_amount > 0:
-                    if mode == "paper":
-                        simulate_trade(
-                            bot_name="ManualTrade",
-                            action="sell",
-                            amount=sell_qty,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    else:
-                        execute_trade(
-                            bot_name="ManualTrade",
-                            action="sell",
-                            amount=sell_qty,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id
-                        )
-                    st.success(f"✅ Sold {sell_qty} {selected_coin} at ${coin_price:.2f}")
-                    st.rerun()
+                if sell_amount <= 0:
+                    st.error("❌ Please enter a valid USD amount greater than 0.")
+                elif coin_price <= 0:
+                    st.error(f"❌ Invalid price for {selected_coin}. Please refresh or try again later.")
+                else:
+                    try:
+                        if mode == "paper":
+                            simulate_trade(
+                                bot_name="ManualTrade",
+                                action="sell",
+                                amount=sell_qty,
+                                price=coin_price,
+                                mode=mode,
+                                coin=selected_coin,
+                                user_id=user_id,
+                                token=token
+                            )
+                        else:
+                            execute_trade(
+                                bot_name="ManualTrade",
+                                action="sell",
+                                amount=sell_qty,
+                                price=coin_price,
+                                mode=mode,
+                                coin=selected_coin,
+                                user_id=user_id
+                            )
+                        st.success(f"✅ Sold {sell_qty:.6f} {selected_coin} at ${coin_price:.2f}")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Trade failed: {e}")
