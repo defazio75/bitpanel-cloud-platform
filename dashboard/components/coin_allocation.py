@@ -6,11 +6,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from utils.kraken_wrapper import get_prices, get_live_balances
 from utils.config import get_mode
-from utils.firebase_db import (
-    load_coin_state,
-    save_coin_state,
-    load_portfolio_snapshot
-)
+from utils.firebase_db import load_portfolio_snapshot
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "bots")))
 from utils.trade_simulator import simulate_trade
 from utils.trade_executor import execute_trade
