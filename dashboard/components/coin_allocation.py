@@ -71,32 +71,24 @@ def render_coin_allocation(mode, user_id, token):
 
         buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
         sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
-        max_buy_trigger = f"trigger_max_buy_{selected_coin}_{mode}_{user_id}"
 
         with col1:
             st.subheader("Buy")
 
             # Trigger Max Buy
             if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
-                st.session_state[max_buy_trigger] = True
+                st.session_state[buy_key] = round(max_buy_usd, 2)
                 st.rerun()
 
-            # Determine initial value
-            initial_value = round(max_buy_usd, 2) if st.session_state.get(max_buy_trigger) else st.session_state.get(buy_key, 0.0)
-
+            # Let Streamlit manage the input naturally
             buy_usd_input = st.number_input(
                 "Amount (USD)",
                 min_value=0.0,
                 max_value=max_buy_usd,
                 step=0.01,
                 format="%.2f",
-                key=buy_key,
-                value=initial_value
+                key=buy_key
             )
-
-            # Clear the max trigger flag after use
-            if max_buy_trigger in st.session_state:
-                del st.session_state[max_buy_trigger]
 
             coin_amt = buy_usd_input / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
