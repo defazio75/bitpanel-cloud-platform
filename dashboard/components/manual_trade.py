@@ -8,7 +8,7 @@ from utils.firebase_db import load_portfolio_snapshot
 from utils.trade_simulator import simulate_trade
 from utils.trade_executor import execute_trade
 
-def render Manuel_trade(user_id, token, mode):
+def render_manual_trade(user_id, token, mode):
     if not token and "token" in st.session_state:
         token = st.session_state.token
 
