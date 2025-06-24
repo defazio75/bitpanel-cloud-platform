@@ -11,11 +11,8 @@ def render_manual_trade_checkout(mode, user_id, token):
     # Load required session data
     selected_coin = st.session_state.get("selected_coin")
     trade_action = st.session_state.get("trade_action")
-    mode = st.session_state.get("mode")
-    user_id = st.session_state.get("user_id")
-    token = st.session_state.get("token")
 
-    if not all([selected_coin, trade_action, mode, user_id, token]):
+    if not all([selected_coin, trade_action]):
         st.error("❌ Missing session data. Please start from the Manual Trade page.")
         st.stop()
 
