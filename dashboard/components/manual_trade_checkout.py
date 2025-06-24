@@ -76,5 +76,10 @@ def render_manual_trade_checkout(mode, user_id, token):
                         user_id=user_id
                     )
                 st.success(f"✅ {trade_action.title()} {est_qty} {selected_coin} @ ${coin_price:.2f} successful.")
+
+                # Redirect to Portfolio page after short pause
+                st.session_state.page = "📊 Portfolio"
+                st.rerun()
+
             except Exception as e:
                 st.error(f"❌ Trade failed: {e}")
