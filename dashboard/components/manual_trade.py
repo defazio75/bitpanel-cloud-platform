@@ -85,7 +85,7 @@ def render_manual_trade(user_id, token, mode):
                 st.session_state[buy_trigger] = False
                 st.rerun()
 
-            buy_input = st.number_input(
+            st.number_input(
                 "Amount to Buy (USD)",
                 min_value=0.0,
                 max_value=max_buy_usd,
@@ -139,7 +139,7 @@ def render_manual_trade(user_id, token, mode):
                 st.session_state[sell_trigger] = False
                 st.rerun()
 
-            sell_input = st.number_input(
+            st.number_input(
                 "Amount to Sell (USD)",
                 min_value=0.0,
                 max_value=max_sell_usd,
