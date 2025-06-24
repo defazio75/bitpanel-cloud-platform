@@ -6,8 +6,33 @@ from utils.firebase_config import firebase
 from utils.kraken_wrapper import get_live_balances, get_prices
 from firebase_admin import db
 from utils.firebase_config import db
+from google.cloud import firestore
 
 FIREBASE_BASE_URL = "https://bitpanel-967b1-default-rtdb.firebaseio.com"
+
+# Initialize Firestore client (ensure your environment is set up with credentials)
+db = firestore.Client()
+
+def get_document(doc_path: str):
+    """
+    Fetch a document from Firestore by its full path.
+
+    Args:
+        doc_path (str): Full path of the document, e.g. "users/{user_id}/live/balances/portfolio_snapshot"
+
+    Returns:
+        dict or None: Document data as dict or None if not found.
+    """
+    try:
+        doc_ref = db.document(doc_path)
+        doc_snapshot = doc_ref.get()
+        if doc_snapshot.exists:
+            return doc_snapshot.to_dict()
+        else:
+            return None
+    except Exception as e:
+        print(f"Error fetching document {doc_path}: {e}")
+        return None
 
 def get_all_user_ids():
     try:
