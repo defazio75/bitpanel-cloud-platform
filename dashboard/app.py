@@ -19,6 +19,7 @@ from components.checkout import render_checkout
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 from utils.firebase_db import get_user_profile, load_portfolio_snapshot
+from components.manual_trade_checkout import render_manual_trade_checkout
 
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -248,6 +249,11 @@ with st.sidebar:
     for page in pages:
         if st.button(page, key=f"nav_{page}"):
             st.session_state["current_page"] = page
+
+if st.session_state.get("page") == "manual_trade_checkout":
+    render_manual_trade_checkout(mode=mode, user_id=user_id, token=token)
+    st.session_state.page = None
+    st.rerun()
 
 # === Main Content Area ===
 current_page = st.session_state["current_page"]
