@@ -77,16 +77,18 @@ def render_manual_trade(user_id, token, mode):
                 st.session_state[buy_trigger] = True
                 st.rerun()
 
-            buy_input_val = st.session_state.get(buy_key, 0.0)
+            if buy_key not in st.session_state:
+                st.session_state[buy_key] = 0.0
+                
             if st.session_state[buy_trigger]:
-                buy_input_val = round(max_buy_usd, 2)
+                st.session_state[buy_key] = round(max_buy_usd, 2)
                 st.session_state[buy_trigger] = False
+                st.rerun()
 
             buy_input = st.number_input(
                 "Amount to Buy (USD)",
                 min_value=0.0,
                 max_value=max_buy_usd,
-                value=buy_input_val,
                 step=0.01,
                 format="%.2f",
                 key=buy_key
@@ -129,16 +131,18 @@ def render_manual_trade(user_id, token, mode):
                 st.session_state[sell_trigger] = True
                 st.rerun()
 
-            sell_input_val = st.session_state.get(sell_key, 0.0)
+            if sell_key not in st.session_state:
+                st.session_state[sell_key] = 0.0
+
             if st.session_state[sell_trigger]:
-                sell_input_val = round(max_sell_usd, 2)
+                st.session_state[sell_key] = round(max_sell_usd, 2)
                 st.session_state[sell_trigger] = False
+                st.rerun()
 
             sell_input = st.number_input(
                 "Amount to Sell (USD)",
                 min_value=0.0,
                 max_value=max_sell_usd,
-                value=sell_input_val,
                 step=0.01,
                 format="%.2f",
                 key=sell_key
