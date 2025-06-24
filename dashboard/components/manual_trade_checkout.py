@@ -5,7 +5,7 @@ from utils.trade_executor import execute_trade
 from utils.firebase_db import load_portfolio_snapshot
 from utils.config import get_mode
 
-def render_manual_trade_checkout():
+def render_manual_trade_checkout(mode, user_id, token):
     st.title("🧾 Confirm Trade")
 
     # Load required session data
