@@ -50,6 +50,7 @@ def render_manual_trade(mode, user_id, token):
         buy_col1, buy_col2 = st.columns([3, 1])
         
         with buy_col1:
+            buy_key = f"buy_amount_input_{selected_coin}"
             default_buy_value = max_buy if st.session_state.get("max_buy_triggered", False) else 0.0
             buy_amount = st.number_input(
                 "Amount to Buy (USD)",
@@ -58,7 +59,7 @@ def render_manual_trade(mode, user_id, token):
                 value=default_buy_value,
                 step=1.0,
                 format="%.2f",
-                key="buy_amount_input"
+                key=buy_key
             )
 
         with buy_col2:
@@ -109,6 +110,7 @@ def render_manual_trade(mode, user_id, token):
 
         sell_col1, sell_col2 = st.columns([3, 1])
         with sell_col1:
+            sell_key = f"sell_amount_input_{selected_coin}"
             default_sell_value = max_sell if st.session_state.get("max_sell_triggered", False) else 0.0
             sell_amount = st.number_input(
                 "Amount to Sell (USD)",
@@ -117,7 +119,7 @@ def render_manual_trade(mode, user_id, token):
                 value=default_sell_value,
                 step=1.0,
                 format="%.2f",
-                key="sell_amount_input"
+                key=sell_key
             )
 
         with sell_col2:
