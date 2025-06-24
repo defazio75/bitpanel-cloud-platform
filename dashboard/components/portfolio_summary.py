@@ -17,7 +17,7 @@ def calculate_live_portfolio_value(snapshot, prices):
     return round(total, 2)
 
 def render_portfolio_summary(mode, user_id, token):
-    st.title("🎯 Portfolio Summary")
+    st.title("📊 Portfolio Summary")
 
     # === Sync live balances before loading (LIVE MODE ONLY) ===
     if mode == "live":
