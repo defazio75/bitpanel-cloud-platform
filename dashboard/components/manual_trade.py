@@ -8,133 +8,97 @@ from utils.firebase_db import load_portfolio_snapshot
 from utils.trade_simulator import simulate_trade
 from utils.trade_executor import execute_trade
 
-def render_manual_trade(mode, user_id, token):
-    st.title("\U0001F4B8 Manual Trade")
-    st.caption("Manually buy or sell crypto using your available balance.")
+def render(user_id, token, mode):
+    if not token and "token" in st.session_state:
+        token = st.session_state.token
 
-    # Load balances and prices
+    st.title("🎯 Coin Allocation")
+    if mode is None:
+        mode = get_mode(user_id)
+
+    st.caption(f"🛠 Mode: **{mode.upper()}**")
+
     snapshot = load_portfolio_snapshot(user_id, token, mode)
     prices = get_prices(user_id=user_id)
 
-    usd_balance = snapshot.get("usd_balance", 0.0)
-    coin_data = snapshot.get("coins", {})
-
-    SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
+    usd_balance = snapshot.get("usd_balance", 0)
+    total_value = usd_balance
     coins = {}
 
-    for coin in SUPPORTED_COINS:
-        balance = coin_data.get(coin, {}).get("balance", 0.0)
-        price = prices.get(coin, 0.0)
+    for coin, info in snapshot.get("coins", {}).items():
+        balance = info.get("balance", 0)
+        price = prices.get(coin, 0)
         usd_value = round(balance * price, 2)
+        total_value += usd_value
         coins[coin] = {
             "balance": balance,
-            "price": price,
-            "usd": usd_value
+            "usd": usd_value,
+            "price": price
         }
 
-    st.markdown(f"**\U0001F4B5 Available USD:** `${usd_balance:,.2f}`")
-    st.markdown("### \U0001F34E Trade Now")
+    st.metric("💼 Total Portfolio Value", f"${total_value:,.2f}")
+    st.metric("💰 Available USD", f"${usd_balance:,.2f}")
 
-    col1, col2 = st.columns(2)
+    SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
+    for coin in SUPPORTED_COINS:
+        if coin not in coins:
+            coins[coin] = {
+                "balance": 0.0,
+                "usd": 0.0,
+                "price": prices.get(coin, 0.0)
+            }
 
-    # BUY SECTION
-    with col1:
-        st.subheader("Buy")
-        buy_amount_col, buy_button_col = st.columns([3, 1])
+    with st.expander("Trade", expanded=False):
+        selected_coin = st.selectbox("Select a Coin", list(coins.keys()), key=f"select_coin_{user_id}")
+        coin_info = coins[selected_coin]
+        coin_price = coin_info["price"]
 
-        with buy_amount_col:
-            buy_amount = st.number_input("Buy Amount (USD)", min_value=0.0, step=1.0, format="%.2f", key="buy_amount")
+        col1, col2 = st.columns(2)
+        max_buy_usd = float(max(usd_balance, 0.0))
+        max_sell_usd = float(max(coin_info["usd"], 0.0))
 
-        with buy_button_col:
-            if st.button("Max Buy"):
-                st.session_state.buy_amount = usd_balance
-                st.rerun()
+        buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
+        sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
 
-        buy_coin = st.selectbox("Coin to Buy", SUPPORTED_COINS, key="buy_coin")
-        buy_price = prices.get(buy_coin, 0.0)
-        buy_qty = round(st.session_state.get("buy_amount", 0.0) / buy_price, 6) if buy_price > 0 else 0.0
-        st.write(f"Estimated: **{buy_qty} {buy_coin}**")
+        if buy_key not in st.session_state:
+            st.session_state[buy_key] = 0.0
+        if sell_key not in st.session_state:
+            st.session_state[sell_key] = 0.0
 
-        if st.button(f"Execute Buy {buy_coin}", key="buy_exec"):
-            if st.session_state.buy_amount <= 0:
-                st.error("\u274c Please enter USD amount greater than 0.")
-            elif buy_price <= 0:
-                st.error(f"\u274c Invalid price for {buy_coin}. Please refresh or try again later.")
-            else:
-                try:
+        with col1:
+            st.subheader("Buy")
+            if st.button("Max (Buy)", key=f"buy_max_btn_{selected_coin}"):
+                st.session_state[buy_key] = round(max_buy_usd, 2)
+
+            st.number_input("Amount (USD)", 0.0, max_buy_usd, step=0.01, format="%.2f", key=buy_key)
+            usd_amount = st.session_state[buy_key]
+            coin_amt = usd_amount / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
+
+            if st.button(f"Buy {selected_coin}", key=f"buy_btn_{selected_coin}"):
+                if usd_amount > 0:
                     if mode == "paper":
-                        simulate_trade(
-                            bot_name="ManualTrade",
-                            action="buy",
-                            amount=buy_qty,
-                            price=buy_price,
-                            mode=mode,
-                            coin=buy_coin,
-                            user_id=user_id,
-                            token=token
-                        )
+                        simulate_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
                     else:
-                        execute_trade(
-                            bot_name="ManualTrade",
-                            action="buy",
-                            amount=buy_qty,
-                            price=buy_price,
-                            mode=mode,
-                            coin=buy_coin,
-                            user_id=user_id
-                        )
-                    st.success(f"\u2705 Bought {buy_qty:.6f} {buy_coin} at ${buy_price:.2f}")
-                except Exception as e:
-                    st.error(f"\u274c Trade failed: {e}")
+                        execute_trade(user_id, selected_coin, "buy", coin_amt, coin_price)
+                    st.success(f"✅ Bought {coin_amt:.6f} {selected_coin}")
+                    st.rerun()
 
-    # SELL SECTION
-    with col2:
-        st.subheader("Sell")
-        sell_amount_col, sell_button_col = st.columns([3, 1])
+        with col2:
+            st.subheader("Sell")
+            if st.button("Max (Sell)", key=f"sell_max_btn_{selected_coin}"):
+                st.session_state[sell_key] = round(max_sell_usd, 2)
 
-        with sell_amount_col:
-            sell_amount = st.number_input("Sell Amount (USD)", min_value=0.0, step=1.0, format="%.2f", key="sell_amount")
+            st.number_input("Amount (USD)", 0.0, max_sell_usd, step=0.01, format="%.2f", key=sell_key)
+            sell_usd = st.session_state[sell_key]
+            sell_amt = sell_usd / coin_price if coin_price > 0 else 0.0
+            st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
-        with sell_button_col:
-            sell_coin = st.session_state.get("sell_coin", "BTC")
-            coin_usd_val = coins.get(sell_coin, {}).get("usd", 0.0)
-            if st.button("Max Sell"):
-                st.session_state.sell_amount = coin_usd_val
-                st.rerun()
-
-        sell_coin = st.selectbox("Coin to Sell", SUPPORTED_COINS, key="sell_coin")
-        sell_price = prices.get(sell_coin, 0.0)
-        sell_qty = round(st.session_state.get("sell_amount", 0.0) / sell_price, 6) if sell_price > 0 else 0.0
-        st.write(f"Estimated: **{sell_qty} {sell_coin}**")
-
-        if st.button(f"Execute Sell {sell_coin}", key="sell_exec"):
-            if st.session_state.sell_amount <= 0:
-                st.error("\u274c Please enter USD amount greater than 0.")
-            elif sell_price <= 0:
-                st.error(f"\u274c Invalid price for {sell_coin}. Please refresh or try again later.")
-            else:
-                try:
+            if st.button(f"Sell {selected_coin}", key=f"sell_btn_{selected_coin}"):
+                if sell_amt > 0:
                     if mode == "paper":
-                        simulate_trade(
-                            bot_name="ManualTrade",
-                            action="sell",
-                            amount=sell_qty,
-                            price=sell_price,
-                            mode=mode,
-                            coin=sell_coin,
-                            user_id=user_id,
-                            token=token
-                        )
+                        simulate_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
                     else:
-                        execute_trade(
-                            bot_name="ManualTrade",
-                            action="sell",
-                            amount=sell_qty,
-                            price=sell_price,
-                            mode=mode,
-                            coin=sell_coin,
-                            user_id=user_id
-                        )
-                    st.success(f"\u2705 Sold {sell_qty:.6f} {sell_coin} at ${sell_price:.2f}")
-                except Exception as e:
-                    st.error(f"\u274c Trade failed: {e}")
+                        execute_trade(user_id, selected_coin, "sell", sell_amt, coin_price)
+                    st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
+                    st.rerun()
