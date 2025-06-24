@@ -12,7 +12,7 @@ def render_manual_trade(user_id, token, mode):
     if not token and "token" in st.session_state:
         token = st.session_state.token
 
-    st.title("🎯 Coin Allocation")
+    st.title("🛒 Manual Trade")
 
     if mode is None:
         mode = get_mode(user_id)
@@ -40,140 +40,26 @@ def render_manual_trade(user_id, token, mode):
     st.metric("💼 Total Portfolio Value", f"${total_value:,.2f}")
     st.metric("💰 Available USD", f"${usd_balance:,.2f}")
 
-    SUPPORTED_COINS = ["BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
-    for coin in SUPPORTED_COINS:
-        if coin not in coins:
-            coins[coin] = {
-                "balance": 0.0,
-                "usd": 0.0,
-                "price": prices.get(coin, 0.0)
-            }
+    SUPPORTED_COINS = ["No Coin Selected", "BTC", "ETH", "SOL", "XRP", "LINK", "DOT"]
 
     with st.expander("Trade", expanded=True):
-        selected_coin = st.selectbox("Select a Coin", list(coins.keys()), key=f"select_coin_{user_id}")
-        coin_info = coins[selected_coin]
-        coin_price = coin_info["price"]
+        selected_coin = st.selectbox("Select a Coin", SUPPORTED_COINS, key="manual_selected_coin")
+
+        if selected_coin == "No Coin Selected":
+            st.info("Please select a coin to continue.")
+            return
+
+        st.markdown(f"### What would you like to do with {selected_coin}?")
 
         col1, col2 = st.columns(2)
-        max_buy_usd = float(max(usd_balance, 0.0))
-        max_sell_usd = float(max(coin_info["usd"], 0.0))
-
-        # Keys
-        buy_key = f"usd_input_buy_{selected_coin}_{mode}_{user_id}"
-        sell_key = f"usd_input_sell_{selected_coin}_{mode}_{user_id}"
-        buy_trigger = f"trigger_buy_max_{selected_coin}_{mode}_{user_id}"
-        sell_trigger = f"trigger_sell_max_{selected_coin}_{mode}_{user_id}"
-
-        # Trigger init
-        if buy_trigger not in st.session_state:
-            st.session_state[buy_trigger] = False
-        if sell_trigger not in st.session_state:
-            st.session_state[sell_trigger] = False
-
         with col1:
-            st.subheader("Buy")
-
-            if st.button("Max (Buy)", key=f"max_buy_btn_{selected_coin}"):
-                st.session_state[buy_trigger] = True
-                st.rerun()
-
-            if buy_key not in st.session_state:
-                st.session_state[buy_key] = 0.0
-                
-            if st.session_state[buy_trigger]:
-                st.session_state[buy_key] = round(max_buy_usd, 2)
-                st.session_state[buy_trigger] = False
-                st.rerun()
-
-            st.number_input(
-                "Amount to Buy (USD)",
-                min_value=0.0,
-                max_value=max_buy_usd,
-                step=0.01,
-                format="%.2f",
-                key=buy_key
-            )
-
-            coin_amt = st.session_state[buy_key] / coin_price if coin_price > 0 else 0.0
-            st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
-
-            if st.button(f"Buy {selected_coin}", key=f"buy_confirm_btn_{selected_coin}"):
-                if st.session_state[buy_key] > 0:
-                    if mode == "paper":
-                        simulate_trade(
-                            bot_name="HODL",
-                            action="buy",
-                            amount=coin_amt,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    else:
-                        execute_trade(
-                            bot_name="HODL",
-                            action="buy",
-                            amount=coin_amt,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    st.success(f"✅ Bought {coin_amt:.6f} {selected_coin}")
-                    st.rerun()
+            if st.button(f"💸 Buy {selected_coin}"):
+                st.session_state["trade_action"] = "buy"
+                st.session_state["trade_coin"] = selected_coin
+                st.switch_page("dashboard/components/manual_trade_checkout.py")
 
         with col2:
-            st.subheader("Sell")
-
-            if st.button("Max (Sell)", key=f"max_sell_btn_{selected_coin}"):
-                st.session_state[sell_trigger] = True
-                st.rerun()
-
-            if sell_key not in st.session_state:
-                st.session_state[sell_key] = 0.0
-
-            if st.session_state[sell_trigger]:
-                st.session_state[sell_key] = round(max_sell_usd, 2)
-                st.session_state[sell_trigger] = False
-                st.rerun()
-
-            st.number_input(
-                "Amount to Sell (USD)",
-                min_value=0.0,
-                max_value=max_sell_usd,
-                step=0.01,
-                format="%.2f",
-                key=sell_key
-            )
-
-            sell_amt = st.session_state[sell_key] / coin_price if coin_price > 0 else 0.0
-            st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
-
-            if st.button(f"Sell {selected_coin}", key=f"sell_confirm_btn_{selected_coin}"):
-                if st.session_state[sell_key] > 0:
-                    if mode == "paper":
-                        simulate_trade(
-                            bot_name="HODL",
-                            action="sell",
-                            amount=sell_amt,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    else:
-                        execute_trade(
-                            bot_name="HODL",
-                            action="sell",
-                            amount=sell_amt,
-                            price=coin_price,
-                            mode=mode,
-                            coin=selected_coin,
-                            user_id=user_id,
-                            token=token
-                        )
-                    st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
-                    st.rerun()
+            if st.button(f"💰 Sell {selected_coin}"):
+                st.session_state["trade_action"] = "sell"
+                st.session_state["trade_coin"] = selected_coin
+                st.switch_page("dashboard/components/manual_trade_checkout.py")
