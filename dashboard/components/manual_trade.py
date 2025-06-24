@@ -94,11 +94,11 @@ def render_manual_trade(user_id, token, mode):
                 key=buy_key
             )
 
-            coin_amt = buy_input / coin_price if coin_price > 0 else 0.0
+            coin_amt = st.session_state[buy_key] / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{coin_amt:.6f} {selected_coin}**")
 
             if st.button(f"Buy {selected_coin}", key=f"buy_confirm_btn_{selected_coin}"):
-                if buy_input > 0:
+                if st.session_state[buy_key] > 0:
                     if mode == "paper":
                         simulate_trade(
                             bot_name="HODL",
@@ -148,11 +148,11 @@ def render_manual_trade(user_id, token, mode):
                 key=sell_key
             )
 
-            sell_amt = sell_input / coin_price if coin_price > 0 else 0.0
+            sell_amt = st.session_state[sell_key] / coin_price if coin_price > 0 else 0.0
             st.write(f"Equivalent: **{sell_amt:.6f} {selected_coin}**")
 
             if st.button(f"Sell {selected_coin}", key=f"sell_confirm_btn_{selected_coin}"):
-                if sell_input > 0:
+                if st.session_state[sell_key] > 0:
                     if mode == "paper":
                         simulate_trade(
                             bot_name="HODL",
