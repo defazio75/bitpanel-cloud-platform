@@ -34,7 +34,7 @@ def render_manual_trade(mode, user_id, token):
 
     st.markdown(f"**💵 Available USD:** `${usd_balance:,.2f}`")
 
-    with st.expander("🛒 Trade Now", expanded=True):
+    st.markdown("### 🛒 Trade Now")
         selected_coin = st.selectbox("Select a Coin", SUPPORTED_COINS)
         coin_price = coins[selected_coin]["price"]
         coin_balance = coins[selected_coin]["balance"]
