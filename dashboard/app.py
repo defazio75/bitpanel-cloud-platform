@@ -7,7 +7,7 @@ st.set_page_config(page_title="BitPanel Dashboard", layout="wide")
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from components.portfolio_summary import render_portfolio_summary
-from components.coin_allocation import render_coin_allocation
+from components.manual_trade import render_manual_trade
 from components.strategy import render_strategy_controls
 from components.performance import render_performance
 from components.current_positions import render_current_positions
@@ -16,7 +16,6 @@ from components.login import login
 from components.signup import signup
 from components.reset_password import reset_password
 from components.checkout import render_checkout
-from components.manual_trade import render_manual_trade
 from utils.paper_reset import reset_paper_account
 from utils.load_keys import load_user_api_keys, api_keys_exist
 from utils.firebase_db import get_user_profile, load_portfolio_snapshot
@@ -239,7 +238,6 @@ with st.sidebar:
 
     pages = [
         "📊 Portfolio",
-        "💰 Allocation",
         "🧠 Strategies",
         "📜 Positions",
         "📈 Performance",
@@ -257,9 +255,6 @@ mode = st.session_state.mode
 
 if current_page == "📊 Portfolio":
     render_portfolio_summary(mode=mode, user_id=user_id, token=token)
-
-elif current_page == "💰 Allocation":
-    render_coin_allocation(mode=mode, user_id=user_id, token=token)
 
 elif current_page == "🧠 Strategies":
     render_strategy_controls(mode=mode, user_id=user_id, token=token)
