@@ -74,7 +74,7 @@ def render_manual_trade(mode, user_id, token):
         buy_qty = round(buy_amount / coin_price, 6) if coin_price > 0 and buy_amount > 0 else 0.0
         st.write(f"Estimated: **{buy_qty} {selected_coin}**")
 
-        if st.button(f"Execute Buy {selected_coin}"):
+        if st.button(f"Execute Buy {selected_coin}", key=f"buy_button_{selected_coin}"):
             if buy_amount <= 0:
                 st.error("❌ Please enter USD amount greater than 0.")
             elif coin_price <= 0:
@@ -134,7 +134,7 @@ def render_manual_trade(mode, user_id, token):
         sell_qty = round(sell_amount / coin_price, 6) if coin_price > 0 and sell_amount > 0 else 0.0
         st.write(f"Estimated: **{sell_qty} {selected_coin}**")
 
-        if st.button(f"Execute Sell {selected_coin}"):
+        if st.button(f"Execute Sell {selected_coin}", key=f"sell_button_{selected_coin}"):
             if sell_amount <= 0:
                 st.error("❌ Please enter a valid USD amount greater than 0.")
             elif coin_price <= 0:
