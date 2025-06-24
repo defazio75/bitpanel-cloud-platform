@@ -58,19 +58,42 @@ def render_manual_trade(user_id, token, mode):
         max_buy_usd = float(max(usd_balance, 0.0))
         max_sell_usd = float(max(coin_info["usd"], 0.0))
 
-        buy_key = f"buy_usd_input_{selected_coin}_{mode}_{user_id}"
-        sell_key = f"sell_usd_input_{selected_coin}_{mode}_{user_id}"
+        # Keys
+        buy_key = f"usd_input_buy_{selected_coin}_{mode}_{user_id}"
+        sell_key = f"usd_input_sell_{selected_coin}_{mode}_{user_id}"
+        buy_trigger = f"trigger_buy_max_{selected_coin}_{mode}_{user_id}"
+        sell_trigger = f"trigger_sell_max_{selected_coin}_{mode}_{user_id}"
 
-        if buy_key not in st.session_state:
-            st.session_state[buy_key] = 0.0
-        if sell_key not in st.session_state:
-            st.session_state[sell_key] = 0.0
+        # Trigger init
+        if buy_trigger not in st.session_state:
+            st.session_state[buy_trigger] = False
+        if sell_trigger not in st.session_state:
+            st.session_state[sell_trigger] = False
+
+        # === Max (Buy) Button
+        if st.button("Max (Buy)", key=f"max_buy_btn_{selected_coin}"):
+            st.session_state[buy_trigger] = True
+            st.rerun()
+
+        # === Apply Max Buy Value
+        if buy_key not in st.session_state or st.session_state[buy_trigger]:
+            st.session_state[buy_trigger] = False
+            st.session_state[buy_key] = round(max_buy_usd, 2)
+            st.rerun()
+
+        # === Max (Sell) Button
+        if st.button("Max (Sell)", key=f"max_sell_btn_{selected_coin}"):
+            st.session_state[sell_trigger] = True
+            st.rerun()
+
+        # === Apply Max Sell Value
+        if sell_key not in st.session_state or st.session_state[sell_trigger]:
+            st.session_state[sell_trigger] = False
+            st.session_state[sell_key] = round(max_sell_usd, 2)
+            st.rerun()
 
         with col1:
             st.subheader("Buy")
-            if st.button("Max (Buy)", key=f"max_buy_btn_{selected_coin}"):
-                st.session_state[buy_key] = round(max_buy_usd, 2)
-                st.rerun
 
             buy_input = st.number_input(
                 "Amount to Buy (USD)",
@@ -110,13 +133,10 @@ def render_manual_trade(user_id, token, mode):
                             token=token
                         )
                     st.success(f"✅ Bought {coin_amt:.6f} {selected_coin}")
-                    st.rerun
+                    st.rerun()
 
         with col2:
             st.subheader("Sell")
-            if st.button("Max (Sell)", key=f"max_sell_btn_{selected_coin}"):
-                st.session_state[sell_key] = round(max_sell_usd, 2)
-                st.experimental_rerun()
 
             sell_input = st.number_input(
                 "Amount to Sell (USD)",
@@ -156,4 +176,4 @@ def render_manual_trade(user_id, token, mode):
                             token=token
                         )
                     st.success(f"✅ Sold {sell_amt:.6f} {selected_coin}")
-                    st.rerun
+                    st.rerun()
