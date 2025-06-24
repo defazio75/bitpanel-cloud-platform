@@ -47,14 +47,21 @@ def render_manual_trade(mode, user_id, token):
         st.subheader("Buy")
         max_buy = usd_balance
 
-        buy_amount = st.number_input(
-            "Amount to Buy (USD)",
-            min_value=0.0,
-            max_value=max_buy,
-            step=1.0,
-            format="%.2f",
-            key="buy_amount_input"
-        )
+        buy_col1, buy_col2 = st.columns([3, 1])
+        with buy_col1:
+            st.number_input(
+                "Amount to Buy (USD)",
+                min_value=0.0,
+                max_value=max_buy,
+                step=1.0,
+                format="%.2f",
+                key="buy_amount_input"
+            )
+            buy_amount = st.session_state.get("buy_amount_input", 0.0)
+
+        with buy_col2:
+            if st.button("Max Buy"):
+               st.session_state["buy_amount_input"] = max_buy
 
         buy_qty = round(buy_amount / coin_price, 6) if coin_price > 0 and buy_amount > 0 else 0.0
         st.write(f"Estimated: **{buy_qty} {selected_coin}**")
@@ -97,14 +104,21 @@ def render_manual_trade(mode, user_id, token):
         st.subheader("Sell")
         max_sell = coin_usd_value
 
-        sell_amount = st.number_input(
-            "Amount to Sell (USD)",
-            min_value=0.0,
-            max_value=max_sell,
-            step=1.0,
-            format="%.2f",
-            key="sell_amount_input"
-        )
+        sell_col1, sell_col2 = st.columns([3, 1])
+        with sell_col1:
+            st.number_input(
+                "Amount to Sell (USD)",
+                min_value=0.0,
+                max_value=max_sell,
+                step=1.0,
+                format="%.2f",
+                key="sell_amount_input"
+            )  
+            sell_amount = st.session_state.get("sell_amount_input", 0.0)
+
+        with sell_col2:
+            if st.button("Max Sell"):
+                st.session_state["sell_amount_input"] = max_sell
 
         sell_qty = round(sell_amount / coin_price, 6) if coin_price > 0 and sell_amount > 0 else 0.0
         st.write(f"Estimated: **{sell_qty} {selected_coin}**")
