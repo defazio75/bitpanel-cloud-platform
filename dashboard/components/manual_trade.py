@@ -70,36 +70,23 @@ def render_manual_trade(user_id, token, mode):
         if sell_trigger not in st.session_state:
             st.session_state[sell_trigger] = False
 
-        # === Max (Buy) Button
-        if st.button("Max (Buy)", key=f"max_buy_btn_{selected_coin}"):
-            st.session_state[buy_trigger] = True
-            st.rerun()
-
-        # === Apply Max Buy Value
-        if buy_key not in st.session_state or st.session_state[buy_trigger]:
-            st.session_state[buy_trigger] = False
-            st.session_state[buy_key] = round(max_buy_usd, 2)
-            st.rerun()
-
-        # === Max (Sell) Button
-        if st.button("Max (Sell)", key=f"max_sell_btn_{selected_coin}"):
-            st.session_state[sell_trigger] = True
-            st.rerun()
-
-        # === Apply Max Sell Value
-        if sell_key not in st.session_state or st.session_state[sell_trigger]:
-            st.session_state[sell_trigger] = False
-            st.session_state[sell_key] = round(max_sell_usd, 2)
-            st.rerun()
-
         with col1:
             st.subheader("Buy")
+
+            if st.button("Max (Buy)", key=f"max_buy_btn_{selected_coin}"):
+                st.session_state[buy_trigger] = True
+                st.rerun()
+
+            buy_input_val = st.session_state.get(buy_key, 0.0)
+            if st.session_state[buy_trigger]:
+                buy_input_val = round(max_buy_usd, 2)
+                st.session_state[buy_trigger] = False
 
             buy_input = st.number_input(
                 "Amount to Buy (USD)",
                 min_value=0.0,
                 max_value=max_buy_usd,
-                value=st.session_state[buy_key],
+                value=buy_input_val,
                 step=0.01,
                 format="%.2f",
                 key=buy_key
@@ -138,11 +125,20 @@ def render_manual_trade(user_id, token, mode):
         with col2:
             st.subheader("Sell")
 
+            if st.button("Max (Sell)", key=f"max_sell_btn_{selected_coin}"):
+                st.session_state[sell_trigger] = True
+                st.rerun()
+
+            sell_input_val = st.session_state.get(sell_key, 0.0)
+            if st.session_state[sell_trigger]:
+                sell_input_val = round(max_sell_usd, 2)
+                st.session_state[sell_trigger] = False
+
             sell_input = st.number_input(
                 "Amount to Sell (USD)",
                 min_value=0.0,
                 max_value=max_sell_usd,
-                value=st.session_state[sell_key],
+                value=sell_input_val,
                 step=0.01,
                 format="%.2f",
                 key=sell_key
