@@ -252,8 +252,7 @@ with st.sidebar:
 
 if st.session_state.get("page") == "manual_trade_checkout":
     render_manual_trade_checkout(mode=mode, user_id=user_id, token=token)
-    st.session_state.page = None
-    st.rerun()
+    st.stop()
 
 # === Main Content Area ===
 current_page = st.session_state["current_page"]
