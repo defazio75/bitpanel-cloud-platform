@@ -40,6 +40,11 @@ def render_manual_trade(mode, user_id, token):
     coin_balance = coins[selected_coin]["balance"]
     coin_usd_value = coins[selected_coin]["usd"]
 
+    buy_key = f"buy_amount_input_{selected_coin}"
+    sell_key = f"sell_amount_input_{selected_coin}"
+    buy_trigger_key = f"max_buy_triggered_{selected_coin}"
+    sell_trigger_key = f"max_sell_triggered_{selected_coin}"
+
     col1, col2 = st.columns(2)
 
     # BUY section
@@ -50,8 +55,7 @@ def render_manual_trade(mode, user_id, token):
         buy_col1, buy_col2 = st.columns([3, 1])
         
         with buy_col1:
-            buy_key = f"buy_amount_input_{selected_coin}"
-            default_buy_value = max_buy if st.session_state.get("max_buy_triggered", False) else 0.0
+            default_buy_value = max_buy if st.session_state.get(buy_trigger_key, False) else 0.0
             buy_amount = st.number_input(
                 "Amount to Buy (USD)",
                 min_value=0.0,
@@ -64,7 +68,7 @@ def render_manual_trade(mode, user_id, token):
 
         with buy_col2:
             if st.button("Max Buy"):
-                st.session_state["max_buy_triggered"] = True
+                st.session_state[buy_trigger_key] = True
                 st.rerun()
 
         buy_qty = round(buy_amount / coin_price, 6) if coin_price > 0 and buy_amount > 0 else 0.0
@@ -99,6 +103,7 @@ def render_manual_trade(mode, user_id, token):
                             user_id=user_id
                         )
                     st.success(f"✅ Bought {buy_qty:.6f} {selected_coin} at ${coin_price:.2f}")
+                    st.session_state[buy_trigger_key] = False
                     st.rerun()
                 except Exception as e:
                     st.error(f"❌ Trade failed: {e}")
@@ -110,8 +115,7 @@ def render_manual_trade(mode, user_id, token):
 
         sell_col1, sell_col2 = st.columns([3, 1])
         with sell_col1:
-            sell_key = f"sell_amount_input_{selected_coin}"
-            default_sell_value = max_sell if st.session_state.get("max_sell_triggered", False) else 0.0
+            default_sell_value = max_sell if st.session_state.get(sell_trigger_key, False) else 0.0
             sell_amount = st.number_input(
                 "Amount to Sell (USD)",
                 min_value=0.0,
@@ -124,7 +128,7 @@ def render_manual_trade(mode, user_id, token):
 
         with sell_col2:
             if st.button("Max Sell"):
-                st.session_state["max_sell_triggered"] = True
+                st.session_state[sell_trigger_key] = True
                 st.rerun()
 
         sell_qty = round(sell_amount / coin_price, 6) if coin_price > 0 and sell_amount > 0 else 0.0
@@ -159,6 +163,7 @@ def render_manual_trade(mode, user_id, token):
                             user_id=user_id
                         )
                     st.success(f"✅ Sold {sell_qty:.6f} {selected_coin} at ${coin_price:.2f}")
+                    st.session_state[sell_trigger_key] = False
                     st.rerun()
                 except Exception as e:
                     st.error(f"❌ Trade failed: {e}")
