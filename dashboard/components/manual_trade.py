@@ -19,10 +19,10 @@ def render_manual_trade(mode, user_id, token):
             if st.button(f"Buy {selected_coin}", key="buy_button"):
                 st.session_state.selected_coin = selected_coin
                 st.session_state.trade_action = "buy"
-                st.switch_page("components/manual_trade_checkout.py")
+                st.session_state.page = "manual_trade_checkout"
 
         with col2:
             if st.button(f"Sell {selected_coin}", key="sell_button"):
                 st.session_state.selected_coin = selected_coin
                 st.session_state.trade_action = "sell"
-                st.switch_page("components/manual_trade_checkout.py")
+                st.session_state.page = "manual_trade_checkout"
