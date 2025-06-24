@@ -4,13 +4,16 @@ from utils.firebase_config import firebase
 db = firebase.database()
 
 def initialize_user_structure(user_id, token, name, email, signup_date):
-    # Set up the user's root structure
     db.child("users").child(user_id).set({
         "profile": {
-            "name": name,
-            "email": email,
-            "signup_date": signup_date,
-            "payment_info": {}  # placeholder for future billing data
+            "account": {
+                "name": name,
+                "email": email,
+                "signup_date": signup_date,
+                "role": "user",          # default role
+                "paid": False,           # default unpaid status
+                "bypass": False          # default no bypass
+            }
         },
         "api_keys": {},  # Placeholder
         "paper": {
