@@ -1,13 +1,8 @@
-// app/dashboard/page.jsx
+// frontend/app/dashboard/page.jsx
 "use client";
 
-import React from "react";
+import PortfolioSummary from "../../src/components/PortfolioSummary";
 
-export default function Dashboard() {
-  return (
-    <div>
-      <h1>Welcome to your Dashboard</h1>
-      {/* Insert your portfolio summary components here */}
-    </div>
-  );
+export default function DashboardPage() {
+  return <PortfolioSummary mode="paper" />;
 }
