@@ -1,0 +1,38 @@
+# Web framework and ASGI server
+fastapi
+uvicorn[standard]
+
+# Firebase SDKs
+firebase-admin
+pyrebase4
+
+# Data and utilities
+pandas
+numpy
+matplotlib
+python-dateutil
+python-dotenv
+
+# HTTP client
+requests
+
+# Security
+cryptography
+
+# CORS middleware (important for frontend-backend cross-origin calls)
+starlette-cors
+
+# Task scheduling
+schedule
+
+# File system monitoring
+watchdog
+
+# Console colors (optional)
+colorama
+
+# Data serialization (optional)
+pyarrow
+
+# Gunicorn (optional for production deployments if you want to use WSGI servers)
+gunicorn

@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pandas
+numpy
+requests
+colorama
+watchdog
+pyarrow
+pyrebase4
+firebase-admin
+cryptography>=41.0
+stripe

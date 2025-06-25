@@ -1,0 +1,7 @@
+services:
+  - type: worker
+    name: bot-runner
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python controller/bot_runner.py
+    pythonVersion: 3.11.7
