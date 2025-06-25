@@ -1,5 +1,9 @@
-@import "tailwindcss";
+/* 1) Tailwind’s base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 2) Your custom CSS */
 :root {
   --background: #ffffff;
   --foreground: #171717;
