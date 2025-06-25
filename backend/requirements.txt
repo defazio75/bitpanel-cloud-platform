@@ -19,9 +19,6 @@ requests
 # Security
 cryptography
 
-# CORS middleware (important for frontend-backend cross-origin calls)
-starlette-cors
-
 # Task scheduling
 schedule
 
