@@ -1,8 +1,0 @@
-// frontend/app/performance/page.jsx
-"use client";
-
-import Performance from "../../src/components/Performance";
-
-export default function PerformancePage() {
-  return <Performance mode="paper" />;
-}
