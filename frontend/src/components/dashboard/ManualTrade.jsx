@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { getPrices, executeManualTrade } from "../utils/api";
+import { getPrices, executeManualTrade } from "@/utils/api"
 
 const SUPPORTED_COINS = ["BTC", "ETH", "SOL", "DOT", "XRP", "LINK"];
 
