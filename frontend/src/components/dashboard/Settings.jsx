@@ -8,7 +8,7 @@ import {
   getUserProfile,
   getApiKeys,
   saveApiKeys
-} from "../utils/api";
+} from "@/lib/api";
 
 const EXCHANGES = ["kraken", "binance", "coinbase"];
 
