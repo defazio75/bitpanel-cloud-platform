@@ -5,7 +5,7 @@ import {
   getPrices,
   getPerformance,
   getPositions
-} from '../utils/api';
+} from "@/lib/api";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer
 } from 'recharts';
