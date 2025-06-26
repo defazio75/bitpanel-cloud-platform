@@ -1,6 +1,6 @@
 // frontend/app/layout.jsx
 "use client";
-import "./globals.css";
+import '@/styles/globals.css';
 import React, { useState } from "react";
 import { AuthProvider } from "../src/context/AuthContext";
 import Sidebar from "../src/components/Sidebar";
