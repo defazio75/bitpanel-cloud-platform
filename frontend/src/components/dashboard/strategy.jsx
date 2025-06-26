@@ -6,7 +6,7 @@ import {
   getStrategies,
   saveStrategyAllocations,
   getPortfolioSnapshot,
-} from '../utils/api';
+} from "@/lib/api";
 
 const MARKET_ASSUMPTIONS = ["Bullish", "Neutral", "Bearish", "Custom"];
 const STRATEGIES = ["HODL", "5min RSI", "1hr RSI", "DCA Matrix", "Bollinger"];
