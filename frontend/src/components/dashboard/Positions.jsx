@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/context/AuthContext";
-import { getPositions } from '../utils/api';
+import { getPositions } from "@/lib/api";
 
 export default function Positions({ mode }) {
   const { userId, token } = useAuth();
