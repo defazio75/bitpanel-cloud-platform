@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "@/context/AuthContext";
 import { getPositions } from '../utils/api';
 
 export default function Positions({ mode }) {
