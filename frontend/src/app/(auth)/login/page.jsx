@@ -62,10 +62,8 @@ export default function LoginPage() {
             />
           </div>
           <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password">
-              <a className="text-indigo-400 hover:text-indigo-300">
+            <Link href="/forgot-password" className="text-indigo-400 hover:text-indigo-300">
                 Forgot your password?
-              </a>
             </Link>
           </div>
           <button
@@ -78,10 +76,8 @@ export default function LoginPage() {
         </form>
         <p className="mt-6 text-center text-gray-400">
           Need an account?{" "}
-          <Link href="/signup">
-            <a className="text-indigo-400 hover:text-indigo-300 font-medium">
+          <Link href="/signup" className="text-indigo-400 hover:text-indigo-300">
               Create Account
-            </a>
           </Link>
         </p>
       </div>
