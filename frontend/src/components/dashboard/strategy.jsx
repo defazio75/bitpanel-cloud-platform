@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "@/context/AuthContext";
 import {
   getStrategies,
   saveStrategyAllocations,
