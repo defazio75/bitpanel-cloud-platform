@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/context/AuthContext";
-import { getPerformance } from '../utils/api';
+import { getPerformance } from "@/lib/api";
 
 export default function PerformancePage({ mode }) {
   const { userId, token } = useAuth();
