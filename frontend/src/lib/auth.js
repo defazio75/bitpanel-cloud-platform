@@ -15,4 +15,12 @@ export async function signup(email, password) {
 }
 
 // Log in existing user
-export async function login(email, pass
+export async function login(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error('Login error:', error.message);
+    throw error;
+  }
+}
