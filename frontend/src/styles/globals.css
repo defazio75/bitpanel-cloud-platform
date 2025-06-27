@@ -4,5 +4,6 @@
 
 /* Optional: your custom CSS */
 body {
-  @apply bg-white text-gray-900;
+  background-color: #fff;
+  color: #1a202c; /* This is Tailwind's gray-900 */
 }
