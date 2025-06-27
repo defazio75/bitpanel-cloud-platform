@@ -1,7 +1,7 @@
 // frontend/app/manual-trade/page.jsx
 "use client";
 
-import ManualTrade from '@/components/ManualTrade";
+import ManualTrade from '@/components/ManualTrade';
 
 export default function ManualTradePage() {
   // You can pass mode dynamically if you lift state up later
