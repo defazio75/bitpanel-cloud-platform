@@ -1,47 +1,64 @@
-// src/components/auth/LoginForm.jsx
-
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function LoginForm({ onSubmit }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (onSubmit) {
-      onSubmit({ email, password });
+    setError('');
+    setLoading(true);
+    try {
+      await onSubmit({ email, password });
+    } catch (err) {
+      setError(err.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
-      <h2 className="text-2xl font-semibold text-center mb-6">Log In to BitPanel</h2>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="text-red-500 text-sm text-center">
+          {error}
+        </div>
+      )}
 
-      <input
-        type="email"
-        placeholder="Email"
-        className="w-full p-3 border border-gray-300 rounded"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-      />
+      <div>
+        <label className="block text-gray-700 mb-1">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full px-4 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="you@domain.com"
+        />
+      </div>
 
-      <input
-        type="password"
-        placeholder="Password"
-        className="w-full p-3 border border-gray-300 rounded"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-      />
+      <div>
+        <label className="block text-gray-700 mb-1">Password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full px-4 py-2 border rounded bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="••••••••"
+        />
+      </div>
 
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
+        disabled={loading}
+        className="w-full py-3 bg-indigo-600 text-white rounded hover:bg-indigo-500 disabled:opacity-50 transition"
       >
-        Log In
+        {loading ? 'Signing in…' : 'Log In'}
       </button>
     </form>
   );
