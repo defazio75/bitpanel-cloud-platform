@@ -5,7 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-gray-100 font-sans min-h-screen">
+      <body>
         <AuthProvider>
           {children}
         </AuthProvider>
