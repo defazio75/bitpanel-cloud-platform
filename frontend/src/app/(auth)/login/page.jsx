@@ -28,8 +28,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-gray-800 rounded-2xl shadow-lg p-8">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl">
         <h1 className="text-2xl font-bold text-white mb-6 text-center">
           Welcome to BitPanel
         </h1>
