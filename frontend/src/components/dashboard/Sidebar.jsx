@@ -1,7 +1,9 @@
+'use client'
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
-import { auth } from '../../lib/firebaseClient';
+import { auth } from '@/lib/firebaseClient'
+import { useAuth } from '@/context/AuthContext'
 
 const pages = ['Portfolio', 'Strategies', 'Positions', 'Performance', 'Manual Trade', 'Settings'];
 
