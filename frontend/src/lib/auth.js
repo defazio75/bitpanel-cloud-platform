@@ -1,6 +1,10 @@
 // src/lib/auth.js
 
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut 
+} from 'firebase/auth';
 import { auth } from './firebaseClient';
 
 // Sign up a new user
@@ -21,6 +25,16 @@ export async function login(email, password) {
     return userCredential.user;
   } catch (error) {
     console.error('Login error:', error.message);
+    throw error;
+  }
+}
+
+// Log out the current user
+export async function logout() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error('Logout error:', error.message);
     throw error;
   }
 }
