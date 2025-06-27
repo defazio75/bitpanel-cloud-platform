@@ -1,4 +1,5 @@
-"use client";
+// src/app/(auth)/login/page.jsx
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -30,42 +31,47 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">
+        <h1 className="text-4xl font-extrabold text-center mb-8 text-blue-600">
           Welcome to BitPanel
         </h1>
+
         {error && (
-          <div className="mb-4 text-red-400 text-sm text-center">
+          <div className="mb-4 text-red-500 text-sm text-center">
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-300 mb-1">Email</label>
+            <label className="block text-gray-700 mb-1">Email</label>
             <input
               type="email"
-              className="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="you@domain.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
+
           <div>
-            <label className="block text-gray-300 mb-1">Password</label>
+            <label className="block text-gray-700 mb-1">Password</label>
             <input
               type="password"
-              className="w-full px-4 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
+
           <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password" className="text-indigo-400 hover:text-indigo-300">
-                Forgot your password?
+            <Link href="/forgot-password" className="text-indigo-600 hover:text-indigo-500">
+              Forgot your password?
             </Link>
           </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -74,12 +80,13 @@ export default function LoginPage() {
             {loading ? "Signing in…" : "Log In"}
           </button>
         </form>
-        <p className="mt-6 text-center text-gray-400">
+
+        <div className="mt-6 flex justify-center text-sm text-gray-600">
           Need an account?{" "}
-          <Link href="/signup" className="text-indigo-400 hover:text-indigo-300">
-              Create Account
+          <Link href="/signup" className="text-indigo-600 hover:text-indigo-500 ml-1">
+            Create Account
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );
