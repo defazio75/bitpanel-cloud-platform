@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { onAuthStateChanged, getIdToken } from "firebase/auth";
-import { auth } from "../../lib/firebaseClient"; 
++ import { auth } from '@/lib/firebaseClient'
 
 const AuthContext = createContext({
   user: null,
