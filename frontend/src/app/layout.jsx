@@ -1,9 +1,9 @@
-// frontend/app/layout.jsx
+// src/app/layout.jsx
 "use client";
 import '@/styles/globals.css';
 import React, { useState } from "react";
-import { AuthProvider } from "../src/context/AuthContext";
-import Sidebar from "../src/components/Sidebar";
+import { AuthProvider } from '@/context/AuthContext';
+import Sidebar from '@/components/dashboard/Sidebar';
 import { usePathname, useRouter } from "next/navigation";
 
 export default function RootLayout({ children }) {
