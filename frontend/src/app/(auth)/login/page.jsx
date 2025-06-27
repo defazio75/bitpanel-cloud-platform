@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      router.push('/dashboard/portfolio-summary');
     } catch (err) {
       setError(err.message || "Failed to sign in");
     } finally {
