@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "postcss": "^8.4.24",
-    "autoprefixer": "^10.4.14", 
+    "autoprefixer": "^10.4.14",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -25,3 +25,4 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   }
+}
