@@ -1,31 +1,19 @@
-// src/app/(auth)/login/page.jsx
 'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebaseClient';
+import LoginForm from '@/components/auth/LoginForm';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
-  const [loading, setLoading]   = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/dashboard/portfolio-summary');
-    } catch (err) {
-      setError(err.message || "Failed to sign in");
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = async ({ email, password }) => {
+    // delegate to Firebase
+    await signInWithEmailAndPassword(auth, email, password);
+    router.push('/dashboard/portfolio-summary');
   };
 
   return (
@@ -35,55 +23,13 @@ export default function LoginPage() {
           Welcome to BitPanel
         </h1>
 
-        {error && (
-          <div className="mb-4 text-red-500 text-sm text-center">
-            {error}
-          </div>
-        )}
+        <LoginForm onSubmit={handleLogin} />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              className="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="you@domain.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 rounded-md border border-gray-300 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password" className="text-indigo-600 hover:text-indigo-500">
-              Forgot your password?
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-white font-semibold transition"
-          >
-            {loading ? "Signing in…" : "Log In"}
-          </button>
-        </form>
-
-        <div className="mt-6 flex justify-center text-sm text-gray-600">
-          Need an account?{" "}
-          <Link href="/signup" className="text-indigo-600 hover:text-indigo-500 ml-1">
+        <div className="mt-6 flex justify-between text-sm text-gray-600">
+          <Link href="/forgot-password" className="hover:underline">
+            Forgot Password?
+          </Link>
+          <Link href="/signup" className="hover:underline">
             Create Account
           </Link>
         </div>
