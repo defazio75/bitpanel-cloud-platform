@@ -30,7 +30,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-xl flex flex-col items-center">
         <h1 className="text-4xl font-extrabold text-center mb-8 text-blue-600">
-          Welcome to BitPanel
+          Hello Welcome to BitPanel
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4 w-full flex flex-col items-center">
           {error && (
