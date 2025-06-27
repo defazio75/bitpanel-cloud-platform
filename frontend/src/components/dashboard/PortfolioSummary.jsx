@@ -23,7 +23,7 @@ export default function PortfolioSummary({ mode }) {
   useEffect(() => {
     if (!userId) return;
     // Fetch all data
-    getPortfolioSummary({ userId, token, mode }).then(setSnapshot).catch(console.error);
+    getPortfolioSnapshot({ userId, token, mode }).then(setSnapshot);
     getPrices({ userId, token, mode }).then(setPrices).catch(console.error);
     getPerformance({ userId, token, mode }).then(setPerformance).catch(console.error);
     getPositions({ userId, token, mode }).then(setPositions).catch(console.error);
