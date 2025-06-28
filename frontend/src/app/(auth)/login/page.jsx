@@ -29,9 +29,17 @@ export default function LoginPage() {
 return (
   <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
     <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl px-8 py-10 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-        Welcome to BitPanel
-      </h1>
+      <div className="flex items-center justify-center mb-8 gap-3">
+        <img
+          src="/logo.svg"
+          alt="BitPanel Logo"
+          className="w-10 h-10"
+          style={{ objectFit: "contain" }}
+        />
+        <h1 className="text-3xl font-bold text-gray-900 text-center">
+          Welcome to BitPanel
+        </h1>
+      </div>  
       {error && (
         <div className="mb-4 text-red-500 text-sm text-center">
           {error}
